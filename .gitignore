@@ -2,3 +2,4 @@ target/
 *.iml
 .idea
 rebel.xml
+docker/webapps/ogp-harvester
