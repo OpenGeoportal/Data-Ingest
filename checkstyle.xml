@@ -70,6 +70,10 @@
     <property name="message" value="Line has trailing spaces."/>
   </module>
 
+  <!-- uses annotations to suppress audit events. .                                     -->
+  <!-- See http://checkstyle.sourceforge.net/config_filters.html#SuppressWarningsFilter -->
+  <module name="SuppressWarningsFilter" />
+
   <!-- Checks for Headers                                -->
   <!-- See http://checkstyle.sf.net/config_header.html   -->
   <!-- <module name="Header"> -->
@@ -144,7 +148,10 @@
     <module name="AvoidInlineConditionals"/>
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
-    <module name="HiddenField"/>
+    <module name="HiddenField" >
+    	<property name="ignoreSetter" value="true" />
+    	<property name="ignoreConstructorParameter" value="true" />
+    </module>
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>
     <module name="MagicNumber"/>
@@ -167,6 +174,9 @@
     <module name="TodoComment"/>
     <module name="UpperEll"/>
 
+    <!-- Maintains a set of check suppressions from @SuppressWarnings annotations            -->
+    <!-- See http://checkstyle.sourceforge.net/config_annotation.html#SuppressWarningsHolder -->
+   <module name="SuppressWarningsHolder" />
   </module>
 
 </module>
