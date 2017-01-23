@@ -63,12 +63,24 @@ public class DataSetsController {
         // 2 - check the availability of geoserver, and throw an
         // appropriated exception if its not available
         try {
+
             GeoServerRESTReader geoServerRESTReader
                 = new GeoServerRESTReader(geoserverUrl,
                 geoserverUsername, geoserverPassword);
+
+            if (!geoServerRESTReader.existGeoserver()) {
+                throw new RuntimeException("Could not connect to GeoServer " +
+                    "at: " + geoserverUrl + ". Make sure it is up and " +
+                    "running and that the connection settings are correct!");
+            }
+
             return geoServerRESTReader.getLayers();
+
         } catch (MalformedURLException e) {
             throw new RuntimeException("Malformed URL ");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
         }
     }
 
@@ -135,7 +147,6 @@ public class DataSetsController {
         } catch (RestClientException e1) {
             throw new RuntimeException("Resource not found! ");
         } catch (Exception ex) {
-
             ex.printStackTrace();
             throw new RuntimeException();
         }
