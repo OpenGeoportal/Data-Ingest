@@ -9,8 +9,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration
 public class DataIngestApplicationTests {
 
-	@Test
-	public void contextLoads() throws Exception {
- 	}
+    @Test
+    public void contextLoads() throws Exception {
+    }
 
 }

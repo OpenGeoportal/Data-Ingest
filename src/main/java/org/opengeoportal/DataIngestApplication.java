@@ -9,15 +9,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * @author Joana Simoes
  * @version 1.0
- * @since   2017-01-11
+ * @since 2017-01-11
  */
 @SpringBootApplication
 @SuppressWarnings("checkstyle:hideutilityclassconstructor")
 public class DataIngestApplication {
     /**
      * This is the main method which runs the web application.
+     *
      * @param args Unused.
-     * @exception Exception General exception
+     * @throws Exception General exception
      */
     public static void main(final String[] args) throws Exception {
         SpringApplication.run(DataIngestApplication.class, args);

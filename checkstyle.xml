@@ -72,7 +72,7 @@
 
   <!-- uses annotations to suppress audit events. .                                     -->
   <!-- See http://checkstyle.sourceforge.net/config_filters.html#SuppressWarningsFilter -->
-  <module name="SuppressWarningsFilter" />
+  <module name="SuppressWarningsFilter"/>
 
   <!-- Checks for Headers                                -->
   <!-- See http://checkstyle.sf.net/config_header.html   -->
@@ -86,7 +86,7 @@
     <!-- Checks for Javadoc comments.                     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html -->
     <module name="JavadocMethod">
-  	<property name="allowMissingThrowsTags" value="true"/>
+      <property name="allowMissingThrowsTags" value="true"/>
     </module>
     <module name="JavadocType"/>
     <module name="JavadocVariable"/>
@@ -150,9 +150,9 @@
     <module name="AvoidInlineConditionals"/>
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
-    <module name="HiddenField" >
-    	<property name="ignoreSetter" value="true" />
-    	<property name="ignoreConstructorParameter" value="true" />
+    <module name="HiddenField">
+      <property name="ignoreSetter" value="true"/>
+      <property name="ignoreConstructorParameter" value="true"/>
     </module>
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>
@@ -178,7 +178,7 @@
 
     <!-- Maintains a set of check suppressions from @SuppressWarnings annotations            -->
     <!-- See http://checkstyle.sourceforge.net/config_annotation.html#SuppressWarningsHolder -->
-   <module name="SuppressWarningsHolder" />
+    <module name="SuppressWarningsHolder"/>
   </module>
 
 </module>

@@ -25,7 +25,7 @@ import java.net.MalformedURLException;
  *
  * @author Joana Simoes
  * @version 1.0
- * @since   2017-01-13
+ * @since 2017-01-13
  */
 @SuppressWarnings("checkstyle:TodoComment")
 @Controller
@@ -51,6 +51,7 @@ public class DataSetsController {
 
     /**
      * Delivers a list of DataSets.
+     *
      * @return dataset in a RESTLayerList.
      */
     @RequestMapping(value = "/datasets", method = RequestMethod.GET)
@@ -73,8 +74,9 @@ public class DataSetsController {
 
     /**
      * Gives detailed information about one given dataset.
-     *  @param workspace the needed workspace
-     *  @param dataset the needed dataset
+     *
+     * @param workspace the needed workspace
+     * @param dataset   the needed dataset
      * @return dataset in a RESTLayerList.
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}",
@@ -82,7 +84,7 @@ public class DataSetsController {
     @ResponseBody
     public final RESTLayer getDataSetsFromWorkspace(
         @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset)  {
+        @PathVariable(value = "dataset") final String dataset) {
 
         //TODO implement this
         return null;
@@ -90,9 +92,10 @@ public class DataSetsController {
 
     /**
      * Download a ZIP file with the requested dataset.
+     *
      * @param workspace the needed workspace
-     * @param dataset the needed dataset
-     * @param response http response
+     * @param dataset   the needed dataset
+     * @param response  http response
      */
     @RequestMapping(value =
         "/workspaces/{workspace}/datasets/{dataset}/download",

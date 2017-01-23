@@ -3,3 +3,5 @@ target/
 .idea
 rebel.xml
 docker/webapps/ogp-harvester
+commands.txt
+docker/data

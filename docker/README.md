@@ -63,7 +63,7 @@ The database default credentials are:
 After it is created, the solr server is initialized with one core, called `postgis`. You can add more cores, through the web UI.
 
 Using the Services
----------------------
+------------------
 When the system is up and running, you can access the different services, using the following urls:
 
 Geoserver:
@@ -87,6 +87,38 @@ The postgres database service exposes the default port, `5432`. You may connect 
 ```bash
 psql -h localhost -p 5432 -U ogpharvester
 ```
+
+GeoServer
+---------
+Geoserver mounts its `/tmp` directory, on the host directory `./data`. This is very convenient, in order to load data into GeoServer. For instance, if you wanted to load the shapefile `boston_contours_wgs84.shp`, contained on folder `boston_contours`, you would first copy this folder to `docker/data`. Then you could create the import with:
+```bash
+curl -u admin:geoserver -XPOST -H "Content-type: application/json" -d @import.json "http://localhost:8081/geoserver/rest/imports"
+```
+If you wanted to load the data into workspace `topp`, your `import.json` would look like this:
+```json
+{
+   "import": {
+      "targetWorkspace": {
+         "workspace": {
+            "name": "topp"
+         }
+      },
+      "data": {
+        "type": "file",
+        "file": "/tmp/boston_contours/boston_contours_wgs84.shp"
+      }
+   }
+}
+```
+Then you could trigger the import with:
+```bash
+curl -u admin:geoserver -XPOST "http://localhost:8081/geoserver/rest/imports/0"
+```
+And check the results with:
+```bash
+curl -u admin:geoserver -XGET "http://localhost:8081/geoserver/rest/imports/1"
+```
+Please note that in this case, the import id is `1`, but you need to check which id returned by your first request and use that number.
 Recreating Containers
 =====================
 For recreating a multi-container system, launched with docker compose, you must stop it first. Then you can remove the containers with:

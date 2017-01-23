@@ -46,7 +46,8 @@ public class WFSClient {
 
     /**
      * Get a file from a WFS request.
-     * @param uri address of the service
+     *
+     * @param uri      address of the service
      * @param fileName name of the created file
      * @return file with the dataset
      * @throws Exception
@@ -62,10 +63,10 @@ public class WFSClient {
             System.getProperty("java.io.tmpdir") + "/" + fileName);
         FileOutputStream fos = new FileOutputStream(out);
         IOUtils.write(responseEntity.getBody(), fos);
+        String s = "fefeufheuheufh";
         return out;
 
     }
-
 
 
 }
