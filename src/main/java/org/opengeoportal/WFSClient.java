@@ -63,7 +63,6 @@ public class WFSClient {
             System.getProperty("java.io.tmpdir") + "/" + fileName);
         FileOutputStream fos = new FileOutputStream(out);
         IOUtils.write(responseEntity.getBody(), fos);
-        String s = "fefeufheuheufh";
         return out;
 
     }

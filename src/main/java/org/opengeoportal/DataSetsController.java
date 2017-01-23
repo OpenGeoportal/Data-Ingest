@@ -69,9 +69,9 @@ public class DataSetsController {
                 geoserverUsername, geoserverPassword);
 
             if (!geoServerRESTReader.existGeoserver()) {
-                throw new RuntimeException("Could not connect to GeoServer " +
-                    "at: " + geoserverUrl + ". Make sure it is up and " +
-                    "running and that the connection settings are correct!");
+                throw new RuntimeException("Could not connect to GeoServer "
+                    + "at: " + geoserverUrl + ". Make sure it is up and "
+                    + "running and that the connection settings are correct!");
             }
 
             return geoServerRESTReader.getLayers();
