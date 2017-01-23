@@ -116,7 +116,7 @@ curl -u admin:geoserver -XPOST "http://localhost:8081/geoserver/rest/imports/0"
 ```
 And check the results with:
 ```bash
-curl -u admin:geoserver -XGET "http://localhost:8081/geoserver/rest/imports/1"
+curl -u admin:geoserver -XGET "http://localhost:8081/geoserver/rest/imports/0"
 ```
 Please note that in this case, the import id is `1`, but you need to check which id returned by your first request and use that number.
 Recreating Containers
