@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.client.RestClientException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+
 
 /**
  * Creates a resource controller
@@ -64,6 +64,7 @@ public class DataSetsController {
         // appropriated exception if its not available
         try {
 
+
             GeoServerRESTReader geoServerRESTReader
                 = new GeoServerRESTReader(geoserverUrl,
                 geoserverUsername, geoserverPassword);
@@ -78,6 +79,8 @@ public class DataSetsController {
 
         } catch (MalformedURLException e) {
             throw new RuntimeException("Malformed URL ");
+        } catch (java.io.IOException io) {
+            throw new RuntimeException("I/O exception");
         } catch (Exception ex) {
             ex.printStackTrace();
             throw ex;
@@ -116,10 +119,8 @@ public class DataSetsController {
     public final void download(
         @PathVariable(value = "workspace") final String workspace,
         @PathVariable(value = "dataset") final String dataset,
-        final HttpServletResponse response) {
+        final HttpServletResponse response) throws Exception {
 
-        //TODO: verify why the wrong dataset name still triggers a
-        // (empty) download
         String uri = geoserverUrl
             + "/" + workspace
             + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
@@ -144,14 +145,11 @@ public class DataSetsController {
             org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
 
             response.flushBuffer();
-        } catch (RestClientException e1) {
-            throw new RuntimeException("Resource not found! ");
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new RuntimeException();
+            throw ex;
         }
 
     }
-
 
 }
