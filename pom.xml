@@ -34,7 +34,7 @@
     <springdatajpa.version>1.10.6.RELEASE</springdatajpa.version>
     <springdatasolr.version>2.0.6.RELEASE</springdatasolr.version>
     <geoserver-manager.version>1.7.0</geoserver-manager.version>
-    <geotools.version>16-SNAPSHOT</geotools.version>
+    <geotools.version>17-SNAPSHOT</geotools.version>
   </properties>
 
   <dependencies>
@@ -87,6 +87,12 @@
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-data</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-wkt</artifactId>
       <version>${geotools.version}</version>
     </dependency>
 

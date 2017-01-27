@@ -1,8 +1,10 @@
 package org.opengeoportal;
 
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
-import it.geosolutions.geoserver.rest.decoder.RESTLayerList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -50,37 +53,42 @@ public class DataSetsController {
     private String geoserverPassword;
 
     /**
-     * Delivers a list of DataSets.
+     * Lists data set names for all workspaces.
      *
      * @return dataset in a RESTLayerList.
      */
     @RequestMapping(value = "/datasets", method = RequestMethod.GET)
     @ResponseBody
-    public final RESTLayerList getDataSets() {
-        // TODO: Listed.
-        // 1 - Improve the response with information
-        // from GetCapabilities request.
-        // 2 - check the availability of geoserver, and throw an
-        // appropriated exception if its not available
+    public final List<String> getDataSets() throws Exception {
         try {
 
+            GeoserverDataStore gds = new GeoserverDataStore();
+            return gds.getLayerTitles(geoserverUrl);
 
-            GeoServerRESTReader geoServerRESTReader
-                = new GeoServerRESTReader(geoserverUrl,
-                geoserverUsername, geoserverPassword);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+    }
 
-            if (!geoServerRESTReader.existGeoserver()) {
-                throw new RuntimeException("Could not connect to GeoServer "
-                    + "at: " + geoserverUrl + ". Make sure it is up and "
-                    + "running and that the connection settings are correct!");
-            }
+    /**
+     * Lists data sets names for a given workspace.
+     *
+     * @param workspace the required datavset
+     * @return String datasets list of datasets.
+     */
+    @RequestMapping(value = "/workspaces/{workspace}/datasets",
+        method = RequestMethod.GET)
+    @ResponseBody
+    public final List<String> getDataSetsForWorkspace(
+        @PathVariable(value = "workspace") final String workspace)
+        throws Exception {
 
-            return geoServerRESTReader.getLayers();
+        try {
 
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Malformed URL ");
-        } catch (java.io.IOException io) {
-            throw new RuntimeException("I/O exception");
+            GeoserverDataStore gds = new GeoserverDataStore();
+            return gds.getLayerTitles(geoserverUrl, workspace);
+
         } catch (Exception ex) {
             ex.printStackTrace();
             throw ex;
@@ -90,19 +98,28 @@ public class DataSetsController {
     /**
      * Gives detailed information about one given dataset.
      *
-     * @param workspace the needed workspace
-     * @param dataset   the needed dataset
-     * @return dataset in a RESTLayerList.
+     * @param workspace given workspace
+     * @param dataset   given dataset
+     * @return String dataset info, as a set of properties.
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}",
         method = RequestMethod.GET)
     @ResponseBody
-    public final RESTLayer getDataSetsFromWorkspace(
+    public final HashMap<String, String> getDataSet(
         @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset) {
+        @PathVariable(value = "dataset") final String dataset) throws
+        Exception {
 
-        //TODO implement this
-        return null;
+        try {
+
+            GeoserverDataStore gds = new GeoserverDataStore();
+            return gds.getLayerInfo(geoserverUrl, workspace, dataset);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+
     }
 
     /**
@@ -111,6 +128,7 @@ public class DataSetsController {
      * @param workspace the needed workspace
      * @param dataset   the needed dataset
      * @param response  http response
+     * @throws Exception
      */
     @RequestMapping(value =
         "/workspaces/{workspace}/datasets/{dataset}/download",
@@ -134,9 +152,13 @@ public class DataSetsController {
             File file = client.getFile(uri, fileName);
 
             response.setContentType("application/force-download");
-            response.addHeader("Content-Length", Long.toString(file.length()));
-            response.setHeader("Content-Transfer-Encoding", "binary");
-            response.setHeader("Content-Disposition", "attachment; filename=\""
+            response.addHeader("Content-Length",
+                Long.toString(file.length()));
+            response.setHeader("Content-Transfer-Encoding",
+                "binary");
+            response.setHeader("Content-Disposition", "attachment;"
+                +
+                " filename=\""
                 + fileName);
 
             // get your file as InputStream
@@ -152,4 +174,42 @@ public class DataSetsController {
 
     }
 
+    /**
+     * Deletes a given dataset. It first unpublishes the layer and then removes
+     * the datastore. The underlying dataset is not purged.
+     * @param workspace given workspace
+     * @param dataset given dataset
+     * @throws Exception
+     */
+    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}",
+        method = RequestMethod.DELETE)
+    @ResponseBody
+    public final void deleteDataSet(
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset)
+        throws Exception {
+
+        GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
+            geoserverUsername, geoserverPassword);
+
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(
+            geoserverUrl, geoserverUsername, geoserverPassword);
+
+        RESTLayer layer = reader.getLayer(workspace, dataset);
+        RESTFeatureType featureType = reader.getFeatureType(layer);
+        RESTDataStore data = reader.getDatastore(featureType);
+
+        //Unpublish feature type
+        if (!publisher.unpublishFeatureType(workspace, data.getName(),
+            dataset)) {
+            throw new Exception("Could not unpublish featuretype " + dataset
+                + " on store " + data.getName());
+        }
+        //Remove data store
+        if (!publisher.removeDatastore(workspace,
+            data.getName(), true)) {
+            throw new Exception("Could not remove store " + data.getName());
+        }
+        publisher.reload();
+    }
 }
