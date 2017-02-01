@@ -212,4 +212,22 @@ public class DataSetsController {
         }
         publisher.reload();
     }
+
+    /**
+     * Uploads a given dataset.
+     * @param workspace given workspace
+     * @param dataset given dataset
+     * @throws Exception
+     */
+    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}",
+        method = RequestMethod.POST)
+    @ResponseBody
+    public final void uploadDataSet(
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset)
+        throws Exception {
+
+        //TODO
+    }
+
 }
