@@ -8,18 +8,22 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletResponse;
 
 import org.opengeoportal.dataingest.download.LocalDownloadService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+
 
 
 /**
@@ -53,6 +57,9 @@ public class DataSetsController {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
+    
+    @Autowired
+    private LocalDownloadService localDownloadService;
 
     /**
      * Lists data set names for all workspaces.
@@ -177,7 +184,7 @@ public class DataSetsController {
     }
 
     /**
-     * Deletes a given dataset. It first unpublishes the layer and then removes
+     * Deletes a given dataset. It just unpublishes the layer leaving intact
      * the datastore. The underlying dataset is not purged.
      * @param workspace given workspace
      * @param dataset given dataset
@@ -206,11 +213,6 @@ public class DataSetsController {
             dataset)) {
             throw new Exception("Could not unpublish featuretype " + dataset
                 + " on store " + data.getName());
-        }
-        //Remove data store
-        if (!publisher.removeDatastore(workspace,
-            data.getName(), true)) {
-            throw new Exception("Could not remove store " + data.getName());
         }
         publisher.reload();
     }
@@ -249,8 +251,11 @@ public class DataSetsController {
         @PathVariable(value = "dataset") final String dataset,
         final HttpServletResponse response) throws Exception {
         System.out.println("Inizio.");
-        LocalDownloadService localDownloadService = new LocalDownloadService();
-        localDownloadService.getFile(workspace, dataset);
+        try {
+            localDownloadService.getFile(workspace, dataset);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println("Fine.");
     }
 
