@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 
 
 /**
@@ -59,7 +58,7 @@ public class DataSetsController {
      */
     @RequestMapping(value = "/datasets", method = RequestMethod.GET)
     @ResponseBody
-    public final List<String> getDataSets() throws Exception {
+    public final HashMap<String, String> getDataSets() throws Exception {
         try {
 
             GeoserverDataStore gds = new GeoserverDataStore();
@@ -80,7 +79,7 @@ public class DataSetsController {
     @RequestMapping(value = "/workspaces/{workspace}/datasets",
         method = RequestMethod.GET)
     @ResponseBody
-    public final List<String> getDataSetsForWorkspace(
+    public final HashMap<String, String> getDataSetsForWorkspace(
         @PathVariable(value = "workspace") final String workspace)
         throws Exception {
 
