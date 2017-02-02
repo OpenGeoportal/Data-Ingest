@@ -54,7 +54,7 @@ public class GeoserverDataStoreTest {
         GeoserverDataStore gds = new GeoserverDataStore();
         testDataStore = gds.createDataStore(uri);
 
-        assertEquals(mockupDataStore, testDataStore);
+        assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
 
 
     }
