@@ -8,9 +8,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,26 +57,27 @@ public class GeoserverDataStore {
     }
 
     /**
-     * Lists layer titles, for a given data store.
+     * Lists layer names and titles, for a given data store.
      * @param data data store
-     * @return layer titles as string list
+     * @return layer type names and titles as a hash table
      * @throws Exception
      */
-    public final List<String> getTitlesForDataStore(final WFSDataStore data)
+    public final HashMap<String, String>
+    getTitlesForDataStore(final WFSDataStore data)
         throws Exception {
 
         try {
-            List<String> layerNames = new ArrayList<String>();
+            HashMap<String, String> hLayer = new HashMap<String, String>();
             String[] typeNames = data.getTypeNames();
 
             for (String typeName : typeNames) {
                 FeatureSource<SimpleFeatureType, SimpleFeature>
                     featureSource = data.getFeatureSource(typeName);
                 ResourceInfo resourceInfo = featureSource.getInfo();
-                layerNames.add(resourceInfo
+                hLayer.put(resourceInfo.getName(), resourceInfo
                     .getTitle());
             }
-            return layerNames;
+            return hLayer;
         } catch (IOException io) {
             throw new Exception("Could not read featuretype");
         } catch (Exception ex) {
@@ -90,15 +89,14 @@ public class GeoserverDataStore {
     /**
      * Lists layer titles for all workspaces.
      * @param uri geoserver url
-     * @return layer titles as string list
+     * @return layer type names and titles as a hash table
      * @throws Exception
      */
-    public final List<String> getLayerTitles(final String uri) throws
+    public final HashMap<String, String> getLayerTitles(final String uri) throws
         Exception {
 
         try {
             WFSDataStore data = createDataStore(uri);
-            List<String> layerNames = new ArrayList<String>();
             return getTitlesForDataStore(data);
         } catch (Exception ex) {
             throw ex;
@@ -109,16 +107,16 @@ public class GeoserverDataStore {
      * Lists layer titles for a given workspace.
      * @param uri geoserver url
      * @param workspace given workspace
-     * @return layer titles as string list
+     * @return layer names and titles as a hash table
      * @throws Exception
      */
-    public final List<String> getLayerTitles(final String uri, final String
+    public final HashMap<String, String>
+    getLayerTitles(final String uri, final String
         workspace) throws
         Exception {
 
         try {
             WFSDataStore data = createDataStore(uri + "/" + workspace);
-            List<String> layerNames = new ArrayList<String>();
             return getTitlesForDataStore(data);
         } catch (Exception ex) {
             throw ex;
@@ -147,6 +145,7 @@ public class GeoserverDataStore {
 
         try {
             //Example properties
+            layerProps.put("name", resourceInfo.getName()); // typename
             layerProps.put("title", resourceInfo.getTitle());
             layerProps.put("description", resourceInfo.getDescription());
             layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());

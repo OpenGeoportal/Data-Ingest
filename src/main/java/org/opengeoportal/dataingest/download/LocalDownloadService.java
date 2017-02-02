@@ -3,29 +3,20 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import javax.jms.ConnectionFactory;
-
-import org.opengeoportal.DataIngestApplication;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
-import org.springframework.boot.test.SpringApplicationContextLoader;
-import org.springframework.context.annotation.Bean;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
-import org.springframework.jms.support.converter.MessageConverter;
-import org.springframework.jms.support.converter.MessageType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
-
-@ContextConfiguration(classes = DataIngestApplication.class, loader = SpringApplicationContextLoader.class)
+@Component
 public class LocalDownloadService {
     
-        @Autowired(required = false)
-        private JmsTemplate jmsTemplate;
         
+        @Autowired
+        private ApplicationContext context;
+        
+
         private boolean isFilePresent(String workspace, String dataset) {
             
             return false;
@@ -37,6 +28,7 @@ public class LocalDownloadService {
         }
         
         private void getFileFromRemote(String workspace, String dataset) {
+            JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
             jmsTemplate.convertAndSend("fileRequestsQueue", new DownloadRequest(workspace,dataset));
         }
         
@@ -73,22 +65,7 @@ public class LocalDownloadService {
            this.getFileFromRemote(workspace, dataset);
         }
         
-        @Bean // Serialize message content to json
-        private MessageConverter jacksonJmsMessageConverter() {
-            MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-            converter.setTargetType(MessageType.TEXT);
-            converter.setTypeIdPropertyName("_type");
-            return converter;
-        }
         
-        @Bean
-        private JmsListenerContainerFactory<?> downloadRequestFactory(ConnectionFactory connectionFactory,
-                                                        DefaultJmsListenerContainerFactoryConfigurer configurer) {
-            DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-            // This provides all boot's default to this factory, including the message converter
-            configurer.configure(factory, connectionFactory);
-            return factory;
-        }
 
 }
 
