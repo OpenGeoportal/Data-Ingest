@@ -174,7 +174,7 @@ public class DataSetsController {
     }
 
     /**
-     * Deletes a given dataset. It first unpublishes the layer and then removes
+     * Deletes a given dataset. It just unpublishes the layer leaving intact
      * the datastore. The underlying dataset is not purged.
      * @param workspace given workspace
      * @param dataset given dataset
@@ -203,11 +203,6 @@ public class DataSetsController {
             dataset)) {
             throw new Exception("Could not unpublish featuretype " + dataset
                 + " on store " + data.getName());
-        }
-        //Remove data store
-        if (!publisher.removeDatastore(workspace,
-            data.getName(), true)) {
-            throw new Exception("Could not remove store " + data.getName());
         }
         publisher.reload();
     }
