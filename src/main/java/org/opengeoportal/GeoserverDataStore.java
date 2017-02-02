@@ -8,9 +8,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,7 +59,7 @@ public class GeoserverDataStore {
     /**
      * Lists layer names and titles, for a given data store.
      * @param data data store
-     * @return layer names and titles as a hash table
+     * @return layer type names and titles as a hash table
      * @throws Exception
      */
     public final HashMap<String, String> getTitlesForDataStore(final WFSDataStore data)
@@ -75,7 +73,7 @@ public class GeoserverDataStore {
                 FeatureSource<SimpleFeatureType, SimpleFeature>
                     featureSource = data.getFeatureSource(typeName);
                 ResourceInfo resourceInfo = featureSource.getInfo();
-                hLayer.put(typeName, resourceInfo
+                hLayer.put(resourceInfo.getName(), resourceInfo
                     .getTitle());
             }
             return hLayer;
@@ -90,7 +88,7 @@ public class GeoserverDataStore {
     /**
      * Lists layer titles for all workspaces.
      * @param uri geoserver url
-     * @return layer names and titles as a hash table
+     * @return layer type names and titles as a hash table
      * @throws Exception
      */
     public final HashMap<String, String> getLayerTitles(final String uri) throws
@@ -98,7 +96,6 @@ public class GeoserverDataStore {
 
         try {
             WFSDataStore data = createDataStore(uri);
-            List<String> layerNames = new ArrayList<String>();
             return getTitlesForDataStore(data);
         } catch (Exception ex) {
             throw ex;
@@ -118,7 +115,6 @@ public class GeoserverDataStore {
 
         try {
             WFSDataStore data = createDataStore(uri + "/" + workspace);
-            List<String> layerNames = new ArrayList<String>();
             return getTitlesForDataStore(data);
         } catch (Exception ex) {
             throw ex;
@@ -147,6 +143,7 @@ public class GeoserverDataStore {
 
         try {
             //Example properties
+            layerProps.put("name", resourceInfo.getName());// typename
             layerProps.put("title", resourceInfo.getTitle());
             layerProps.put("description", resourceInfo.getDescription());
             layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());
