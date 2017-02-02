@@ -25,3 +25,20 @@ mvn clean install  -Drelax
 The [docker](./docker) folder contains an orchestration with the complete service stack for a development environment.
 
 For detailed instructions on how-to run the docker composition which instantiates a service stack, please refer to the related [README](./docker/README.md) file.
+
+Important Information:
+----------------------
+This repository uses large files; to read them correctly, you must enable the support to [Git Large File Storage](https://git-lfs.github.com), by following these steps:
+* Download and install the [git-lfs extension](https://git-lfs.github.com).
+* Initialize it, by typing `git lfs install`
+* Change to the root of this folder (if you are not already there) and type `git lfs track "*.zip`
+
+You only need to do this once. If you find out that the large zip file does not download correctly, you can fix it by removing it and checking it out again:
+
+```bash
+rm docker/geoserver/boston_contours.zip
+```
+
+```bash
+git checkout docker/geoserver/boston_contours.zip
+```
