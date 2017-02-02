@@ -5,3 +5,6 @@ rebel.xml
 docker/webapps/ogp-harvester
 commands.txt
 docker/data
+layerUpdate.json
+docker/import.json
+docker/layerUpdate.json

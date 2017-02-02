@@ -1,0 +1,14 @@
+<dataStore>
+  <id>DataStoreInfoImpl-71fedbff:159fe3c4d76:-7fff</id>
+  <name>boston_contours</name>
+  <type>Shapefile</type>
+  <enabled>true</enabled>
+  <workspace>
+    <id>WorkspaceInfoImpl--570ae188:124761b8d78:-7ffd</id>
+  </workspace>
+  <connectionParameters>
+    <entry key="namespace">http://www.openplans.org/topp</entry>
+    <entry key="url">file:data/boston_contours/boston_contours.shp</entry>
+  </connectionParameters>
+  <__default>false</__default>
+</dataStore>
