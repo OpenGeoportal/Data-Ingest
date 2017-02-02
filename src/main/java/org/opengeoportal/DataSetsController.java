@@ -1,22 +1,29 @@
 package org.opengeoportal;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.opengeoportal.dataingest.download.LocalDownloadService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
+
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+
 
 
 /**
@@ -50,6 +57,9 @@ public class DataSetsController {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
+    
+    @Autowired
+    private LocalDownloadService localDownloadService;
 
     /**
      * Lists data set names for all workspaces.
@@ -222,6 +232,31 @@ public class DataSetsController {
         throws Exception {
 
         //TODO
+    }
+    
+    /**
+     * Only for test purpose
+     *
+     * @param workspace the needed workspace
+     * @param dataset   the needed dataset
+     * @param response  http response
+     * @throws Exception
+     */
+    @RequestMapping(value =
+        "/workspaces/{workspace}/datasets/{dataset}/download/test",
+        method = RequestMethod.GET)
+    @ResponseBody
+    public final void testDownload(
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset,
+        final HttpServletResponse response) throws Exception {
+        System.out.println("Inizio.");
+        try {
+            localDownloadService.getFile(workspace, dataset);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("Fine.");
     }
 
 }
