@@ -62,7 +62,8 @@ public class GeoserverDataStore {
      * @return layer type names and titles as a hash table
      * @throws Exception
      */
-    public final HashMap<String, String> getTitlesForDataStore(final WFSDataStore data)
+    public final HashMap<String, String>
+    getTitlesForDataStore(final WFSDataStore data)
         throws Exception {
 
         try {
@@ -109,7 +110,8 @@ public class GeoserverDataStore {
      * @return layer names and titles as a hash table
      * @throws Exception
      */
-    public final HashMap<String, String> getLayerTitles(final String uri, final String
+    public final HashMap<String, String>
+    getLayerTitles(final String uri, final String
         workspace) throws
         Exception {
 
@@ -143,7 +145,7 @@ public class GeoserverDataStore {
 
         try {
             //Example properties
-            layerProps.put("name", resourceInfo.getName());// typename
+            layerProps.put("name", resourceInfo.getName()); // typename
             layerProps.put("title", resourceInfo.getTitle());
             layerProps.put("description", resourceInfo.getDescription());
             layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());
