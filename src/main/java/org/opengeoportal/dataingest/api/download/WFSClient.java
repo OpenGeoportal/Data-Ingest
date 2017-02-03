@@ -47,15 +47,15 @@ public class WFSClient {
      */
     public final File getFile(final String uri, final String getFullFilePath) throws Exception {
 
-        final HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
-        final ResponseEntity<byte[]> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, byte[].class);
-        final MediaType contentType = responseEntity.getHeaders().getContentType();
+        HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
+        ResponseEntity<byte[]> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, byte[].class);
+        MediaType contentType = responseEntity.getHeaders().getContentType();
         if (contentType.getType().equals("text") && contentType.getSubtype().equals("xml")) {
             throw new java.io.IOException("Resource '" + getFullFilePath + "' not " + "found! ");
         }
         this.status = responseEntity.getStatusCode();
-        final File out = new File(getFullFilePath);
-        final FileOutputStream fos = new FileOutputStream(out);
+        File out = new File(getFullFilePath);
+        FileOutputStream fos = new FileOutputStream(out);
         IOUtils.write(responseEntity.getBody(), fos);
         return out;
     }

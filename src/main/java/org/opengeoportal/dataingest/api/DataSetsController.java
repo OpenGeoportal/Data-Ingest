@@ -2,13 +2,14 @@ package org.opengeoportal.dataingest.api;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
-import org.opengeoportal.dataingest.api.download.WFSClient;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,7 +70,7 @@ public class DataSetsController {
     public final HashMap<String, String> getDataSets() throws Exception {
         try {
 
-            final GeoserverDataStore gds = new GeoserverDataStore();
+            GeoserverDataStore gds = new GeoserverDataStore();
             return gds.getLayerTitles(geoserverUrl);
 
         } catch (final Exception ex) {
@@ -91,7 +92,7 @@ public class DataSetsController {
 
         try {
 
-            final GeoserverDataStore gds = new GeoserverDataStore();
+            GeoserverDataStore gds = new GeoserverDataStore();
             return gds.getLayerTitles(geoserverUrl, workspace);
 
         } catch (final Exception ex) {
@@ -126,49 +127,6 @@ public class DataSetsController {
     }
 
     /**
-     * Download a ZIP file with the requested dataset.
-     *
-     * @param workspace the needed workspace
-     * @param dataset the needed dataset
-     * @param response http response
-     * @throws Exception
-     */
-    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}/download", method = RequestMethod.GET)
-    @ResponseBody
-    public final void download(@PathVariable(value = "workspace")
-    final String workspace, @PathVariable(value = "dataset")
-    final String dataset, final HttpServletResponse response) throws Exception {
-
-        final String uri = geoserverUrl + "/" + workspace
-            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + workspace + ":" + dataset
-            + "&outputFormat=SHAPE-ZIP";
-
-        try {
-
-            final WFSClient client = new WFSClient();
-
-            final String fileName = FileNameUtils.getFullPathZipFile(workspace, dataset);
-            final File file = client.getFile(uri, fileName);
-
-            response.setContentType("application/force-download");
-            response.addHeader("Content-Length", Long.toString(file.length()));
-            response.setHeader("Content-Transfer-Encoding", "binary");
-            response.setHeader("Content-Disposition", "attachment;" + " filename=\"" + fileName);
-
-            // get your file as InputStream
-            final InputStream is = new FileInputStream(file);
-            // copy it to response's OutputStream
-            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-
-            response.flushBuffer();
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-            throw ex;
-        }
-
-    }
-
-    /**
      * Deletes a given dataset. It just unpublishes the layer leaving intact the datastore.
      * The underlying dataset is not purged.
      *
@@ -182,14 +140,14 @@ public class DataSetsController {
     final String workspace, @PathVariable(value = "dataset")
     final String dataset) throws Exception {
 
-        final GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
+        GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl, geoserverUsername, geoserverPassword);
 
-        final GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername,
+        GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(geoserverUrl, geoserverUsername,
             geoserverPassword);
 
-        final RESTLayer layer = reader.getLayer(workspace, dataset);
-        final RESTFeatureType featureType = reader.getFeatureType(layer);
-        final RESTDataStore data = reader.getDatastore(featureType);
+        RESTLayer layer = reader.getLayer(workspace, dataset);
+        RESTFeatureType featureType = reader.getFeatureType(layer);
+        RESTDataStore data = reader.getDatastore(featureType);
 
         // Unpublish feature type
         if (!publisher.unpublishFeatureType(workspace, data.getName(), dataset)) {
@@ -215,31 +173,37 @@ public class DataSetsController {
     }
 
     /**
-     * Only for test purpose.
+     * Download a ZIP file with the requested dataset.
      *
      * @param workspace the needed workspace
      * @param dataset the needed dataset
      * @param response http response
      * @throws Exception
      */
-    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}/download/test", method = RequestMethod.GET)
+    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}/download", method = RequestMethod.GET)
     @ResponseBody
-    public final void testDownload(@PathVariable(value = "workspace")
-    final String workspace, @PathVariable(value = "dataset")
-    final String dataset, final HttpServletResponse response) throws Exception {
+    public final void download(@PathVariable(value = "workspace")
+        final String workspace, @PathVariable(value = "dataset")
+        final String dataset, final HttpServletResponse response) throws Exception {
         File file = null;
         try {
             file = localDownloadService.getFile(workspace, dataset);
-        } catch (final Exception e) {
-            e.printStackTrace();
-            return;
+        } catch (FileNotFoundException fnfex) {
+            throw fnfex;
+        } catch (FileNotReadyException fnrex) {
+            throw fnrex;
         }
 
+        // Setting up the headers:
+        // The content type
         response.setContentType("application/force-download");
+        // The file size
         response.addHeader("Content-Length", Long.toString(file.length()));
+        // binary encoding
         response.setHeader("Content-Transfer-Encoding", "binary");
+        // Filename
         response.setHeader("Content-Disposition",
-            "attachment;" + " filename=\"" + FileNameUtils.getZipFileName(workspace, dataset));
+            "attachment;filename=\"" + FileNameUtils.getZipFileName(workspace, dataset));
 
         // get your file as InputStream
         final InputStream is = new FileInputStream(file);

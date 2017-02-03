@@ -3,6 +3,7 @@ package org.opengeoportal.dataingest.api.download;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,16 @@ public class LocalDownloadService {
 
         /* Find a better way than asking directly for the file
         (some method in org.geotools.data.store.ContentDataStore?) */
-        return true;
+
+        try {
+
+            final GeoserverDataStore gds = new GeoserverDataStore();
+            return (gds.getLayerInfo(geoserverUrl, workspace, dataset) != null);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     /**
