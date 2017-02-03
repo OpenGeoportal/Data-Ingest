@@ -2,6 +2,7 @@ package org.opengeoportal.dataingest.api.download;
 
 import javax.jms.ConnectionFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.JmsListener;
@@ -19,14 +20,15 @@ import org.springframework.stereotype.Component;
 public class RemoteDownloadServiceListner {
 
     /** The remote download service. */
-    private final RemoteDownloadService remoteDownloadService;
+    @Autowired
+    private RemoteDownloadService remoteDownloadService;
 
-    /**
-     * Instantiates a new remote download service listner.
-     */
-    public RemoteDownloadServiceListner() {
-        this.remoteDownloadService = new RemoteDownloadService();
-    }
+//    /**
+//     * Instantiates a new remote download service listner.
+//     */
+//    public RemoteDownloadServiceListner() {
+//        this.remoteDownloadService = new RemoteDownloadService();
+//    }
 
     /**
      * Prepare file.
@@ -35,10 +37,10 @@ public class RemoteDownloadServiceListner {
      */
     @JmsListener(destination = "fileRequestsQueue", containerFactory = "downloadRequestFactory")
     public final void prepareFile(final DownloadRequest downloadRequest) {
-        System.out.println("Richiesta ricevuta");
         try {
             remoteDownloadService.prepareDownload(downloadRequest);
         } catch (final Exception e) {
+            e.printStackTrace();
             // An appropriate workaround.
         }
 

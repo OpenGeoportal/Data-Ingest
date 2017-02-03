@@ -1,10 +1,11 @@
 package org.opengeoportal.dataingest.api;
 
+import java.io.File;
+
 import org.junit.Test;
 import org.opengeoportal.dataingest.api.download.WFSClient;
+import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.web.client.RestClientException;
-
-import java.io.File;
 
 /**
  * Created by joana on 19/01/17.
@@ -21,7 +22,7 @@ public class WFSClientTest {
 
             WFSClient client = new WFSClient();
 
-            String fileName = "justAtest.zip";
+            String fileName = FileNameUtils.getFullPathZipFile("test", "test");
             File file = client.getFile(uri, fileName);
 
             throw new Exception();

@@ -4,11 +4,13 @@ import java.io.File;
 
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * The Class RemoteDownloadService.
  * This class is used to organize the download with GeoServer.
  */
+@Component
 public class RemoteDownloadService {
 
     /**
@@ -37,17 +39,17 @@ public class RemoteDownloadService {
      */
     public final void prepareDownload(final DownloadRequest downloadRequest) throws Exception {
 
-        final String workspace = downloadRequest.getWorkspace();
-        final String dataset = downloadRequest.getDataset();
+        String workspace = downloadRequest.getWorkspace();
+        String dataset = downloadRequest.getDataset();
 
-        final String uri = geoserverUrl + "/" + workspace
+        String uri = geoserverUrl + "/" + workspace
             + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + workspace + ":" + dataset
             + "&outputFormat=SHAPE-ZIP";
 
-        final WFSClient client = new WFSClient();
+        WFSClient client = new WFSClient();
 
-        final String fileName = FileNameUtils.getFullPathZipFile(workspace, dataset);
-        final File file = client.getFile(uri, fileName);
+        String fileName = FileNameUtils.getFullPathZipFile(workspace, dataset);
+        File file = client.getFile(uri, fileName);
 
     }
 
