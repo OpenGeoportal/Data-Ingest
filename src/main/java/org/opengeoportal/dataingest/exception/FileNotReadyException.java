@@ -1,7 +1,8 @@
-    package org.opengeoportal.dataingest.exception;
+package org.opengeoportal.dataingest.exception;
 
-    public class FileNotReadyException extends Exception {
+/**
+ * The Class FileNotReadyException.
+ */
+public class FileNotReadyException extends Exception {
 
 }
-
-  

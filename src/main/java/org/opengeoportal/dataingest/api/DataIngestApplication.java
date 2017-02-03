@@ -1,4 +1,4 @@
-package org.opengeoportal;
+package org.opengeoportal.dataingest.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,8 +6,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jms.annotation.EnableJms;
 
 /**
- * Creates a RESTfull servrlet application.
- * Introduces a default context.
+ * Creates a RESTfull servrlet application. Introduces a default context.
  *
  * @author Joana Simoes
  * @version 1.0
@@ -24,9 +23,8 @@ public class DataIngestApplication {
      * @throws Exception General exception
      */
     public static void main(final String[] args) throws Exception {
-        ConfigurableApplicationContext context = SpringApplication.run(DataIngestApplication.class, args);
-        
+        final ConfigurableApplicationContext context = SpringApplication.run(DataIngestApplication.class, args);
+
     }
-    
-   
+
 }

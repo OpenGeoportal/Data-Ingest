@@ -1,6 +1,7 @@
-package org.opengeoportal;
+package org.opengeoportal.dataingest.api;
 
 import org.junit.Test;
+import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.springframework.web.client.RestClientException;
 
 import java.io.File;

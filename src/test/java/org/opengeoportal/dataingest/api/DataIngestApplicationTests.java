@@ -1,4 +1,4 @@
-package org.opengeoportal;
+package org.opengeoportal.dataingest.api;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
