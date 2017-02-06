@@ -2,6 +2,7 @@ package org.opengeoportal.dataingest.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jms.annotation.EnableJms;
 
@@ -15,6 +16,7 @@ import org.springframework.jms.annotation.EnableJms;
 @SpringBootApplication
 @SuppressWarnings("checkstyle:hideutilityclassconstructor")
 @EnableJms
+@EnableCaching
 public class DataIngestApplication {
     /**
      * This is the main method which runs the web application.

@@ -1,15 +1,16 @@
 package org.opengeoportal.dataingest.api;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.springframework.cache.annotation.Cacheable;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by joana on 27/01/17.
@@ -18,8 +19,7 @@ public class GeoserverDataStore {
     /**
      * Geoserver connection timeout.
      */
-    public static final int TIMEOUT = 15000;
-
+    private static final int TIMEOUT = 15000;
     /**
      * Constructor of the Geoserver data store.
      */
@@ -28,12 +28,15 @@ public class GeoserverDataStore {
 
     /**
      * Creates a WFS data store.
+     * Do not call this function directly! Call createDataStoreI, instead.
      *
      * @param uri geoserver url
      * @return WFS data store
      * @throws Exception
      */
-    public final WFSDataStore createDataStore(final String uri) throws Exception {
+    @Cacheable(value = "datastore")
+    public final WFSDataStore createDataStore(final String uri) throws
+        Exception {
 
         final String getCapabilities = uri + "/wfs?REQUEST=GetCapabilities";
 
