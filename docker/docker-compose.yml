@@ -18,7 +18,7 @@ services:
          - ./webapps:/usr/local/tomcat/webapps/
 
     postgis:
-        image: mdillon/postgis:9.6
+        build: ./postgis
         ports:
             - "5433:5432"
         environment:

@@ -17,3 +17,4 @@ COPY  ./layer.xml $DATA_DIR/workspaces/topp/boston_contours/boston_contours
 COPY  ./featuretype.xml $DATA_DIR/workspaces/topp/boston_contours/boston_contours
 COPY  ./topp_boston_contours.sld $DATA_DIR/styles
 COPY  ./topp_boston_contours.xml $DATA_DIR/styles
+
