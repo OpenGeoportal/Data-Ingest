@@ -1,0 +1,44 @@
+<featureType>
+  <id>FeatureTypeInfoImpl-8ef79e1:15a1985e0a5:-7c73</id>
+  <name>cb_2015_us_county_within_cd114_500k</name>
+  <nativeName>cb_2015_us_county_within_cd114_500k</nativeName>
+  <namespace>
+    <id>NamespaceInfoImpl-60337897:15a1806b48d:-7ffe</id>
+  </namespace>
+  <title>cb_2015_us_county_within_cd114_500k</title>
+  <keywords>
+    <string>features</string>
+    <string>cb_2015_us_county_within_cd114_500k</string>
+  </keywords>
+  <srs>EPSG:4269</srs>
+  <nativeBoundingBox>
+    <minx>-179.148909</minx>
+    <maxx>179.77847</maxx>
+    <miny>-14.548699</miny>
+    <maxy>71.365162</maxy>
+    <crs>EPSG:4269</crs>
+  </nativeBoundingBox>
+  <latLonBoundingBox>
+    <minx>-179.14890900000003</minx>
+    <maxx>179.77846999999997</maxx>
+    <miny>-14.548698999540639</miny>
+    <maxy>71.36516199942957</maxy>
+    <crs>GEOGCS[&quot;WGS84(DD)&quot;, 
+  DATUM[&quot;WGS84&quot;, 
+    SPHEROID[&quot;WGS84&quot;, 6378137.0, 298.257223563]], 
+  PRIMEM[&quot;Greenwich&quot;, 0.0], 
+  UNIT[&quot;degree&quot;, 0.017453292519943295], 
+  AXIS[&quot;Geodetic longitude&quot;, EAST], 
+  AXIS[&quot;Geodetic latitude&quot;, NORTH]]</crs>
+  </latLonBoundingBox>
+  <projectionPolicy>FORCE_DECLARED</projectionPolicy>
+  <enabled>true</enabled>
+  <store class="dataStore">
+    <id>DataStoreInfoImpl--b91904f:15a1829f329:-7fff</id>
+  </store>
+  <maxFeatures>0</maxFeatures>
+  <numDecimals>0</numDecimals>
+  <overridingServiceSRS>false</overridingServiceSRS>
+  <skipNumberMatched>false</skipNumberMatched>
+  <circularArcPresent>false</circularArcPresent>
+</featureType>

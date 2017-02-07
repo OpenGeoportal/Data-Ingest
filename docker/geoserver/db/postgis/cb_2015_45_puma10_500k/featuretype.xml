@@ -1,0 +1,44 @@
+<featureType>
+  <id>FeatureTypeInfoImpl-8ef79e1:15a1985e0a5:-7d6f</id>
+  <name>cb_2015_45_puma10_500k</name>
+  <nativeName>cb_2015_45_puma10_500k</nativeName>
+  <namespace>
+    <id>NamespaceInfoImpl-60337897:15a1806b48d:-7ffe</id>
+  </namespace>
+  <title>cb_2015_45_puma10_500k</title>
+  <keywords>
+    <string>features</string>
+    <string>cb_2015_45_puma10_500k</string>
+  </keywords>
+  <srs>EPSG:4269</srs>
+  <nativeBoundingBox>
+    <minx>-83.35391</minx>
+    <maxx>-78.54203</maxx>
+    <miny>32.0346</miny>
+    <maxy>35.215402</maxy>
+    <crs>EPSG:4269</crs>
+  </nativeBoundingBox>
+  <latLonBoundingBox>
+    <minx>-83.35391</minx>
+    <maxx>-78.54203</maxx>
+    <miny>32.03459999915111</miny>
+    <maxy>35.21540199911075</maxy>
+    <crs>GEOGCS[&quot;WGS84(DD)&quot;, 
+  DATUM[&quot;WGS84&quot;, 
+    SPHEROID[&quot;WGS84&quot;, 6378137.0, 298.257223563]], 
+  PRIMEM[&quot;Greenwich&quot;, 0.0], 
+  UNIT[&quot;degree&quot;, 0.017453292519943295], 
+  AXIS[&quot;Geodetic longitude&quot;, EAST], 
+  AXIS[&quot;Geodetic latitude&quot;, NORTH]]</crs>
+  </latLonBoundingBox>
+  <projectionPolicy>FORCE_DECLARED</projectionPolicy>
+  <enabled>true</enabled>
+  <store class="dataStore">
+    <id>DataStoreInfoImpl--b91904f:15a1829f329:-7fff</id>
+  </store>
+  <maxFeatures>0</maxFeatures>
+  <numDecimals>0</numDecimals>
+  <overridingServiceSRS>false</overridingServiceSRS>
+  <skipNumberMatched>false</skipNumberMatched>
+  <circularArcPresent>false</circularArcPresent>
+</featureType>

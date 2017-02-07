@@ -1,0 +1,15 @@
+<layer>
+  <name>cb_2015_12_tract_500k</name>
+  <id>LayerInfoImpl-8ef79e1:15a1985e0a5:-7f5e</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe0</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-8ef79e1:15a1985e0a5:-7f5f</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+</layer>
