@@ -4,10 +4,6 @@ MAINTAINER doublebyte <joana.simoes@geocat.net>
 
 ENV DATA_DIR $GEOSERVER_HOME/data_dir
 
-#RUN apt-get update && \
-#    apt-get install -y curl && \
-#    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Copying and publishing the boston contours shapefile
 RUN mkdir -p $DATA_DIR/workspaces/topp/boston_contours
 RUN mkdir -p $DATA_DIR/workspaces/topp/boston_contours/boston_contours
