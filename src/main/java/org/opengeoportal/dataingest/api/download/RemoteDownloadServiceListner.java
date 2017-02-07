@@ -19,60 +19,65 @@ import org.springframework.stereotype.Component;
 @Component
 public class RemoteDownloadServiceListner {
 
-    /** The remote download service. */
-    @Autowired
-    private RemoteDownloadService remoteDownloadService;
+  /** The remote download service. */
+  @Autowired
+  private RemoteDownloadService remoteDownloadService;
 
-//    /**
-//     * Instantiates a new remote download service listner.
-//     */
-//    public RemoteDownloadServiceListner() {
-//        this.remoteDownloadService = new RemoteDownloadService();
-//    }
+  // /**
+  // * Instantiates a new remote download service listner.
+  // */
+  // public RemoteDownloadServiceListner() {
+  // this.remoteDownloadService = new RemoteDownloadService();
+  // }
 
-    /**
-     * Prepare file.
-     *
-     * @param downloadRequest the download request
-     */
-    @JmsListener(destination = "fileRequestsQueue", containerFactory = "downloadRequestFactory")
-    public final void prepareFile(final DownloadRequest downloadRequest) {
-        try {
-            remoteDownloadService.prepareDownload(downloadRequest);
-        } catch (final Exception e) {
-            e.printStackTrace();
-            // An appropriate workaround.
-        }
-
+  /**
+   * Prepare file.
+   *
+   * @param downloadRequest
+   *          the download request
+   */
+  @JmsListener(destination = "fileRequestsQueue", containerFactory = "downloadRequestFactory")
+  public final void prepareFile(final DownloadRequest downloadRequest) {
+    try {
+      remoteDownloadService.prepareDownload(downloadRequest);
+    } catch (final Exception e) {
+      e.printStackTrace();
+      // An appropriate workaround.
     }
 
-    /**
-     * Jackson jms message converter.
-     *
-     * @return the message converter
-     */
-    @Bean // Serialize message content to json
-    private MessageConverter jacksonJmsMessageConverter() {
-        final MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setTargetType(MessageType.TEXT);
-        converter.setTypeIdPropertyName("_type");
-        return converter;
-    }
+  }
 
-    /**
-     * Download request factory.
-     *
-     * @param connectionFactory the connection factory
-     * @param configurer the configurer
-     * @return the jms listener container factory
-     */
-    @Bean
-    private JmsListenerContainerFactory<?> downloadRequestFactory(final ConnectionFactory connectionFactory,
-        final DefaultJmsListenerContainerFactoryConfigurer configurer) {
-        final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        // This provides all boot's default to this factory, including the message converter
-        configurer.configure(factory, connectionFactory);
-        return factory;
-    }
+  /**
+   * Jackson jms message converter.
+   *
+   * @return the message converter
+   */
+  @Bean // Serialize message content to json
+  private MessageConverter jacksonJmsMessageConverter() {
+    final MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+    converter.setTargetType(MessageType.TEXT);
+    converter.setTypeIdPropertyName("_type");
+    return converter;
+  }
+
+  /**
+   * Download request factory.
+   *
+   * @param connectionFactory
+   *          the connection factory
+   * @param configurer
+   *          the configurer
+   * @return the jms listener container factory
+   */
+  @Bean
+  private JmsListenerContainerFactory<?> downloadRequestFactory(
+      final ConnectionFactory connectionFactory,
+      final DefaultJmsListenerContainerFactoryConfigurer configurer) {
+    final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+    // This provides all boot's default to this factory, including the message
+    // converter
+    configurer.configure(factory, connectionFactory);
+    return factory;
+  }
 
 }
