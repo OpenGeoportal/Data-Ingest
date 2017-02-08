@@ -26,6 +26,22 @@ The [docker](./docker) folder contains an orchestration with the complete servic
 
 For detailed instructions on how-to run the docker composition which instantiates a service stack, please refer to the related [README](./docker/README.md) file.
 
+Tests
+-----
+The unit tests use a [docker junit rule](https://github.com/klousiaj/docker-junit-rule), which launches a container with Geoserver. In some cases, in order to get it working, you may need to set the `DOCKER_HOST` environment variable. In nix systems:
+
+```bash
+ export DOCKER_HOST=$DOCKER_HOST:$DOCKER_PORT
+```
+
+For instance:
+
+```bash
+ export DOCKER_HOST=localhost:2375
+```
+
+On a bash shell, you would set it permanently by adding this instruction to your `~/.bashrc`, `~/.bash_profile`.
+
 Important Information:
 ----------------------
 This repository uses large files; to read them correctly, you must enable the support to [Git Large File Storage](https://git-lfs.github.com), by following these steps:
