@@ -76,15 +76,17 @@ public class ResultSortedPaginator {
    * @return the list
    */
   private List<HashMapElement> fromHashMapToList(
-      final HashMap<String, String> map) {
+    HashMap<String, String> map) {
     final List<HashMapElement> list = new ArrayList<HashMapElement>();
 
-    final Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
+    // map object comes from the cache, in this way we avoid concurrent modifications
+    synchronized (map) {
+      final Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
 
-    while (it.hasNext()) {
-      final Map.Entry<String, String> pair = it.next();
-      list.add(new HashMapElement(pair.getKey(), pair.getValue()));
-      it.remove(); // avoids a ConcurrentModificationException
+      while (it.hasNext()) {
+        final Map.Entry<String, String> pair = it.next();
+        list.add(new HashMapElement(pair.getKey(), pair.getValue()));
+      }
     }
 
     return list;

@@ -207,6 +207,7 @@ public class DataSetsController {
                     // get data from geoserver
                     resultMap = service.getTitles(geoserverUrl + "/" + workspace);
                 }
+
                 // Setup the paginator
                 paginator = new ResultSortedPaginator(resultMap, this.pageSize, true);
             }
