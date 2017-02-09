@@ -5,7 +5,6 @@ import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.opengeoportal.dataingest.api.GeoserverDataStore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +51,8 @@ public class GeoserverDataStoreTest {
             throw e;
         }
 
-        GeoserverDataStore gds = new GeoserverDataStore();
-        testDataStore = gds.createDataStore(uri);
+        GeoserverDataStore gds = new GeoserverDataStore(uri);
+        testDataStore = gds.datastore();
 
         assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
 

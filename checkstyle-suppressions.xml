@@ -3,5 +3,7 @@
   "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 <suppressions>
     <suppress checks="FinalParameters" files=".*"/>
+    <suppress checks="DesignForExtension" files=".*"/>
     <suppress checks="TodoComment" files=".*"/>
+    <suppress checks="AvoidInlineConditionals" files=".*"/>
 </suppressions>
