@@ -23,7 +23,7 @@ public class CacheService {
      * @return hashmap with dataset (names, titles)
      * @throws Exception
      */
-    @Cacheable(cacheNames = "titles", key = "#uri")
+    @Cacheable(value = "titles", key = "#uri")
     public HashMap<String, String> getTitles(String uri) throws Exception {
 
         System.out.println("Not using the cache");
