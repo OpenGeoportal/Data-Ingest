@@ -8,5 +8,3 @@ docker/data
 layerUpdate.json
 docker/import.json
 docker/layerUpdate.json
-.gitattributes 
-docker/.gitattributes
