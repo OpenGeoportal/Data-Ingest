@@ -7,6 +7,9 @@ services:
             - "8081:8080"
         links:
             - postgis
+        depends_on:
+            - "postgis"
+        command: ["./wait-for-it.sh", "postgis:5432", "--", "/opt/geoserver/bin/startup.sh"]
 
     tomcat:
         image: tomcat:8-jre8-alpine
