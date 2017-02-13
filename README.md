@@ -2,7 +2,7 @@
 
 GENERAL INFORMATION
 ===================
-The Data Ingest component interfaces with Geoserver, allowing to list, upload, download, update and delete vector data stores and associated metadata. It provides both a REST API and a UI. The implementation uses the [Geoserver Manager](https://github.com/geosolutions-it/geoserver-manager) library to comunicate with Geoserver.
+The Data Ingest component interfaces with Geoserver, allowing to list, upload, download, update and delete vector data stores and associated metadata. It provides both a REST API and a UI. The implementation uses the [Geoserver Manager](https://github.com/geosolutions-it/geoserver-manager) library and the Geotools [WFS-NG](http://docs.geotools.org/latest/userguide/library/data/wfs-ng.html) plugin to comunicate with Geoserver.
 
 This is a [Spring Boot](https://projects.spring.io/spring-boot/) project. You can compile and run it on the command line with:
 
