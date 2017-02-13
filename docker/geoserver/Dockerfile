@@ -27,3 +27,5 @@ COPY ./db/workspace.xml $DATA_DIR/workspaces/db
 COPY ./db/datastore.xml $DATA_DIR/workspaces/db/postgis
 
 ADD ./db/postgis $DATA_DIR/workspaces/db/postgis
+
+COPY ./wait-for-it.sh /wait-for-it.sh
