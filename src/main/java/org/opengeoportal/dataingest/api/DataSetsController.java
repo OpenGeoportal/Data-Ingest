@@ -304,6 +304,22 @@ public class DataSetsController {
     }
 
     /**
+     * Updates a given dataset.
+     *
+     * @param workspace given workspace
+     * @param dataset   given dataset
+     * @throws Exception the exception
+     */
+    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
+    @ResponseBody
+    public final void updateDataSet(
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset) throws Exception {
+
+        // TODO
+    }
+
+    /**
      * Download a ZIP file with the requested dataset.
      *
      * @param workspace the needed workspace
