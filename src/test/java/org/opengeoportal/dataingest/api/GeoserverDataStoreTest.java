@@ -1,10 +1,14 @@
 package org.opengeoportal.dataingest.api;
 
 import com.github.geowarin.junit.DockerRule;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +20,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class GeoserverDataStoreTest {
 
-    public static String uri="http://localhost:{PORT}/geoserver/";
+    public static String uri = "http://localhost:{PORT}/geoserver/";
+    private String workspace = "topp";
+    private String dataset = "states";
 
     @ClassRule
     public static DockerRule dockerRule =
@@ -27,8 +33,7 @@ public class GeoserverDataStoreTest {
             //.waitForPort("8080")
             .build();
 
-    @Test
-    public void createDataStore() throws Exception {
+    private WFSDataStore createMockupDataStore() throws Exception {
 
         int port = dockerRule.getHostPort("8080/tcp");
         uri = uri.replace("{PORT}", Integer.toString(port));
@@ -41,41 +46,66 @@ public class GeoserverDataStoreTest {
             getCapabilities);
         connectionParameters.put("WFSDataStoreFactory:TIMEOUT", 15000);
 
-        WFSDataStore mockupDataStore;
-        WFSDataStore testDataStore;
-
         try {
             WFSDataStoreFactory dsf = new WFSDataStoreFactory();
-            mockupDataStore = dsf.createDataStore(connectionParameters);
+            return dsf.createDataStore(connectionParameters);
         } catch (Exception e) {
             throw e;
         }
 
+    }
+
+    @Test
+    public void datastore() throws Exception {
+
+        WFSDataStore mockupDataStore = createMockupDataStore();
         GeoserverDataStore gds = new GeoserverDataStore(uri);
-        testDataStore = gds.datastore();
+        WFSDataStore testDataStore = gds.datastore();
 
         assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
-
-
     }
 
     @Test
-    public void getTitlesForDataStore() throws Exception {
+    public void titles() throws Exception {
 
-    }
+        WFSDataStore mockupDataStore = createMockupDataStore();
 
-    @Test
-    public void getLayerTitles() throws Exception {
+        String[] typeNames = mockupDataStore.getTypeNames();
 
-    }
+        HashMap<String, String> mTtitles = new HashMap<String, String>();
+        for (String typeName : typeNames) {
+            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = mockupDataStore
+                .getFeatureSource(typeName);
+            ResourceInfo resourceInfo = featureSource.getInfo();
+            mTtitles.put(resourceInfo.getName(), resourceInfo.getTitle());
+        }
 
-    @Test
-    public void getLayerTitles1() throws Exception {
+        GeoserverDataStore gds = new GeoserverDataStore(uri);
 
+        assertEquals(mTtitles, gds.titles());
     }
 
     @Test
     public void getLayerInfo() throws Exception {
+
+        WFSDataStore mockupDataStore = createMockupDataStore();
+
+        HashMap<String, String> layerProps = new HashMap<String, String>();
+        String typeName = workspace + ":" + dataset;
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = mockupDataStore
+            .getFeatureSource(typeName);
+        ResourceInfo resourceInfo = featureSource.getInfo();
+
+        // Example properties
+        layerProps.put("name", resourceInfo.getName()); // typename
+        layerProps.put("title", resourceInfo.getTitle());
+        layerProps.put("description", resourceInfo.getDescription());
+        layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());
+        layerProps.put("keywords", resourceInfo.getKeywords().toString());
+
+        GeoserverDataStore gds = new GeoserverDataStore(uri);
+
+        assertEquals(layerProps, gds.getLayerInfo(uri, workspace, dataset));
 
     }
 
