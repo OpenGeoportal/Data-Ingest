@@ -9,7 +9,7 @@ services:
             - postgis
         depends_on:
             - "postgis"
-        command: ["./wait-for-it.sh", "postgis:5432", "-t", "60", "--", "/opt/geoserver/bin/startup.sh"]
+        command: ["./wait-for-it.sh", "postgis:5432", "-t", "120", "--", "/opt/geoserver/bin/startup.sh"]
 
     tomcat:
         image: tomcat:8-jre8-alpine

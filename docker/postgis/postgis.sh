@@ -22,9 +22,15 @@ for DB in template_postgis "$POSTGRES_DB"; do
 EOSQL
 done
 
-
+#Altering system variables
 "${psql[@]}" <<- 'EOSQL'
-CREATE DATABASE layers template template_postgis OWNER ogpharvester;
+ALTER SYSTEM SET wal_level=minimal;
+ALTER SYSTEM SET archive_mode=off;
+ALTER SYSTEM SET max_wal_senders=0;
 EOSQL
 
-psql -U ogpharvester layers < /tmp/dump.sql
+"${psql[@]}" <<- 'EOSQL'
+CREATE DATABASE layers OWNER ogpharvester;
+EOSQL
+
+psql -U ogpharvester -1 layers < /tmp/dump.sql
