@@ -104,3 +104,7 @@ And then build them again with:
 ```bash
  docker-compose up
 ```
+If there are changes to any `Dockerfile`, you **must** rebuild the correspondent docker image, before calling `docker-compose up`. You can force the rebuild of all images with:
+```bash
+ docker-compose build
+```
