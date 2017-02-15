@@ -7,7 +7,7 @@ The Data Ingest component interfaces with Geoserver, allowing to list, upload, d
 This is a [Spring Boot](https://projects.spring.io/spring-boot/) project. You can compile and run it on the command line with:
 
 ```bash
-mvn spring-bot:run
+mvn spring-boot:run
 ```
 
 This will build a servlet and deploy it on a webserver started on port `8080`:
