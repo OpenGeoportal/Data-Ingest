@@ -359,12 +359,19 @@ public class DataSetsController {
         response.setHeader("Content-Disposition", "attachment;filename=\""
             + FileNameUtils.getZipFileName(workspace, dataset));
 
-        // get your file as InputStream
-        final InputStream is = new FileInputStream(file);
-        // copy it to response's OutputStream
-        org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+        InputStream is = null;
 
-        response.flushBuffer();
+        try {
+            // get your file as InputStream
+            is = new FileInputStream(file);
+            // copy it to response's OutputStream
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+
+            response.flushBuffer();
+
+        } finally {
+            org.apache.commons.io.IOUtils.closeQuietly(is);
+        }
 
     }
 }
