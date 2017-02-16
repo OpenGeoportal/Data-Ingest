@@ -5,8 +5,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -18,28 +17,36 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by joana on 27/01/17.
  */
+
 public class GeoserverDataStoreTest {
 
-    public static String uri = "http://localhost:{PORT}/geoserver/";
+    private static String uri = "http://localhost:{PORT}/geoserver/";
     private String workspace = "topp";
-    private String dataset = "states";
+    private String dataset = "tasmania_cities";
+    private WFSDataStore mockupDataStore;
+
 
     @ClassRule
-    public static DockerRule dockerRule =
+    public static DockerRule DataStoreDockerRule =
         DockerRule.builder()
-            .image("winsent/geoserver:2.10")
+            .image("doublebyte/geoserver:squash")
             .ports("8080")
             .waitForLog("Reloading user/groups successful")
-            //.waitForPort("8080")
             .build();
 
-    private WFSDataStore createMockupDataStore() throws Exception {
+    @BeforeClass
+    public static void hold() throws InterruptedException {
+        Thread.sleep(10000);
+    }
 
-        int port = dockerRule.getHostPort("8080/tcp");
+    @Before
+    public void createDatastore() throws Exception {
+
+        int port = DataStoreDockerRule.getHostPort("8080/tcp");
         uri = uri.replace("{PORT}", Integer.toString(port));
 
         String getCapabilities
-            = uri + "/wfs?REQUEST=GetCapabilities";
+            = uri + "wfs?REQUEST=GetCapabilities";
 
         Map connectionParameters = new HashMap();
         connectionParameters.put("WFSDataStoreFactory:GET_CAPABILITIES_URL",
@@ -48,17 +55,17 @@ public class GeoserverDataStoreTest {
 
         try {
             WFSDataStoreFactory dsf = new WFSDataStoreFactory();
-            return dsf.createDataStore(connectionParameters);
+            mockupDataStore = dsf.createDataStore(connectionParameters);
         } catch (Exception e) {
             throw e;
         }
 
     }
 
+
     @Test
     public void datastore() throws Exception {
 
-        WFSDataStore mockupDataStore = createMockupDataStore();
         GeoserverDataStore gds = new GeoserverDataStore(uri);
         WFSDataStore testDataStore = gds.datastore();
 
@@ -67,8 +74,6 @@ public class GeoserverDataStoreTest {
 
     @Test
     public void titles() throws Exception {
-
-        WFSDataStore mockupDataStore = createMockupDataStore();
 
         String[] typeNames = mockupDataStore.getTypeNames();
 
@@ -87,8 +92,6 @@ public class GeoserverDataStoreTest {
 
     @Test
     public void getLayerInfo() throws Exception {
-
-        WFSDataStore mockupDataStore = createMockupDataStore();
 
         HashMap<String, String> layerProps = new HashMap<String, String>();
         String typeName = workspace + ":" + dataset;

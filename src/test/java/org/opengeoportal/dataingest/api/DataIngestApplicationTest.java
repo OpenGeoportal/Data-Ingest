@@ -1,8 +1,16 @@
-import static org.junit.Assert.*;
+package org.opengeoportal.dataingest.api;
 
-/**
- * Created by joana on 16/02/17.
- */
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@ContextConfiguration
 public class DataIngestApplicationTest {
+
+    @Test
+    public void contextLoads() throws Exception {
+    }
 
 }
