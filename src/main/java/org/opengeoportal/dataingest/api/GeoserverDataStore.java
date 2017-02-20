@@ -28,11 +28,11 @@ public class GeoserverDataStore {
     private HashMap<String, String> hTitles;
 
     /**
-     * Constructor of the Geoserver data store.
-     * It fills two class member variables, which store the WFS datastore and
-     * dataset (names, titles).
+     * Constructor of the Geoserver data store. It fills two class member
+     * variables, which store the WFS datastore and dataset (names, titles).
      *
-     * @param uri geoserver uri (include filter per workspace)
+     * @param uri
+     *            geoserver uri (include filter per workspace)
      * @throws Exception
      */
     public GeoserverDataStore(String uri) throws Exception {
@@ -41,7 +41,7 @@ public class GeoserverDataStore {
 
         Map connectionParameters = new HashMap();
         connectionParameters.put("WFSDataStoreFactory:GET_CAPABILITIES_URL",
-            getCapabilities);
+                getCapabilities);
         connectionParameters.put("WFSDataStoreFactory:TIMEOUT", TIMEOUT);
 
         try {
@@ -53,7 +53,7 @@ public class GeoserverDataStore {
             HashMap<String, String> mTtitles = new HashMap<String, String>();
             for (String typeName : typeNames) {
                 FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
-                    .getFeatureSource(typeName);
+                        .getFeatureSource(typeName);
                 ResourceInfo resourceInfo = featureSource.getInfo();
                 mTtitles.put(resourceInfo.getName(), resourceInfo.getTitle());
             }
@@ -62,15 +62,16 @@ public class GeoserverDataStore {
 
         } catch (java.net.ConnectException ce) {
             throw new Exception("Could not connect to GeoServer " + "at: " + uri
-                + ". Make sure it is up and "
-                + "running and that the connection settings are correct!");
+                    + ". Make sure it is up and "
+                    + "running and that the connection settings are correct!");
         } catch (Exception ex) {
             throw ex;
         }
     }
 
     /**
-     * Returns the names and titles stored in a class variable, initialized in the constructor.
+     * Returns the names and titles stored in a class variable, initialized in
+     * the constructor.
      *
      * @return hasmap with dataset (names, titles)
      */
@@ -79,7 +80,8 @@ public class GeoserverDataStore {
     }
 
     /**
-     * Returns the WFS datastore stored in a variable, initialized in the constructor.
+     * Returns the WFS datastore stored in a variable, initialized in the
+     * constructor.
      *
      * @return WFS datastore
      */
@@ -90,19 +92,23 @@ public class GeoserverDataStore {
     /**
      * Get detailed info about one layer.
      *
-     * @param uri       geoserver url
-     * @param workspace given workspace
-     * @param dataset   given dataset
+     * @param uri
+     *            geoserver url
+     * @param workspace
+     *            given workspace
+     * @param dataset
+     *            given dataset
      * @return hashtable with layer properties
-     * @throws Exception the exception
+     * @throws Exception
+     *             the exception
      */
-    public HashMap<String, String> getLayerInfo(String uri,
-                                                String workspace, String dataset) throws Exception {
+    public HashMap<String, String> getLayerInfo(String uri, String workspace,
+            String dataset) throws Exception {
 
         HashMap<String, String> layerProps = new HashMap<String, String>();
         String typeName = workspace + ":" + dataset;
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
-            .getFeatureSource(typeName);
+                .getFeatureSource(typeName);
         ResourceInfo resourceInfo = featureSource.getInfo();
 
         try {
@@ -119,6 +125,5 @@ public class GeoserverDataStore {
             throw new Exception("Could not read layer featuretype");
         }
     }
-
 
 }

@@ -1,14 +1,23 @@
 package org.opengeoportal.dataingest.api;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.opengeoportal.dataingest.exception.PageNotFoundException;
+import org.opengeoportal.dataingest.exception.PageSizeFormatException;
 import org.opengeoportal.dataingest.utils.DatasetsPageWrapper;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.ResultSortedPaginator;
@@ -20,20 +29,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-
-//import java.io.*;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 
 /**
- * Creates a resource controller which handles the various GET, DELETE, POST and PUT request of the REST API.
+ * Creates a resource controller which handles the various GET, DELETE, POST and
+ * PUT request of the REST API.
  *
  * @author Joana Simoes
  * @version 1.0
@@ -85,33 +89,34 @@ public class DataSetsController {
      * Testing method, to check if the cache is working for the datasets list.
      * TODO: remove this later
      *
-     * @param request http request
+     * @param request            http request
      * @return dataset list.
-     * @throws Exception
+     * @throws Exception the exception
      */
-    @RequestMapping(value = {"/cache",
-    }, method = RequestMethod.GET)
+    @RequestMapping(value = { "/cache", }, method = RequestMethod.GET)
     @ResponseBody
     public final HashMap<String, String> testCache(
-        HttpServletRequest request) throws Exception {
+            final HttpServletRequest request) throws Exception {
 
         return service.getTitles(geoserverUrl);
     }
 
     /**
-     * Utility method, to check if the layer list has changed. It compares a stored hash of the layer list, with the
-     * new layer list hash.
+     * Utility method, to check if the layer list has changed. It compares a
+     * stored hash of the layer list, with the new layer list hash.
      *
      * @return boolean to indicate if the layer list has changed
-     * @throws MalformedURLException
+     * @throws MalformedURLException the malformed URL exception
      */
     boolean layerListHasChanged() throws MalformedURLException {
 
-        GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
-            geoserverUsername, geoserverPassword);
+        final GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
+                geoserverUsername, geoserverPassword);
 
-        int newLayerList = reader.getLayers().getNames().toString().hashCode();
-        boolean bHasChanged = oldLayerList == -1 ? true : newLayerList != oldLayerList;
+        final int newLayerList = reader.getLayers().getNames().toString()
+                .hashCode();
+        final boolean bHasChanged = oldLayerList == -1 ? true
+                : newLayerList != oldLayerList;
         oldLayerList = newLayerList;
 
         return bHasChanged;
@@ -120,60 +125,100 @@ public class DataSetsController {
     /**
      * Gets the data sets from all workspaces.
      *
-     * @param page    the page
-     * @param request the request
+     * @param page            the page
+     * @param request            the request
+     * @param response the response
      * @return the data sets
-     * @throws Exception the exception
+     * @throws Exception             the exception
      */
-    @RequestMapping(value = {"/datasets",
-        "/datasets/page/{page}"}, method = RequestMethod.GET)
+    @RequestMapping(value = { "/datasets",
+            "/datasets/page/{page}" }, method = RequestMethod.GET)
     @ResponseBody
     public final DatasetsPageWrapper getDataSets(
-        @PathVariable(value = "page", required = false) Integer page,
-        HttpServletRequest request) throws Exception {
+            @PathVariable(value = "page", required = false) final Integer page,
+            final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception {
 
-        return getPaginatedDataSets(page, request, null);
+        try {
+            return getPaginatedDataSets(page, request, null);
+        } catch (final PageNotFoundException pnfex) {
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Page " + page + " not found");
+            return null;
+        } catch (final NoDataFoundOnGeoserverException ndfgsex) {
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "No data");
+            return null;
+        } catch (final PageSizeFormatException psfex) {
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Wrong page Size format");
+            return null;
+        }
     }
 
     /**
      * Gets the data sets for workspace.
      *
-     * @param workspace the workspace
-     * @param page      the page
-     * @param request   the request
+     * @param workspace            the workspace
+     * @param page            the page
+     * @param request            the request
+     * @param response the response
      * @return the data sets for workspace
-     * @throws Exception the exception
+     * @throws Exception             the exception
      */
-    @RequestMapping(value = {"/workspaces/{workspace}/datasets",
-        "/workspaces/{workspace}/datasets/page/{page}"}, method = RequestMethod.GET)
+    @RequestMapping(value = { "/workspaces/{workspace}/datasets",
+            "/workspaces/{workspace}/datasets/page/{page}" }, method = RequestMethod.GET)
     @ResponseBody
     public final DatasetsPageWrapper getDataSetsForWorkspace(
-        @PathVariable(value = "workspace") String workspace,
-        @PathVariable(value = "page", required = false) Integer page,
-        HttpServletRequest request) throws Exception {
+            @PathVariable(value = "workspace") final String workspace,
+            @PathVariable(value = "page", required = false) final Integer page,
+            final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception {
 
-        return getPaginatedDataSets(page, request, workspace);
+        try {
+            return getPaginatedDataSets(page, request, workspace);
+        } catch (final PageNotFoundException pnfex) {
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Page " + page + " not found");
+            return null;
+        } catch (final NoDataFoundOnGeoserverException ndfgsex) {
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Workspace " + workspace + " doesn't exists");
+            return null;
+        } catch (final PageSizeFormatException psfex) {
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Wrong page Size format");
+            return null;
+        }
     }
 
     /**
      * Gets the paginated data sets.
      *
-     * @param page      the page
-     * @param request   the request
-     * @param workspace the workspace
+     * @param page
+     *            the page
+     * @param request
+     *            the request
+     * @param workspace
+     *            the workspace
      * @return the paginated data sets
-     * @throws Exception the exception
+     * @throws Exception
+     *             the exception
      */
     private DatasetsPageWrapper getPaginatedDataSets(Integer page,
-                                                     final HttpServletRequest request, String workspace)
-        throws Exception {
+            final HttpServletRequest request, String workspace)
+            throws Exception {
         try {
 
             boolean reloadResults = false;
 
-            if (request.getParameter("pageSize") != null
-                && StringUtils.isNumeric(request.getParameter("pageSize"))) {
-                this.pageSize = Integer.parseInt(request.getParameter("pageSize"));
+            if (request.getParameter("pageSize") != null) {
+                if (!StringUtils.isNumeric(request.getParameter("pageSize"))) {
+                    throw new PageSizeFormatException();
+                } else {
+                    this.pageSize = Integer
+                            .parseInt(request.getParameter("pageSize"));
+                }
             }
 
             if (workspace == null || StringUtils.isEmpty(workspace)) {
@@ -195,7 +240,7 @@ public class DataSetsController {
             if (!reloadResults) {
                 // manages with HtppSession the navigation between pages
                 paginator = (ResultSortedPaginator) request.getSession()
-                    .getAttribute("w_" + workspace);
+                        .getAttribute("w_" + workspace);
                 paginator.setPageSize(this.pageSize);
             } else {
                 HashMap<String, String> resultMap = null;
@@ -205,11 +250,21 @@ public class DataSetsController {
                     resultMap = service.getTitles(geoserverUrl);
                 } else {
                     // get data from geoserver
-                    resultMap = service.getTitles(geoserverUrl + "/" + workspace);
+                    try {
+                        resultMap = service
+                                .getTitles(geoserverUrl + "/" + workspace);
+                    } catch (final Exception e) {
+                        throw new NoDataFoundOnGeoserverException();
+                    }
+                }
+
+                if (resultMap == null || resultMap.size() == 0) {
+                    throw new NoDataFoundOnGeoserverException();
                 }
 
                 // Setup the paginator
-                paginator = new ResultSortedPaginator(resultMap, this.pageSize, true);
+                paginator = new ResultSortedPaginator(resultMap, this.pageSize,
+                        true);
             }
 
             if (page > paginator.getMaxPages()) {
@@ -219,8 +274,8 @@ public class DataSetsController {
             paginator.setPage(page);
 
             return new DatasetsPageWrapper(paginator.getHashMapForPage(),
-                paginator.getList().size(), paginator.getPage(),
-                paginator.getMaxPages());
+                    paginator.getList().size(), paginator.getPage(),
+                    paginator.getMaxPages());
 
         } catch (final Exception ex) {
             ex.printStackTrace();
@@ -231,20 +286,33 @@ public class DataSetsController {
     /**
      * Gives detailed information about one given dataset.
      *
-     * @param workspace given workspace
-     * @param dataset   given dataset
+     * @param workspace            given workspace
+     * @param dataset            given dataset
+     * @param response the response
      * @return String dataset info, as a set of properties.
-     * @throws Exception the exception
+     * @throws Exception             the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.GET)
     @ResponseBody
     public final HashMap<String, String> getDataSet(
-        @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset) throws Exception {
+            @PathVariable(value = "workspace") final String workspace,
+            @PathVariable(value = "dataset") final String dataset,
+            final HttpServletResponse response) throws Exception {
 
         try {
-            return service.getInfo(geoserverUrl, workspace, dataset);
+            final HashMap<String, String> data = service.getInfo(geoserverUrl,
+                    workspace, dataset);
 
+            if (data == null && data.size() == 0) {
+                throw new NoDataFoundOnGeoserverException();
+            }
+
+            return data;
+
+        } catch (final NoDataFoundOnGeoserverException ndfgsex) {
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Dataset " + dataset + " doesn't exists");
+            return null;
         } catch (final Exception ex) {
             ex.printStackTrace();
             throw ex;
@@ -252,35 +320,39 @@ public class DataSetsController {
 
     }
 
-
     /**
      * Deletes a given dataset. It just unpublishes the layer leaving intact the
      * datastore. The underlying dataset is not purged.
      *
-     * @param workspace given workspace
-     * @param dataset   given dataset
-     * @throws Exception the exception
+     * @param workspace
+     *            given workspace
+     * @param dataset
+     *            given dataset
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.DELETE)
     @ResponseBody
     public final void deleteDataSet(
-        @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset) throws Exception {
+            @PathVariable(value = "workspace") final String workspace,
+            @PathVariable(value = "dataset") final String dataset)
+            throws Exception {
 
         final GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
-            geoserverUsername, geoserverPassword);
+                geoserverUsername, geoserverPassword);
 
         final GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(
-            geoserverUrl, geoserverUsername, geoserverPassword);
+                geoserverUrl, geoserverUsername, geoserverPassword);
 
         final RESTLayer layer = reader.getLayer(workspace, dataset);
         final RESTFeatureType featureType = reader.getFeatureType(layer);
         final RESTDataStore data = reader.getDatastore(featureType);
 
         // Unpublish feature type
-        if (!publisher.unpublishFeatureType(workspace, data.getName(), dataset)) {
+        if (!publisher.unpublishFeatureType(workspace, data.getName(),
+                dataset)) {
             throw new Exception("Could not unpublish featuretype " + dataset
-                + " on store " + data.getName());
+                    + " on store " + data.getName());
         }
         publisher.reload();
 
@@ -290,15 +362,19 @@ public class DataSetsController {
     /**
      * Uploads a given dataset.
      *
-     * @param workspace given workspace
-     * @param dataset   given dataset
-     * @throws Exception the exception
+     * @param workspace
+     *            given workspace
+     * @param dataset
+     *            given dataset
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.POST)
     @ResponseBody
     public final void uploadDataSet(
-        @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset) throws Exception {
+            @PathVariable(value = "workspace") final String workspace,
+            @PathVariable(value = "dataset") final String dataset)
+            throws Exception {
 
         // TODO
     }
@@ -306,15 +382,19 @@ public class DataSetsController {
     /**
      * Updates a given dataset.
      *
-     * @param workspace given workspace
-     * @param dataset   given dataset
-     * @throws Exception the exception
+     * @param workspace
+     *            given workspace
+     * @param dataset
+     *            given dataset
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
     @ResponseBody
     public final void updateDataSet(
-        @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset) throws Exception {
+            @PathVariable(value = "workspace") final String workspace,
+            @PathVariable(value = "dataset") final String dataset)
+            throws Exception {
 
         // TODO
     }
@@ -322,30 +402,39 @@ public class DataSetsController {
     /**
      * Download a ZIP file with the requested dataset.
      *
-     * @param workspace the needed workspace
-     * @param dataset   the needed dataset
-     * @param response  http response
-     * @throws Exception the exception
+     * @param workspace
+     *            the needed workspace
+     * @param dataset
+     *            the needed dataset
+     * @param response
+     *            http response
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}/download", method = RequestMethod.GET)
     @ResponseBody
     public final void download(
-        @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset,
-        final HttpServletResponse response) throws Exception {
+            @PathVariable(value = "workspace") final String workspace,
+            @PathVariable(value = "dataset") final String dataset,
+            final HttpServletResponse response) throws Exception {
         File file = null;
         try {
             file = localDownloadService.getFile(workspace, dataset);
         } catch (final FileNotFoundException fnfex) {
-            throw fnfex;
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Dataset " + dataset + " doesn't exists");
+            return;
         } catch (final FileNotReadyException fnrex) {
-            response.setStatus(HttpServletResponse.SC_ACCEPTED);
-            final PrintWriter out = response.getWriter();
-            response.setContentType("text/html");
-            out.println("File not yet ready.");
-            response.flushBuffer();
+            printOutputMessage(response, HttpServletResponse.SC_ACCEPTED,
+                    "File not yet ready.");
             return;
 
+        } catch (final IOException ioex) {
+            ioex.printStackTrace();
+            printOutputMessage(response,
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Internal server error.");
+            return;
         }
 
         // Setting up the headers:
@@ -357,14 +446,37 @@ public class DataSetsController {
         response.setHeader("Content-Transfer-Encoding", "binary");
         // Filename
         response.setHeader("Content-Disposition", "attachment;filename=\""
-            + FileNameUtils.getZipFileName(workspace, dataset));
+                + FileNameUtils.getZipFileName(workspace, dataset));
+        InputStream is = null;
 
-        // get your file as InputStream
-        final InputStream is = new FileInputStream(file);
-        // copy it to response's OutputStream
-        org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+        try {
+            // get your file as InputStream
+            is = new FileInputStream(file);
+            // copy it to response's OutputStream
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            response.flushBuffer();
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
 
+    }
+
+    /**
+     * Prints the output message.
+     *
+     * @param response the response
+     * @param code the code
+     * @param message the message
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    private void printOutputMessage(final HttpServletResponse response,
+            final int code, final String message) throws IOException {
+        response.setStatus(code);
+        final PrintWriter out = response.getWriter();
+        response.setContentType("text/html");
+        out.println(message);
         response.flushBuffer();
-
     }
 }

@@ -1,6 +1,5 @@
 package org.opengeoportal.dataingest.api;
 
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,20 +20,19 @@ import org.springframework.jms.annotation.EnableJms;
 @EnableJms
 @EnableCaching
 public class DataIngestApplication {
-  /**
-   * This is the main method which runs the web application.
-   *
-   * @param args
-   *          Unused.
-   * @throws Exception
-   *           General exception
-   */
+    /**
+     * This is the main method which runs the web application.
+     *
+     * @param args
+     *            Unused.
+     * @throws Exception
+     *             General exception
+     */
 
-  public static void main(final String[] args) throws Exception {
-    final ConfigurableApplicationContext context = SpringApplication
-        .run(DataIngestApplication.class, args);
+    public static void main(final String[] args) throws Exception {
+        final ConfigurableApplicationContext context = SpringApplication
+                .run(DataIngestApplication.class, args);
 
-  }
+    }
 
 }
-

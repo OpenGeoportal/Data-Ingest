@@ -2,6 +2,8 @@ package org.opengeoportal.dataingest.api.download;
 
 import java.io.File;
 
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import org.opengeoportal.dataingest.utils.FileManager;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,48 +15,65 @@ import org.springframework.stereotype.Component;
 @Component
 public class RemoteDownloadService {
 
-  /**
-   * The GeoServer URL (from the application.properties).
-   */
-  @Value("${geoserver.url}")
-  private String geoserverUrl;
+    /**
+     * The GeoServer URL (from the application.properties).
+     */
+    @Value("${geoserver.url}")
+    private String geoserverUrl;
 
-  /**
-   * The GeoServer Username (from the application.properties).
-   */
-  @Value("${geoserver.username}")
-  private String geoserverUsername;
+    /**
+     * The GeoServer Username (from the application.properties).
+     */
+    @Value("${geoserver.username}")
+    private String geoserverUsername;
 
-  /**
-   * The GeoServer Password (from the application.properties).
-   */
-  @Value("${geoserver.password}")
-  private String geoserverPassword;
+    /**
+     * The GeoServer Password (from the application.properties).
+     */
+    @Value("${geoserver.password}")
+    private String geoserverPassword;
 
-  /**
-   * Prepare download.
-   *
-   * @param downloadRequest
-   *          the download request
-   * @throws Exception
-   *           the exception
-   */
-  public final void prepareDownload(final DownloadRequest downloadRequest)
-      throws Exception {
+    /** Max age allowed for files in cache. */
+    @Value("${param.download.max.age.file}")
+    private long maxDownloadFileAgeInSeconds;
 
-    final String workspace = downloadRequest.getWorkspace();
-    final String dataset = downloadRequest.getDataset();
+    /**
+     * Prepare download.
+     *
+     * @param downloadRequest
+     *            the download request
+     * @return the file
+     * @throws Exception
+     *             the exception
+     */
+    public final File prepareDownload(final DownloadRequest downloadRequest)
+            throws Exception {
 
-    final String uri = geoserverUrl + "/" + workspace
-        + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-        + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+        final String workspace = downloadRequest.getWorkspace();
+        final String dataset = downloadRequest.getDataset();
 
-    final WFSClient client = new WFSClient();
+        final String uri = "http://localhost:8081/geoserver/" + workspace
+                + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+                + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
-    final String fileName = FileNameUtils.getFullPathZipFile(workspace,
-        dataset);
-    final File file = client.getFile(uri, fileName);
+        final WFSClient client = new WFSClient();
 
-  }
+        final String fileName = FileNameUtils.getFullPathZipFile(workspace,
+                dataset);
+
+        FileManager fileM = null;
+        try {
+            fileM = new FileManager(fileName);
+            if (fileM.getFileAgeinSeconds() <= maxDownloadFileAgeInSeconds) {
+                return fileM.getFile();
+            }
+        } catch (FileNotReadyException fnrex) {
+            // ok
+        }
+
+        final File file = client.getFile(uri, fileName);
+        return file;
+
+    }
 
 }
