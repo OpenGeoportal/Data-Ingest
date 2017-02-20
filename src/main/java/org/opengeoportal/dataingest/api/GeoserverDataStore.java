@@ -37,7 +37,7 @@ public class GeoserverDataStore {
      */
     public GeoserverDataStore(String uri) throws Exception {
 
-        String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
+        String getCapabilities = uri + "/wfs?REQUEST=GetCapabilities";
 
         Map connectionParameters = new HashMap();
         connectionParameters.put("WFSDataStoreFactory:GET_CAPABILITIES_URL",

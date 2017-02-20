@@ -456,9 +456,7 @@ public class DataSetsController {
             org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
             response.flushBuffer();
         } finally {
-            if (is != null) {
-                is.close();
-            }
+            org.apache.commons.io.IOUtils.closeQuietly(is);
         }
     }
 
@@ -477,5 +475,5 @@ public class DataSetsController {
         response.setContentType("text/html");
         out.println(message);
         response.flushBuffer();
-   }
+    }
 }
