@@ -111,6 +111,7 @@ public class LocalDownloadService {
         FileManager fileM = null;
 
         try {
+            // The files already exists and is not locked (downloading)
             fileM = new FileManager(fileName);
             if (fileM.getFileAgeinSeconds() > maxDownloadFileAgeInSeconds) {
                 getFileFromRemote(workspace, dataset);
@@ -119,6 +120,7 @@ public class LocalDownloadService {
                 return fileM.getFile();
             }
         } catch (FileNotReadyException fnrex) {
+            // the files doesn't exists (to check: it can be a problem if maxDownloadFileAgeInSeconds is smaller then the download time)
             getFileFromRemote(workspace, dataset);
             throw fnrex;
         }

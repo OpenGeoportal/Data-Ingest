@@ -111,7 +111,7 @@ public class FileManager {
         synchronized (lock) {
             if (lock.exists()) {
 
-                // If some process holds the lock for too many time
+                // If some process holds the lock for too much time
                 if (getLockAgeinSeconds() > maxAllowableLockTime) {
                     // release the lock
                     lock.delete();
