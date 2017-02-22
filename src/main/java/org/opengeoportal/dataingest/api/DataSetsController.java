@@ -1,17 +1,10 @@
 package org.opengeoportal.dataingest.api;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
@@ -29,11 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.HashMap;
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -84,44 +76,7 @@ public class DataSetsController {
      */
     @Autowired
     private LocalDownloadService localDownloadService;
-
-    /**
-     * Testing method, to check if the cache is working for the datasets list.
-     * TODO: remove this later
-     *
-     * @param request            http request
-     * @return dataset list.
-     * @throws Exception the exception
-     */
-    @RequestMapping(value = { "/cache", }, method = RequestMethod.GET)
-    @ResponseBody
-    public final HashMap<String, String> testCache(
-            final HttpServletRequest request) throws Exception {
-
-        return service.getTitles(geoserverUrl);
-    }
-
-    /**
-     * Utility method, to check if the layer list has changed. It compares a
-     * stored hash of the layer list, with the new layer list hash.
-     *
-     * @return boolean to indicate if the layer list has changed
-     * @throws MalformedURLException the malformed URL exception
-     */
-    boolean layerListHasChanged() throws MalformedURLException {
-
-        final GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
-                geoserverUsername, geoserverPassword);
-
-        final int newLayerList = reader.getLayers().getNames().toString()
-                .hashCode();
-        final boolean bHasChanged = oldLayerList == -1 ? true
-                : newLayerList != oldLayerList;
-        oldLayerList = newLayerList;
-
-        return bHasChanged;
-    }
-
+    
     /**
      * Gets the data sets from all workspaces.
      *
