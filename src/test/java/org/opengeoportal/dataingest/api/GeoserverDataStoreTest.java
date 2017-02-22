@@ -108,7 +108,7 @@ public class GeoserverDataStoreTest {
 
         GeoserverDataStore gds = new GeoserverDataStore(uri);
 
-        assertEquals(layerProps, gds.getLayerInfo(uri, workspace, dataset));
+        assertEquals(layerProps, gds.getLayerInfo(workspace, dataset));
 
     }
 
