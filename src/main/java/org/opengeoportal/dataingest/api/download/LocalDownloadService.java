@@ -1,9 +1,5 @@
 package org.opengeoportal.dataingest.api.download;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileManager;
@@ -13,6 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * The Class LocalDownloadService.
@@ -66,7 +66,7 @@ public class LocalDownloadService {
         try {
 
             final GeoserverDataStore gds = new GeoserverDataStore(geoserverUrl);
-            return (gds.getLayerInfo(geoserverUrl, workspace, dataset)
+            return (gds.getLayerInfo(workspace, dataset)
                     .size() > 0);
 
         } catch (final Exception ex) {

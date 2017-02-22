@@ -92,8 +92,6 @@ public class GeoserverDataStore {
     /**
      * Get detailed info about one layer.
      *
-     * @param uri
-     *            geoserver url
      * @param workspace
      *            given workspace
      * @param dataset
@@ -102,7 +100,7 @@ public class GeoserverDataStore {
      * @throws Exception
      *             the exception
      */
-    public HashMap<String, String> getLayerInfo(String uri, String workspace,
+    public HashMap<String, String> getLayerInfo(String workspace,
             String dataset) throws Exception {
 
         HashMap<String, String> layerProps = new HashMap<String, String>();

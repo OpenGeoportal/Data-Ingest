@@ -76,7 +76,7 @@ public class DataSetsController {
      */
     @Autowired
     private LocalDownloadService localDownloadService;
-    
+
     /**
      * Gets the data sets from all workspaces.
      *
@@ -207,7 +207,7 @@ public class DataSetsController {
                     // get data from geoserver
                     try {
                         resultMap = service
-                                .getTitles(geoserverUrl + "/" + workspace);
+                                .getTitles(geoserverUrl + workspace + "/");
                     } catch (final Exception e) {
                         throw new NoDataFoundOnGeoserverException();
                     }

@@ -71,7 +71,7 @@ public class CacheService {
                     + "running and that the connection settings are correct!");
         }
         try {
-            return ds.getLayerInfo(uri, workspace, dataset);
+            return ds.getLayerInfo(workspace, dataset);
         } catch (IOException e) {
            throw new NoDataFoundOnGeoserverException();
         }

@@ -1,12 +1,12 @@
 package org.opengeoportal.dataingest.api.download;
 
-import java.io.File;
-
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileManager;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 /**
  * The Class RemoteDownloadService. This class is used to organize the download
@@ -52,7 +52,7 @@ public class RemoteDownloadService {
         final String workspace = downloadRequest.getWorkspace();
         final String dataset = downloadRequest.getDataset();
 
-        final String uri = "http://localhost:8081/geoserver/" + workspace
+        final String uri = geoserverUrl + workspace
                 + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
                 + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
