@@ -1,10 +1,16 @@
 package org.opengeoportal.dataingest.api;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
@@ -22,10 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.HashMap;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -46,7 +53,7 @@ public class DataSetsController {
     /**
      * Stores a hash of the list of layers.
      */
-    private int oldLayerList = -1;
+    private final int oldLayerList = -1;
     /**
      * The GeoServer URL (from the application.properties).
      */
@@ -80,11 +87,15 @@ public class DataSetsController {
     /**
      * Gets the data sets from all workspaces.
      *
-     * @param page            the page
-     * @param request            the request
-     * @param response the response
+     * @param page
+     *            the page
+     * @param request
+     *            the request
+     * @param response
+     *            the response
      * @return the data sets
-     * @throws Exception             the exception
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = { "/datasets",
             "/datasets/page/{page}" }, method = RequestMethod.GET)
@@ -114,12 +125,17 @@ public class DataSetsController {
     /**
      * Gets the data sets for workspace.
      *
-     * @param workspace            the workspace
-     * @param page            the page
-     * @param request            the request
-     * @param response the response
+     * @param workspace
+     *            the workspace
+     * @param page
+     *            the page
+     * @param request
+     *            the request
+     * @param response
+     *            the response
      * @return the data sets for workspace
-     * @throws Exception             the exception
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = { "/workspaces/{workspace}/datasets",
             "/workspaces/{workspace}/datasets/page/{page}" }, method = RequestMethod.GET)
@@ -241,11 +257,15 @@ public class DataSetsController {
     /**
      * Gives detailed information about one given dataset.
      *
-     * @param workspace            given workspace
-     * @param dataset            given dataset
-     * @param response the response
+     * @param workspace
+     *            given workspace
+     * @param dataset
+     *            given dataset
+     * @param response
+     *            the response
      * @return String dataset info, as a set of properties.
-     * @throws Exception             the exception
+     * @throws Exception
+     *             the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.GET)
     @ResponseBody
@@ -418,10 +438,14 @@ public class DataSetsController {
     /**
      * Prints the output message.
      *
-     * @param response the response
-     * @param code the code
-     * @param message the message
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @param response
+     *            the response
+     * @param code
+     *            the code
+     * @param message
+     *            the message
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     private void printOutputMessage(final HttpServletResponse response,
             final int code, final String message) throws IOException {

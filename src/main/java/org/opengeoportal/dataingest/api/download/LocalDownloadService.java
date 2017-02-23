@@ -53,13 +53,14 @@ public class LocalDownloadService {
     private String path;
 
     /**
-     * Constructor of the Local Download Service, where we initialize a File Cache structure.
-     * If no one set he cache path on application.properties, we use the default TMP dir.
+     * Constructor of the Local Download Service, where we initialize a File
+     * Cache structure. If no one set he cache path on application.properties,
+     * we use the default TMP dir.
      */
     public LocalDownloadService() throws java.lang.NullPointerException {
 
-        fileCache = new LRUFileCache(capacity, path == null || path.isEmpty() ? System.getProperty("java.io"
-            + ".tmpdir") : path);
+        fileCache = new LRUFileCache(capacity, path == null || path.isEmpty()
+            ? System.getProperty("java.io" + ".tmpdir") : path);
     }
 
     /**
@@ -89,15 +90,17 @@ public class LocalDownloadService {
         try {
             final GeoserverDataStore gds = new GeoserverDataStore(geoserverUrl);
 
-            boolean exists = gds.getLayerInfo(workspace, dataset)
+            final boolean exists = gds.getLayerInfo(workspace, dataset)
                 .size() > 0;
 
             /**
-             * Remove file on the cache, if the request fails *and* the file is on the cache:
-             * It means it should not be there!
+             * Remove file on the cache, if the request fails *and* the file is
+             * on the cache: It means it should *not* be there!
              */
-            if (!exists && fileCache.get(GeoServerUtils.getTypeName(workspace, dataset)) != null) {
-                fileCache.remove(GeoServerUtils.getTypeName(workspace, dataset));
+            if (!exists && fileCache.isCached(
+                GeoServerUtils.getTypeName(workspace, dataset))) {
+                fileCache
+                    .remove(GeoServerUtils.getTypeName(workspace, dataset));
             }
             return exists;
 
@@ -108,7 +111,8 @@ public class LocalDownloadService {
     }
 
     /**
-     * This is the method that we use for getting the file. It uses the FileCache.
+     * This is the method that we use for getting the file. It uses the
+     * FileCache.
      *
      * @param workspace the workspace
      * @param dataset   the dataset
@@ -117,12 +121,13 @@ public class LocalDownloadService {
      * @throws IOException           Signals that an I/O exception has occurred.
      */
     public final File getFile(final String workspace, final String dataset)
-        throws FileNotReadyException, IOException {
+        throws FileNotReadyException, IOException, java.lang.Exception {
 
         // this data exists
         if (!this.isAValidRequest(workspace, dataset)) {
             throw new FileNotFoundException();
         }
+
 
         String typeName = GeoServerUtils.getTypeName(workspace, dataset);
         return fileCache.getFileFromCache(typeName);
@@ -133,13 +138,13 @@ public class LocalDownloadService {
      *
      * @param workspace the workspace
      * @param dataset   the dataset
-     * @param fileName filename
+     * @param fileName  filename
      * @throws FileNotFoundException File not found on OGS
      */
-    @Deprecated //This won't work anymore! Move it to the FileCache
-    public final void forceGetFile(final String workspace, final String dataset, final String fileName)
-        throws FileNotFoundException {
-        //this.getFileFromRemote(workspace, dataset);
+    @Deprecated // This won't work anymore! Move it to the FileCache
+    public final void forceGetFile(final String workspace, final String dataset,
+                                   final String fileName) throws FileNotFoundException {
+        // this.getFileFromRemote(workspace, dataset);
     }
 
 }

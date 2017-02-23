@@ -36,10 +36,13 @@ public class WFSClient {
     /**
      * Get a file from a WFS request.
      *
-     * @param uri            address of the service
-     * @param getFullFilePath            name with path of the file
+     * @param uri
+     *            address of the service
+     * @param getFullFilePath
+     *            name with path of the file
      * @return file with the dataset
-     * @throws Exception the exception
+     * @throws Exception
+     *             the exception
      */
     public final File getFile(final String uri, final String getFullFilePath)
             throws Exception {
@@ -67,12 +70,38 @@ public class WFSClient {
     }
 
     /**
+     * Get a file sizefrom a WFS request.
+     *
+     * @param uri
+     *            address of the service
+     * @param getFullFilePath
+     *            name with path of the file
+     * @return file with the dataset
+     * @throws Exception
+     *             the exception
+     */
+    public final long getFileSize(final String uri,
+            final String getFullFilePath) throws Exception {
+
+        final HttpEntity<String> requestEntity = new HttpEntity<String>("",
+                headers);
+        final ResponseEntity<byte[]> responseEntity = rest.exchange(uri,
+                HttpMethod.HEAD, requestEntity, byte[].class);
+
+        return responseEntity.getHeaders().getContentLength();
+
+    }
+
+    /**
      * Get feature type for a given workspace.
      *
-     * @param uri            geoserver url
-     * @param workspace            given workspace
+     * @param uri
+     *            geoserver url
+     * @param workspace
+     *            given workspace
      * @return feature type as string
-     * @throws Exception the exception
+     * @throws Exception
+     *             the exception
      */
     public final String getFeatureType(final String uri, final String workspace)
             throws Exception {

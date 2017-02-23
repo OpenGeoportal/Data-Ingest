@@ -1,14 +1,14 @@
 package org.opengeoportal.dataingest.api;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by joana on 27/01/17.
@@ -35,36 +35,36 @@ public class GeoserverDataStore {
      *            geoserver uri (include filter per workspace)
      * @throws Exception
      */
-    public GeoserverDataStore(String uri) throws Exception {
+    public GeoserverDataStore(final String uri) throws Exception {
 
-        String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
+        final String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
 
-        Map connectionParameters = new HashMap();
+        final Map connectionParameters = new HashMap();
         connectionParameters.put("WFSDataStoreFactory:GET_CAPABILITIES_URL",
                 getCapabilities);
         connectionParameters.put("WFSDataStoreFactory:TIMEOUT", TIMEOUT);
 
         try {
-            WFSDataStoreFactory dsf = new WFSDataStoreFactory();
+            final WFSDataStoreFactory dsf = new WFSDataStoreFactory();
             data = dsf.createDataStore(connectionParameters);
 
-            String[] typeNames = data.getTypeNames();
+            final String[] typeNames = data.getTypeNames();
 
-            HashMap<String, String> mTtitles = new HashMap<String, String>();
-            for (String typeName : typeNames) {
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
+            final HashMap<String, String> mTtitles = new HashMap<String, String>();
+            for (final String typeName : typeNames) {
+                final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
                         .getFeatureSource(typeName);
-                ResourceInfo resourceInfo = featureSource.getInfo();
+                final ResourceInfo resourceInfo = featureSource.getInfo();
                 mTtitles.put(resourceInfo.getName(), resourceInfo.getTitle());
             }
 
             hTitles = mTtitles;
 
-        } catch (java.net.ConnectException ce) {
+        } catch (final java.net.ConnectException ce) {
             throw new Exception("Could not connect to GeoServer " + "at: " + uri
                     + ". Make sure it is up and "
                     + "running and that the connection settings are correct!");
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             throw ex;
         }
     }
@@ -100,14 +100,14 @@ public class GeoserverDataStore {
      * @throws Exception
      *             the exception
      */
-    public HashMap<String, String> getLayerInfo(String workspace,
-            String dataset) throws Exception {
+    public HashMap<String, String> getLayerInfo(final String workspace,
+            final String dataset) throws Exception {
 
-        HashMap<String, String> layerProps = new HashMap<String, String>();
-        String typeName = workspace + ":" + dataset;
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
+        final HashMap<String, String> layerProps = new HashMap<String, String>();
+        final String typeName = workspace + ":" + dataset;
+        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
                 .getFeatureSource(typeName);
-        ResourceInfo resourceInfo = featureSource.getInfo();
+        final ResourceInfo resourceInfo = featureSource.getInfo();
 
         try {
             // Example properties
@@ -118,7 +118,7 @@ public class GeoserverDataStore {
             layerProps.put("keywords", resourceInfo.getKeywords().toString());
             return layerProps;
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             throw new Exception("Could not read layer featuretype");
         }

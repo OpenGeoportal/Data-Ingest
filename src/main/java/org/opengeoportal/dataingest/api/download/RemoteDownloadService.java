@@ -1,12 +1,12 @@
 package org.opengeoportal.dataingest.api.download;
 
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import java.io.File;
+
 import org.opengeoportal.dataingest.api.fileCache.FileManager;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 /**
  * The Class RemoteDownloadService. This class is used to organize the download
@@ -67,7 +67,7 @@ public class RemoteDownloadService {
             if (fileM.getFileAgeinSeconds() <= maxDownloadFileAgeInSeconds) {
                 return fileM.getFile();
             }
-        } catch (FileNotReadyException fnrex) {
+        } catch (final FileNotReadyException fnrex) {
             // ok
         }
 
