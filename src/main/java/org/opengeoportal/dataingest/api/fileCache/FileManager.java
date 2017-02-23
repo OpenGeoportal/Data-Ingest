@@ -79,11 +79,11 @@ public class FileManager {
     public File getFile() {
         return f;
     }
-    
+
     /**
      * Removes the file.
-     * @throws IOException 
-     * @throws FileLockedException 
+     * @throws IOException
+     * @throws FileLockedException
      */
     public void removeFile() throws IOException, FileLockedException {
         if (f.exists() && !isLocked()) {
@@ -92,7 +92,7 @@ public class FileManager {
             throw new FileLockedException();
         }
     }
-    
+
 
     /**
      * Lock the file.
