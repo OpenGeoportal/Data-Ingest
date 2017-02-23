@@ -1,15 +1,15 @@
 package org.opengeoportal.dataingest.api.download;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * The Class LocalDownloadService.
@@ -53,13 +53,14 @@ public class LocalDownloadService {
     private String path;
 
     /**
-     * Constructor of the Local Download Service, where we initialize a File Cache structure.
-     * If no one set he cache path on application.properties, we use the default TMP dir.
+     * Constructor of the Local Download Service, where we initialize a File
+     * Cache structure. If no one set he cache path on application.properties,
+     * we use the default TMP dir.
      */
     public LocalDownloadService() throws java.lang.NullPointerException {
 
-        fileCache = new LRUFileCache(capacity, path == null || path.isEmpty() ? System.getProperty("java.io"
-            + ".tmpdir") : path);
+        fileCache = new LRUFileCache(capacity, path == null || path.isEmpty()
+                ? System.getProperty("java.io" + ".tmpdir") : path);
     }
 
     /**
@@ -74,12 +75,14 @@ public class LocalDownloadService {
     /**
      * Check if data exists on Geoserver.
      *
-     * @param workspace the workspace
-     * @param dataset   the dataset
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
      * @return true
      */
     private boolean isAValidRequest(final String workspace,
-                                    final String dataset) {
+            final String dataset) {
 
         /*
          * Find a better way than asking directly for the file (some method in
@@ -89,15 +92,17 @@ public class LocalDownloadService {
         try {
             final GeoserverDataStore gds = new GeoserverDataStore(geoserverUrl);
 
-            boolean exists = gds.getLayerInfo(workspace, dataset)
-                .size() > 0;
+            final boolean exists = gds.getLayerInfo(workspace, dataset)
+                    .size() > 0;
 
             /**
-             * Remove file on the cache, if the request fails *and* the file is on the cache:
-             * It means it should not be there!
+             * Remove file on the cache, if the request fails *and* the file is
+             * on the cache: It means it should not be there!
              */
-            if (!exists && fileCache.get(GeoServerUtils.getTypeName(workspace, dataset)) != null) {
-                fileCache.remove(GeoServerUtils.getTypeName(workspace, dataset));
+            if (!exists && fileCache.get(
+                    GeoServerUtils.getTypeName(workspace, dataset)) != null) {
+                fileCache
+                        .remove(GeoServerUtils.getTypeName(workspace, dataset));
             }
             return exists;
 
@@ -108,16 +113,21 @@ public class LocalDownloadService {
     }
 
     /**
-     * This is the method that we use for getting the file. It uses the FileCache.
+     * This is the method that we use for getting the file. It uses the
+     * FileCache.
      *
-     * @param workspace the workspace
-     * @param dataset   the dataset
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
      * @return The requested file
-     * @throws FileNotReadyException File not ready locally
-     * @throws IOException           Signals that an I/O exception has occurred.
+     * @throws FileNotReadyException
+     *             File not ready locally
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
      */
     public final File getFile(final String workspace, final String dataset)
-        throws FileNotReadyException, IOException {
+            throws FileNotReadyException, IOException {
 
         // this data exists
         if (!this.isAValidRequest(workspace, dataset)) {
@@ -126,7 +136,7 @@ public class LocalDownloadService {
 
         // Check if file is on the cache:
         // If its there use it.
-        String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+        final String typeName = GeoServerUtils.getTypeName(workspace, dataset);
         File file = fileCache.get(typeName);
 
         // If its not on the cache, put it there; then use it.
@@ -141,15 +151,19 @@ public class LocalDownloadService {
     /**
      * This is the method force the download of the file, ignoring the cache .
      *
-     * @param workspace the workspace
-     * @param dataset   the dataset
-     * @param fileName filename
-     * @throws FileNotFoundException File not found on OGS
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
+     * @param fileName
+     *            filename
+     * @throws FileNotFoundException
+     *             File not found on OGS
      */
-    @Deprecated //This won't work anymore! Move it to the FileCache
-    public final void forceGetFile(final String workspace, final String dataset, final String fileName)
-        throws FileNotFoundException {
-        //this.getFileFromRemote(workspace, dataset);
+    @Deprecated // This won't work anymore! Move it to the FileCache
+    public final void forceGetFile(final String workspace, final String dataset,
+            final String fileName) throws FileNotFoundException {
+        // this.getFileFromRemote(workspace, dataset);
     }
 
 }

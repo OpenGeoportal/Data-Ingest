@@ -1,13 +1,13 @@
 package org.opengeoportal.dataingest.api.fileCache;
 
-import org.opengeoportal.dataingest.exception.FileLockedException;
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import org.opengeoportal.dataingest.exception.FileLockedException;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
 
 /**
  * The Class FileManager.
@@ -15,10 +15,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class FileManager {
 
     /** The f. */
-    private File f;
+    private final File f;
 
     /** The lock. */
-    private File lock;
+    private final File lock;
 
     /**
      * Max allowable lock time in seconds 1 hour is recommended for bigger
@@ -29,11 +29,15 @@ public class FileManager {
     /**
      * Instantiates a new file manager.
      *
-     * @param path            the path
-     * @throws IOException Signals that an I/O exception has occurred.
-     * @throws FileNotReadyException the file not ready exception
+     * @param path
+     *            the path
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws FileNotReadyException
+     *             the file not ready exception
      */
-    public FileManager(String path) throws IOException, FileNotReadyException {
+    public FileManager(final String path)
+            throws IOException, FileNotReadyException {
         f = new File(path);
         lock = new File(path + ".lock");
         if (!f.exists() || isLocked()) {
@@ -53,7 +57,7 @@ public class FileManager {
      * @throws FileLockedException
      *             the file locked exception
      */
-    public FileManager(String path, boolean newFile)
+    public FileManager(final String path, final boolean newFile)
             throws IOException, FileLockedException {
         f = new File(path);
         lock = new File(path + ".lock");
@@ -135,15 +139,14 @@ public class FileManager {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    @Deprecated
     public long getFileAgeinSeconds()
             throws NumberFormatException, IOException {
-        Path path = f.toPath();
-        BasicFileAttributes attr = Files.readAttributes(path,
+        final Path path = f.toPath();
+        final BasicFileAttributes attr = Files.readAttributes(path,
                 BasicFileAttributes.class);
 
-        long current = System.currentTimeMillis() / 1000;
-        long creationTime = attr.creationTime().toMillis() / 1000;
+        final long current = System.currentTimeMillis() / 1000;
+        final long creationTime = attr.creationTime().toMillis() / 1000;
 
         return (current - creationTime);
 
@@ -160,12 +163,12 @@ public class FileManager {
      */
     private long getLockAgeinSeconds()
             throws NumberFormatException, IOException {
-        Path path = lock.toPath();
-        BasicFileAttributes attr = Files.readAttributes(path,
+        final Path path = lock.toPath();
+        final BasicFileAttributes attr = Files.readAttributes(path,
                 BasicFileAttributes.class);
 
-        long current = System.currentTimeMillis() / 1000;
-        long creationTime = attr.creationTime().toMillis() / 1000;
+        final long current = System.currentTimeMillis() / 1000;
+        final long creationTime = attr.creationTime().toMillis() / 1000;
 
         return (current - creationTime);
     }

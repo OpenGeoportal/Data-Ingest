@@ -24,10 +24,12 @@ class Node {
     /**
      * Class constructor, where we initialize key and value.
      *
-     * @param key   key.
-     * @param value value.
+     * @param key
+     *            key.
+     * @param value
+     *            value.
      */
-    Node(String key, long value) {
+    Node(final String key, final long value) {
         this.key = key;
         this.value = value;
     }
@@ -44,9 +46,10 @@ class Node {
     /**
      * Set key .
      *
-     * @param key key
+     * @param key
+     *            key
      */
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -62,9 +65,10 @@ class Node {
     /**
      * Set value.
      *
-     * @param value value
+     * @param value
+     *            value
      */
-    public void setValue(long value) {
+    public void setValue(final long value) {
         this.value = value;
     }
 
@@ -80,9 +84,10 @@ class Node {
     /**
      * Set previous node.
      *
-     * @param pre previous node
+     * @param pre
+     *            previous node
      */
-    public void setPre(Node pre) {
+    public void setPre(final Node pre) {
         this.pre = pre;
     }
 
@@ -98,9 +103,10 @@ class Node {
     /**
      * Set next node.
      *
-     * @param next next node.
+     * @param next
+     *            next node.
      */
-    public void setNext(Node next) {
+    public void setNext(final Node next) {
         this.next = next;
     }
 }

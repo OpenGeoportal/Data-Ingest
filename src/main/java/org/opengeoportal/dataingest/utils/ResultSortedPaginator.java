@@ -76,7 +76,7 @@ public class ResultSortedPaginator {
      * @return the list
      */
     private List<HashMapElement> fromHashMapToList(
-            HashMap<String, String> map) {
+            final HashMap<String, String> map) {
         final List<HashMapElement> list = new ArrayList<HashMapElement>();
 
         // map object comes from the cache, in this way we avoid concurrent
@@ -303,7 +303,7 @@ public class ResultSortedPaginator {
         }
 
         @Override
-        public boolean equals(Object arg0) {
+        public boolean equals(final Object arg0) {
             if (arg0 == null) {
                 return false;
             }

@@ -1,13 +1,13 @@
 package org.opengeoportal.dataingest.api;
 
+import java.io.IOException;
+import java.util.HashMap;
+
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.HashMap;
 
 /**
  * This service class acts as a proxy between the controller and
@@ -28,14 +28,15 @@ public class CacheService {
      * @throws Exception
      */
     @Cacheable(value = "titles", key = "#uri")
-    public HashMap<String, String> getTitles(String uri) throws Exception {
+    public HashMap<String, String> getTitles(final String uri)
+            throws Exception {
 
         System.out.println("Not using the cache");
 
         GeoserverDataStore ds = null;
         try {
             ds = new GeoserverDataStore(uri);
-        } catch (java.lang.Exception e) {
+        } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: " + uri
                     + ". Make sure it is up and "
                     + "running and that the connection settings are correct!");
@@ -57,23 +58,23 @@ public class CacheService {
      * @throws Exception
      */
     @Cacheable(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)")
-    public HashMap<String, String> getInfo(String uri, String workspace,
-            String dataset) throws Exception {
+    public HashMap<String, String> getInfo(final String uri,
+            final String workspace, final String dataset) throws Exception {
 
         System.out.println("Not using the cache");
 
         GeoserverDataStore ds = null;
         try {
             ds = new GeoserverDataStore(uri);
-        } catch (java.lang.Exception e) {
+        } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: " + uri
                     + ". Make sure it is up and "
                     + "running and that the connection settings are correct!");
         }
         try {
             return ds.getLayerInfo(workspace, dataset);
-        } catch (IOException e) {
-           throw new NoDataFoundOnGeoserverException();
+        } catch (final IOException e) {
+            throw new NoDataFoundOnGeoserverException();
         }
 
     }
@@ -90,7 +91,8 @@ public class CacheService {
      */
     @Caching(evict = { @CacheEvict(value = "titles", allEntries = true),
             @CacheEvict(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)") })
-    public void clearCache(String uri, String workspace, String dataset) {
+    public void clearCache(final String uri, final String workspace,
+            final String dataset) {
         System.out.println("Clearing the cache");
     }
 
