@@ -1,7 +1,5 @@
 package org.opengeoportal.dataingest.api.fileCache;
 
-import java.io.File;
-
 /**
  * Created by joana on 22/02/17.
  */
@@ -23,7 +21,7 @@ public class LRUFileCache extends FileCache {
      * @param key dataset typename (workspace:dataset)
      * @return file
      */
-    public File get(String key) {
+    protected Node get(String key) {
         //TODO: implement this
         //getFile
         return null;
@@ -34,19 +32,8 @@ public class LRUFileCache extends FileCache {
      *
      * @param key dataset typename (workspace:dataset)
      */
-    public void set(String key) {
+    protected void set(String key, long value) {
         //TODO: implement this
         //setFile
     }
-
-    /**
-     * Overriden method from the file cache, which removes an entry from the LRU cache.
-     *
-     * @param n node (typename,size)
-     */
-    protected void remove(Node n) {
-        //TODO: throw an error here
-        map.remove(n);
-    }
-
 }

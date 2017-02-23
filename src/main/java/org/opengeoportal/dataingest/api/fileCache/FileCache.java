@@ -49,7 +49,7 @@ public abstract class FileCache {
      *
      * @param key dataset typename (workspace:dataset)
      */
-    public abstract void set(String key);
+    protected abstract void set(String key, long value);
 
     /**
      * Abstract method to retrieve a file from the cache.
@@ -57,14 +57,34 @@ public abstract class FileCache {
      * @param key dataset typename (workspace:dataset)
      * @return a file
      */
-    public abstract File get(String key);
+    protected abstract Node get(String key);
+
+    public File getFileFromCache(String key){
+
+        File f = null;
+        if (get(key)!=null){
+            //TODO: File is on cache: get it from the harddrive
+        }
+        else {
+            //TODO: File is not on cache; issue the download
+            //TODO: get the file size;
+            long fileSize = 0;
+            set(key, fileSize);
+        }
+        return f;
+    }
+
+
 
     /**
-     * Abstract method to remove a file from the cache.
+     * method to remove a file from the cache.
      *
      * @param n node (typename,size)
      */
-    protected abstract void remove(Node n);
+    private void remove(Node n){
+        //TODO: throw an error here
+        map.remove(n);
+    }
 
     /**
      * Wrapper of the remove(Node n), function, taking a typename as argument.
@@ -72,6 +92,7 @@ public abstract class FileCache {
      * @param key dataset typename (workspace:dataset)
      */
     public void remove(String key) {
+        //TODO: remove file here
         remove(map.get(key));
     }
 

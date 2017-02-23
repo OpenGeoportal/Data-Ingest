@@ -124,18 +124,8 @@ public class LocalDownloadService {
             throw new FileNotFoundException();
         }
 
-        // Check if file is on the cache:
-        // If its there use it.
         String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-        File file = fileCache.get(typeName);
-
-        // If its not on the cache, put it there; then use it.
-        if (file == null) {
-            fileCache.set(typeName);
-            file = fileCache.get(typeName);
-        }
-
-        return file;
+        return fileCache.getFileFromCache(typeName);
     }
 
     /**
