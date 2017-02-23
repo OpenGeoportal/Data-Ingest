@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
+import org.opengeoportal.dataingest.exception.PageFormatException;
 import org.opengeoportal.dataingest.exception.PageNotFoundException;
 import org.opengeoportal.dataingest.exception.PageSizeFormatException;
 import org.opengeoportal.dataingest.utils.DatasetsPageWrapper;
@@ -87,8 +88,6 @@ public class DataSetsController {
     /**
      * Gets the data sets from all workspaces.
      *
-     * @param page
-     *            the page
      * @param request
      *            the request
      * @param response
@@ -97,19 +96,17 @@ public class DataSetsController {
      * @throws Exception
      *             the exception
      */
-    @RequestMapping(value = { "/datasets",
-            "/datasets/page/{page}" }, method = RequestMethod.GET)
+    @RequestMapping(value = "/datasets", method = RequestMethod.GET)
     @ResponseBody
     public final DatasetsPageWrapper getDataSets(
-            @PathVariable(value = "page", required = false) final Integer page,
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
 
         try {
-            return getPaginatedDataSets(page, request, null);
+            return getPaginatedDataSets(request, null);
         } catch (final PageNotFoundException pnfex) {
             printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
-                    "Page " + page + " not found");
+                    "Page " + pnfex.getPageNumber() + " not found");
             return null;
         } catch (final NoDataFoundOnGeoserverException ndfgsex) {
             printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
@@ -119,6 +116,10 @@ public class DataSetsController {
             printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
                     "Wrong page Size format");
             return null;
+        } catch (final PageFormatException psfex) {
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Wrong page number format");
+            return null;
         }
     }
 
@@ -127,8 +128,6 @@ public class DataSetsController {
      *
      * @param workspace
      *            the workspace
-     * @param page
-     *            the page
      * @param request
      *            the request
      * @param response
@@ -137,20 +136,18 @@ public class DataSetsController {
      * @throws Exception
      *             the exception
      */
-    @RequestMapping(value = { "/workspaces/{workspace}/datasets",
-            "/workspaces/{workspace}/datasets/page/{page}" }, method = RequestMethod.GET)
+    @RequestMapping(value = "/workspaces/{workspace}/datasets", method = RequestMethod.GET)
     @ResponseBody
     public final DatasetsPageWrapper getDataSetsForWorkspace(
             @PathVariable(value = "workspace") final String workspace,
-            @PathVariable(value = "page", required = false) final Integer page,
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
 
         try {
-            return getPaginatedDataSets(page, request, workspace);
+            return getPaginatedDataSets(request, workspace);
         } catch (final PageNotFoundException pnfex) {
             printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
-                    "Page " + page + " not found");
+                    "Page " + pnfex.getPageNumber() + " not found");
             return null;
         } catch (final NoDataFoundOnGeoserverException ndfgsex) {
             printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
@@ -160,14 +157,16 @@ public class DataSetsController {
             printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
                     "Wrong page Size format");
             return null;
+        } catch (final PageFormatException psfex) {
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                    "Wrong page number format");
+            return null;
         }
     }
 
     /**
      * Gets the paginated data sets.
      *
-     * @param page
-     *            the page
      * @param request
      *            the request
      * @param workspace
@@ -176,19 +175,34 @@ public class DataSetsController {
      * @throws Exception
      *             the exception
      */
-    private DatasetsPageWrapper getPaginatedDataSets(Integer page,
+    private DatasetsPageWrapper getPaginatedDataSets(
             final HttpServletRequest request, String workspace)
             throws Exception {
         try {
 
             boolean reloadResults = false;
+            Integer page = null;
 
             if (request.getParameter("pageSize") != null) {
-                if (!StringUtils.isNumeric(request.getParameter("pageSize"))) {
+                if (request.getParameter("pageSize").isEmpty()) {
+                    throw new PageSizeFormatException();
+                } else if (!StringUtils
+                        .isNumeric(request.getParameter("pageSize"))) {
                     throw new PageSizeFormatException();
                 } else {
                     this.pageSize = Integer
                             .parseInt(request.getParameter("pageSize"));
+                }
+            }
+
+            if (request.getParameter("page") != null) {
+                if (request.getParameter("page").isEmpty()) {
+                    throw new PageFormatException();
+                } else if (!StringUtils
+                        .isNumeric(request.getParameter("page"))) {
+                    throw new PageFormatException();
+                } else {
+                    page = Integer.parseInt(request.getParameter("page"));
                 }
             }
 
@@ -239,7 +253,7 @@ public class DataSetsController {
             }
 
             if (page > paginator.getMaxPages()) {
-                throw new PageNotFoundException();
+                throw new PageNotFoundException(page);
             }
 
             paginator.setPage(page);
@@ -248,8 +262,7 @@ public class DataSetsController {
                     paginator.getList().size(), paginator.getPage(),
                     paginator.getMaxPages());
 
-        } catch (final Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception ex) {
             throw ex;
         }
     }
@@ -289,7 +302,6 @@ public class DataSetsController {
                     "Dataset " + dataset + " doesn't exists");
             return null;
         } catch (final Exception ex) {
-            ex.printStackTrace();
             throw ex;
         }
 
