@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.opengeoportal.dataingest.utils.FileManager;
+import org.opengeoportal.dataingest.api.fileCache.FileManager;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
