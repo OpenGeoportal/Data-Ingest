@@ -79,6 +79,20 @@ public class FileManager {
     public File getFile() {
         return f;
     }
+    
+    /**
+     * Removes the file.
+     * @throws IOException 
+     * @throws FileLockedException 
+     */
+    public void removeFile() throws IOException, FileLockedException {
+        if (f.exists() && !isLocked()) {
+            f.delete();
+        }  else if (f.exists() && isLocked()) {
+            throw new FileLockedException();
+        }
+    }
+    
 
     /**
      * Lock the file.
