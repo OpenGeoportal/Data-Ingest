@@ -1,7 +1,7 @@
 package org.opengeoportal.dataingest.api.download;
 
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
-import org.opengeoportal.dataingest.utils.FileManager;
+import org.opengeoportal.dataingest.api.fileCache.FileManager;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
