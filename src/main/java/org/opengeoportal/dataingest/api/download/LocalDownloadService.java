@@ -31,10 +31,16 @@ public class LocalDownloadService {
      * Constructor of the Local Download Service, where we initialize a File
      * Cache structure. If no one set he cache path on application.properties,
      * we use the default TMP dir.
+     *
+     * @param capacity                    cache directory maximum size (in bytes).
+     * @param path                        disk path of the file cache (where we store the physical files.
+     * @param maxDownloadFileAgeInSeconds validity of the cache (in seconds).
+     * @param geoserverUrl                geoserver url.
+     * @throws java.lang.NullPointerException
      */
-
     @Autowired
-    public LocalDownloadService(@Value("${cache.capacity}") int capacity, @Value("${cache.path}") String path,
+    public LocalDownloadService(@Value("${cache.capacity}") int capacity, @Value("${cache.path}") String
+        path,
                                 @Value("${param.download.max.age.file}") long maxDownloadFileAgeInSeconds, @Value
                                     ("${geoserver.url}") String geoserverUrl)
         throws java.lang.NullPointerException {

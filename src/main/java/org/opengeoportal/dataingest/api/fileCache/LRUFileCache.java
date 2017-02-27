@@ -17,9 +17,10 @@ public class LRUFileCache extends FileCache {
     /**
      * Calls the abstract class constructor.
      *
-     * @param capacity cache directory maximum size (in bytes).
-     * @param path     disk path of the file cache (where we store the physical
-     *                 files.
+     * @param capacity     cache directory maximum size (in bytes).
+     * @param path         disk path of the file cache (where we store the physical files.
+     * @param age          validity of the cache (in seconds).
+     * @param geoserverUrl geoserver url.
      */
     public LRUFileCache(final int capacity, final String path, long age, String geoserverUrl) {
         super(capacity, path, age, geoserverUrl);

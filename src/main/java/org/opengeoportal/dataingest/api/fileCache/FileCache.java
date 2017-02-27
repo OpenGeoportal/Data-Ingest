@@ -48,9 +48,10 @@ public abstract class FileCache {
     /**
      * Class constructor, where we initialize capacity and path.
      *
-     * @param capacity cache directory maximum size (in bytes).
-     * @param path     disk path of the file cache (where we store the physical
-     *                 files.
+     * @param capacity     cache directory maximum size (in bytes).
+     * @param path         disk path of the file cache (where we store the physical files.
+     * @param age          validity of the cache (in seconds).
+     * @param geoserverUrl geoserver url.
      */
     public FileCache(final int capacity, final String path, long age, String geoserverUrl) {
         this.capacity = capacity;
