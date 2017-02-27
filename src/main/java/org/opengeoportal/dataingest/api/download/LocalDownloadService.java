@@ -3,10 +3,6 @@
  */
 package org.opengeoportal.dataingest.api.download;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
@@ -14,6 +10,10 @@ import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * The Class LocalDownloadService.
@@ -52,7 +52,7 @@ public class LocalDownloadService {
      * @return true
      */
     private boolean isAValidRequest(final String workspace,
-            final String dataset) {
+            final String dataset) throws Exception {
 
         /*
          * Find a better way than asking directly for the file (some method in
@@ -62,24 +62,18 @@ public class LocalDownloadService {
         try {
             final GeoserverDataStore gds = new GeoserverDataStore(geoserverUrl);
 
-            final boolean exists = gds.getLayerInfo(workspace, dataset)
-                    .size() > 0;
+            gds.getLayerInfo(workspace, dataset);
+            return true;
 
-            /**
-             * Remove file on the cache, if the request fails *and* the file is
-             * on the cache: It means it should *not* be there!
-             */
-            if (!exists && fileCache
-                    .isCached(GeoServerUtils.getTypeName(workspace, dataset))) {
-                fileCache
-                        .remove(GeoServerUtils.getTypeName(workspace, dataset));
-            }
-            return exists;
+        } catch (final java.io.IOException ex) {
 
-        } catch (final Exception ex) {
-            ex.printStackTrace();
+            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+            if (fileCache.isCached(typeName)) fileCache.remove(typeName);
+
             return false;
         }
+
+
     }
 
     /**

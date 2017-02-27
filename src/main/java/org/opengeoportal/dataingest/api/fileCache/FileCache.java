@@ -3,10 +3,6 @@
  */
 package org.opengeoportal.dataingest.api.fileCache;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
@@ -18,12 +14,21 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+
 /**
  * Created by joana on 22/02/17.
  */
 @Component
 public abstract class FileCache {
-
+    /**
+     * File Cache structure, which holds the nodes.
+     */
+    protected HashMap<String, Node> map = new HashMap<String, Node>();
     /**
      * Cache directory maximum size (in bytes).
      */
@@ -35,6 +40,11 @@ public abstract class FileCache {
     @Value("${cache.path}")
     private String path;
     /**
+     * Name of the cache, which is the directory to be created on given path.
+     */
+    @Value("${cache.name}")
+    private String cachename;
+    /**
      * Validity of the cache (in seconds).
      */
     @Value("${param.download.max.age.file}")
@@ -44,12 +54,6 @@ public abstract class FileCache {
      */
     @Value("${geoserver.url}")
     private String geoserverUrl;
-
-    /**
-     * File Cache structure, which holds the nodes.
-     */
-    protected HashMap<String, Node> map = new HashMap<String, Node>();
-
     /**
      * The application context.
      */
@@ -57,9 +61,37 @@ public abstract class FileCache {
     private ApplicationContext context;
 
     /**
+     * Init method, that creates the cache directory.
+     *
+     * @throws Exception
+     */
+    @PostConstruct
+    public void createCacheDir() throws Exception {
+        String baseDir = FileNameUtils.getCachePath(path, cachename);
+        File dir = new File(baseDir);
+        if (!dir.exists()) {
+            try {
+                dir.mkdir();
+            } catch (SecurityException se) {
+                throw new Exception("Could not create " + baseDir + "; please check permissions");
+            }
+        }
+    }
+
+    /**
+     * Shutdown method which removes the cache directory, after the JVM is stopped.
+     */
+    //TODO: this is not working! Find out why
+    @PreDestroy
+    public void clearCacheDir() {
+        File dir = new File(FileNameUtils.getCachePath(path, cachename));
+        dir.deleteOnExit();
+    }
+
+    /**
      * Public interface for the abstract remove, taking a typename as argument.
      *
-     * @param key            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @throws Exception the exception
      */
     public void remove(final String key) throws Exception {
@@ -76,7 +108,7 @@ public abstract class FileCache {
      * disk, otherwise issue an assynchronous download and register the file on
      * the cache.
      *
-     * @param key            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return file
      * @throws Exception the exception
      */
@@ -86,11 +118,11 @@ public abstract class FileCache {
         FileManager fileM;
         final String workspace = GeoServerUtils.getWorkspace(key);
         final String dataset = GeoServerUtils.getDataset(key);
-        final String fileName = FileNameUtils.getFullPathZipFile(workspace,
-                dataset);
+        final String fileName = FileNameUtils.getFullPathZipFile(FileNameUtils.getCachePath(path, cachename), workspace,
+            dataset);
         final String uri = geoserverUrl + workspace
-                + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-                + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
         final Node n = map.get(key);
 
         final WFSClient client = new WFSClient();
@@ -107,7 +139,7 @@ public abstract class FileCache {
                         n.setValue(fileSize);
                     } catch (final Exception ex) {
                         throw new Exception(
-                                "Could not register file on the cache");
+                            "Could not register file on the cache");
                     }
                     throw new FileNotReadyException();
                 }
@@ -136,7 +168,7 @@ public abstract class FileCache {
     /**
      * Utility method to check if a file is cached.
      *
-     * @param key            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return boolean to indicate if its cached (true) or not (false)
      * @throws Exception the exception
      */
@@ -160,14 +192,14 @@ public abstract class FileCache {
     /**
      * Utility method to remove a file from disk.
      *
-     * @param key            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @throws Exception the exception
      */
     protected void removeFile(final String key) throws Exception {
         final String workspace = GeoServerUtils.getWorkspace(key);
         final String dataset = GeoServerUtils.getDataset(key);
-        final String fileName = FileNameUtils.getFullPathZipFile(workspace,
-                dataset);
+        final String fileName = FileNameUtils.getFullPathZipFile(FileNameUtils.getCachePath(path, cachename), workspace,
+            dataset);
 
         try {
             final FileManager fileM = new FileManager(fileName);
@@ -185,7 +217,7 @@ public abstract class FileCache {
     /**
      * Abstract method to retrieve a node from the cache.
      *
-     * @param key            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return a node or null, if it doesnt find the typename
      * @throws Exception the exception
      */
@@ -194,8 +226,8 @@ public abstract class FileCache {
     /**
      * Abstract method to put a file in the cache.
      *
-     * @param key            dataset typename (workspace:dataset)
-     * @param value            file size
+     * @param key   dataset typename (workspace:dataset)
+     * @param value file size
      * @throws Exception the exception
      */
     protected abstract void set(String key, long value) throws Exception;
@@ -204,7 +236,7 @@ public abstract class FileCache {
      * Method to remove a file from the cache. - remove it from the disk -
      * unregister it from the cache structure
      *
-     * @param n            node (typename,size)
+     * @param n node (typename,size)
      * @throws Exception the exception
      */
     protected abstract void remove(Node n) throws Exception;
@@ -212,14 +244,14 @@ public abstract class FileCache {
     /**
      * Gets the file from remote.
      *
-     * @param workspace            the workspace
-     * @param dataset            the dataset
+     * @param workspace the workspace
+     * @param dataset   the dataset
      */
     private void getFileFromRemote(final String workspace,
-            final String dataset) {
+                                   final String dataset) {
         final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
         jmsTemplate.convertAndSend("fileRequestsQueue",
-                new DownloadRequest(workspace, dataset));
+            new DownloadRequest(workspace, dataset));
 
     }
 
@@ -227,11 +259,9 @@ public abstract class FileCache {
      * Searches for a physical file on the disk cache, and if it doesn't find
      * it, triggers the asynchronous download.
      *
-     * @param n
-     *            node (typename,size)
+     * @param n node (typename,size)
      * @return a file
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Deprecated
     private File getFile(final Node n) throws Exception {
@@ -239,11 +269,11 @@ public abstract class FileCache {
         final String workspace = GeoServerUtils.getWorkspace(n.getKey());
         final String dataset = GeoServerUtils.getDataset(n.getKey());
 
-        final String fileName = FileNameUtils.getFullPathZipFile(workspace,
-                dataset);
+        final String fileName = FileNameUtils.getFullPathZipFile(FileNameUtils.getCachePath(path, cachename), workspace,
+            dataset);
         final String uri = geoserverUrl + workspace
-                + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-                + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
         FileManager fileM = null;
 

@@ -23,7 +23,7 @@ public class LRUFileCache extends FileCache {
     /**
      * Overriden method from FileCache, which puts an entry in the LRU cache.
      *
-     * @param key            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return file
      * @throws Exception the exception
      */
@@ -34,7 +34,7 @@ public class LRUFileCache extends FileCache {
             final Node n = map.get(key);
             if (n == null) {
                 throw new Exception(
-                        "Could not find a register on the cache for " + key);
+                    "Could not find a register on the cache for " + key);
             }
             removeNode(n);
             setHead(n);
@@ -48,8 +48,8 @@ public class LRUFileCache extends FileCache {
      * Overriden method from the FileCache, which retrieves an entry form the
      * LRU cache.
      *
-     * @param key            dataset typename (workspace:dataset)
-     * @param value            file size
+     * @param key   dataset typename (workspace:dataset)
+     * @param value file size
      * @throws Exception the exception
      */
     @Override
@@ -63,7 +63,7 @@ public class LRUFileCache extends FileCache {
             final Node created = new Node(key, value);
             // Here we check of the cache has reached its capacity, and perform
             // accordingly.
-            if (getDiskSize() >= this.getCapacity()) {
+            if ((getDiskSize() + value) >= this.getCapacity()) {
                 remove(end);
                 setHead(created);
             } else {
@@ -78,7 +78,7 @@ public class LRUFileCache extends FileCache {
      * Overriden method from the FileCache, which evicts the file cache. -
      * remove physical file - remove cache entry
      *
-     * @param n            node (typename,size)
+     * @param n node (typename,size)
      * @throws Exception the exception
      */
     @Override
@@ -94,8 +94,7 @@ public class LRUFileCache extends FileCache {
     /**
      * Remove node and adjust contiguous nodes.
      *
-     * @param n
-     *            node (typename,size)
+     * @param n node (typename,size)
      */
     private void removeNode(final Node n) {
         if (n.getPre() != null) {
@@ -115,8 +114,7 @@ public class LRUFileCache extends FileCache {
     /**
      * Set head of the double linked node list.
      *
-     * @param n
-     *            node (typename,size)
+     * @param n node (typename,size)
      */
     private void setHead(final Node n) {
         n.setNext(head);
