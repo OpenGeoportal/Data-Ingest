@@ -214,7 +214,6 @@ public abstract class FileCache {
      *
      * @param workspace            the workspace
      * @param dataset            the dataset
-     * @return the file from remote
      */
     private void getFileFromRemote(final String workspace,
             final String dataset) {
@@ -278,7 +277,5 @@ public abstract class FileCache {
     public int getCapacity() {
         return capacity;
     }
-    
-    
 
 }
