@@ -32,7 +32,6 @@ public class DataIngestApplication {
     public static void main(final String[] args) throws Exception {
         final ConfigurableApplicationContext context = SpringApplication
                 .run(DataIngestApplication.class, args);
-
     }
 
 }

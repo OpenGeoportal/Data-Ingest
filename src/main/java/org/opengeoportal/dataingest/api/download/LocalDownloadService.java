@@ -4,6 +4,7 @@ import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,43 +25,22 @@ public class LocalDownloadService {
     /**
      * The GeoServer URL (from the application.properties).
      */
-    @Value("${geoserver.url}")
     private String geoserverUrl;
-    /**
-     * The GeoServer Username (from the application.properties).
-     */
-    @Value("${geoserver.username}")
-    private String geoserverUsername;
-    /**
-     * The GeoServer Password (from the application.properties).
-     */
-    @Value("${geoserver.password}")
-    private String geoserverPassword;
-    /**
-     * Max age allowed for files in cache.
-     */
-    @Value("${param.download.max.age.file}")
-    private long maxDownloadFileAgeInSeconds;
-    /**
-     * Cache capacity.
-     */
-    @Value("${cache.capacity}")
-    private int capacity;
-    /**
-     * Cache path.
-     */
-    @Value("${cache.path}")
-    private String path;
 
     /**
      * Constructor of the Local Download Service, where we initialize a File
      * Cache structure. If no one set he cache path on application.properties,
      * we use the default TMP dir.
      */
-    public LocalDownloadService() throws java.lang.NullPointerException {
 
+    @Autowired
+    public LocalDownloadService(@Value("${cache.capacity}") int capacity, @Value("${cache.path}") String path,
+                                @Value("${param.download.max.age.file}") long maxDownloadFileAgeInSeconds, @Value
+                                    ("${geoserver.url}") String geoserverUrl)
+        throws java.lang.NullPointerException {
+        this.geoserverUrl = geoserverUrl;
         fileCache = new LRUFileCache(capacity, path == null || path.isEmpty()
-            ? System.getProperty("java.io" + ".tmpdir") : path);
+            ? System.getProperty("java.io" + ".tmpdir") : path, maxDownloadFileAgeInSeconds, geoserverUrl);
     }
 
     /**

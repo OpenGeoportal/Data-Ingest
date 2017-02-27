@@ -6,27 +6,22 @@ import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
  * Created by joana on 22/02/17.
  */
-
 public abstract class FileCache {
 
     /**
-     * The Constant maxDownloadFileAgeInSeconds.
-     */
-    private static final long MAX_DOWNLOAD_FILE_AGE_IN_SECONDS = 86400; // 24H
-    /**
      * Cache directory maximum size (in bytes).
      */
-    private final int capacity;
+    protected final int capacity;
     /**
      * Disk path of the file cache (where we store the physical files).
      */
@@ -34,11 +29,15 @@ public abstract class FileCache {
     /**
      * File Cache structure, which holds the nodes.
      */
-    protected HashMap<Integer, Node> map = new HashMap<Integer, Node>();
+    protected HashMap<String, Node> map = new HashMap<String, Node>();
+    /**
+     * Validity of the cache (in seconds).
+     */
+    private long maxDownloadFileAgeInSeconds;
     /**
      * The GeoServer URL (from the application.properties).
      */
-    @Value("${geoserver.url}")
+    //@Value("${geoserver.url}")
     private String geoserverUrl;
     /**
      * The application context.
@@ -53,18 +52,22 @@ public abstract class FileCache {
      * @param path     disk path of the file cache (where we store the physical
      *                 files.
      */
-    public FileCache(final int capacity, final String path) {
+    public FileCache(final int capacity, final String path, long age, String geoserverUrl) {
         this.capacity = capacity;
         this.path = path;
+        this.maxDownloadFileAgeInSeconds = age;
+        this.geoserverUrl = geoserverUrl;
     }
 
     /**
-     * Wrapper of the remove(Node n), function, taking a typename as argument.
+     * Public interface for the abstract remove, taking a typename as argument.
      *
      * @param key dataset typename (workspace:dataset)
      */
-    public void remove(final String key) {
-        remove(map.get(key));
+    public void remove(final String key) throws Exception {
+        Node n = map.get(key);
+        if (n == null) throw new Exception("No cache register found for " + key);
+        remove(n);
     }
 
     /**
@@ -93,18 +96,22 @@ public abstract class FileCache {
 
         try {
 
-            // File is ached
+            // File is cached
             if (get(key) != null) {
 
                 // The file size is different from last time
                 if (fileSize != n.getValue()) {
-                    n.setValue(fileSize);
+                    try {
+                        n.setValue(fileSize);
+                    } catch (Exception ex) {
+                        throw new Exception("Could not register file on the cache");
+                    }
                     throw new FileNotReadyException();
                 }
 
                 fileM = new FileManager(fileName);
                 // Check for age, for oldest files
-                if (fileM.getFileAgeinSeconds() > MAX_DOWNLOAD_FILE_AGE_IN_SECONDS) {
+                if (fileM.getFileAgeinSeconds() > maxDownloadFileAgeInSeconds) {
                     getFileFromRemote(workspace, dataset);
                     throw new FileNotReadyException();
                 } else {
@@ -130,8 +137,44 @@ public abstract class FileCache {
      * @param key dataset typename (workspace:dataset)
      * @return boolean to indicate if its cached (true) or not (false)
      */
-    public boolean isCached(String key) {
+    public boolean isCached(String key) throws Exception {
         return get(key) != null;
+    }
+
+    /**
+     * Utility method to get current size of the cache directory.
+     *
+     * @return size in bytes
+     */
+    protected Long getDiskSize() {
+        long diskSize = 0;
+        for (Node value : map.values()) diskSize += value.getValue();
+        return diskSize;
+    }
+
+    /**
+     * Utility method to remove a file from disk.
+     *
+     * @param key dataset typename (workspace:dataset)
+     * @throws Exception
+     */
+    protected void removeFile(String key) throws Exception {
+        final String workspace = GeoServerUtils.getWorkspace(key);
+        final String dataset = GeoServerUtils.getDataset(key);
+        final String fileName = FileNameUtils.getFullPathZipFile(workspace,
+            dataset);
+
+        try {
+            FileManager fileM = new FileManager(fileName);
+            fileM.removeFile();
+
+        } catch (IOException e) {
+            throw new Exception("Could not remove " + fileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
     }
 
     /**
@@ -140,7 +183,7 @@ public abstract class FileCache {
      * @param key dataset typename (workspace:dataset)
      * @return a node or null, if it doesnt find the typename
      */
-    protected abstract Node get(String key);
+    protected abstract Node get(String key) throws Exception;
 
     /**
      * Abstract method to put a file in the cache.
@@ -148,16 +191,29 @@ public abstract class FileCache {
      * @param key   dataset typename (workspace:dataset)
      * @param value file size
      */
-    protected abstract void set(String key, long value);
+    protected abstract void set(String key, long value) throws Exception;
 
     /**
-     * method to remove a file from the cache.
+     * Method to remove a file from the cache.
+     * - remove it from the disk
+     * - unregister it from the cache structure
      *
      * @param n node (typename,size)
      */
-    private void remove(Node n) {
-        //TODO: throw an error here
-        map.remove(n);
+    protected abstract void remove(Node n) throws Exception;
+
+    /**
+     * Gets the file from remote.
+     *
+     * @param workspace the workspace
+     * @param dataset   the dataset
+     */
+    private void getFileFromRemote(final String workspace,
+                                   final String dataset) {
+        final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
+        jmsTemplate.convertAndSend("fileRequestsQueue",
+            new DownloadRequest(workspace, dataset));
+
     }
 
     /**
@@ -194,7 +250,7 @@ public abstract class FileCache {
             // The files already exists and is not locked (downloading)
             fileM = new FileManager(fileName);
             // Check for age, for oldest files
-            if (fileM.getFileAgeinSeconds() > MAX_DOWNLOAD_FILE_AGE_IN_SECONDS) {
+            if (fileM.getFileAgeinSeconds() > maxDownloadFileAgeInSeconds) {
                 getFileFromRemote(workspace, dataset);
                 throw new FileNotReadyException();
             } else {
@@ -204,20 +260,6 @@ public abstract class FileCache {
             getFileFromRemote(workspace, dataset);
             throw fnrex;
         }
-    }
-
-    /**
-     * Gets the file from remote.
-     *
-     * @param workspace the workspace
-     * @param dataset   the dataset
-     */
-    private void getFileFromRemote(final String workspace,
-                                   final String dataset) {
-        final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
-        jmsTemplate.convertAndSend("fileRequestsQueue",
-            new DownloadRequest(workspace, dataset));
-
     }
 
 }
