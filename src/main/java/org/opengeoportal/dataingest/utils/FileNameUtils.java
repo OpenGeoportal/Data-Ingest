@@ -51,7 +51,7 @@ public final class FileNameUtils {
      */
     public static String getCachePath(String path, String cachename) {
         return (path == null || path.isEmpty() ? System.getProperty(
-            "java.io" + ".tmpdir") + "/" + cachename : path + "/" + cachename);
+            "java.io.tmpdir") + "/" + cachename : path + "/" + cachename);
     }
 
 }

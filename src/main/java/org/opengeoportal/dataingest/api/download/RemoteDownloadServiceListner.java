@@ -23,13 +23,6 @@ public class RemoteDownloadServiceListner {
     @Autowired
     private RemoteDownloadService remoteDownloadService;
 
-    // /**
-    // * Instantiates a new remote download service listner.
-    // */
-    // public RemoteDownloadServiceListner() {
-    // this.remoteDownloadService = new RemoteDownloadService();
-    // }
-
     /**
      * Prepare file.
      *
