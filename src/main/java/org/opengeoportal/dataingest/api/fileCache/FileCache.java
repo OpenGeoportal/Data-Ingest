@@ -81,9 +81,9 @@ public abstract class FileCache {
     /**
      * Shutdown method which removes the cache directory, after the JVM is stopped.
      */
-    //TODO: this is not working! Find out why
     @PreDestroy
     public void clearCacheDir() {
+        System.out.println("###################### Cleaning up ######################");
         File dir = new File(FileNameUtils.getCachePath(path, cachename));
         dir.deleteOnExit();
     }

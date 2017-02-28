@@ -68,7 +68,14 @@ public class RemoteDownloadService {
 
         final WFSClient client = new WFSClient();
 
-        final String fileName = FileNameUtils.getFullPathZipFile(FileNameUtils.getCachePath(path, cachename), workspace,
+        String cachePath = FileNameUtils.getCachePath(path, cachename);
+
+        // Make sure the cachepath exists *now*, even if it was initialized on the constructor.
+        File f = new File(cachePath);
+        if (!f.exists()) throw new java.io.EOFException("The cache directory '" + cachePath + "' does not exist! " +
+            "Something went wrong...");
+
+        final String fileName = FileNameUtils.getFullPathZipFile(cachePath, workspace,
             dataset);
 
         FileManager fileM = null;
