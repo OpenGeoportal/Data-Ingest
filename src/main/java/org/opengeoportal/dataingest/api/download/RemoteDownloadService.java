@@ -70,10 +70,15 @@ public class RemoteDownloadService {
 
         String cachePath = FileNameUtils.getCachePath(path, cachename);
 
-        // Make sure the cachepath exists *now*, even if it was initialized on the constructor.
+        // Cache diretory does not exist? no problem, we create it
         File f = new File(cachePath);
-        if (!f.exists()) throw new java.io.EOFException("The cache directory '" + cachePath + "' does not exist! " +
-            "Something went wrong...");
+        if (!f.exists()) {
+            try {
+                f.mkdir();
+            } catch (SecurityException se) {
+                throw new Exception("Could not create " + cachePath + "; please check permissions");
+            }
+        }
 
         final String fileName = FileNameUtils.getFullPathZipFile(cachePath, workspace,
             dataset);
