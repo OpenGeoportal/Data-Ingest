@@ -27,7 +27,7 @@ public class FileManager {
      * Max allowable lock time in seconds 1 hour is recommended for bigger
      * downloads.
      */
-    private static long maxAllowableLockTime = 3600;
+    public static long maxAllowableLockTime = 3600;
 
     /**
      * Instantiates a new file manager.
@@ -105,7 +105,11 @@ public class FileManager {
      */
     public void lock() throws IOException {
         synchronized (lock) {
-            lock.createNewFile();
+            if(!lock.exists()) {
+                lock.createNewFile();
+            } else {
+                throw new IOException("Lock already exists");
+            }
         }
     }
 
@@ -117,7 +121,11 @@ public class FileManager {
      */
     public void unlock() throws IOException {
         synchronized (lock) {
-            lock.delete();
+            if(lock.exists()) {
+                lock.delete();
+            } else {
+                throw new IOException("Lock does not exists");
+            }
         }
     }
 
