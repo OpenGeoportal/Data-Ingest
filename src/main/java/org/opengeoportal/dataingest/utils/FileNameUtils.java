@@ -50,8 +50,9 @@ public final class FileNameUtils {
      * @return full cache path, as String
      */
     public static String getCachePath(String path, String cachename) {
+        // Remove trailing slash
         return (path == null || path.isEmpty() ? System.getProperty(
-            "java.io" + ".tmpdir") + "/" + cachename : path + "/" + cachename);
+            "java.io" + ".tmpdir") : path).replaceAll("/$", "") + "/" + cachename.replace("/", "");
     }
 
 }

@@ -8,6 +8,8 @@ import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -25,6 +28,10 @@ import java.util.HashMap;
  */
 @Component
 public abstract class FileCache {
+    /**
+     * Spring boot logger.
+     */
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
      * File Cache structure, which holds the nodes.
      */
@@ -68,13 +75,26 @@ public abstract class FileCache {
     @PostConstruct
     public void createCacheDir() throws Exception {
         String baseDir = FileNameUtils.getCachePath(path, cachename);
-        File dir = new File(baseDir);
-        if (!dir.exists()) {
-            try {
-                dir.mkdir();
-            } catch (SecurityException se) {
-                throw new Exception("Could not create " + baseDir + "; please check permissions");
+        try {
+            //First lets check if the root directory is ok
+            File root = new File(path);
+            if (!root.exists()) throw new FileNotFoundException();
+            if (!root.canRead() || !root.canWrite()) throw new java.lang.SecurityException();
+            // Now lets check the complete cache path; does it exist? is it acessible?
+            File dir = new File(baseDir);
+            if (!dir.exists()) {
+                if (!dir.mkdir()) throw new Exception();
+            } else {
+                if (!dir.isDirectory()) throw new Exception(baseDir + " is a file, not a folder!");
+                if (!dir.canRead() || !dir.canWrite()) throw new java.lang.SecurityException();
             }
+            log.info("Init cache directory on " + baseDir + ", with a capacity of " + (double) capacity
+                / (1024.0
+                    * 1024.0) + " MB");
+        } catch (FileNotFoundException fe) {
+            throw new Exception("Cache root path " + path + " does not exist or is invalid");
+        } catch (java.lang.SecurityException se) {
+            throw new Exception("Could not init cache folder at " + baseDir + "; please check permissions");
         }
     }
 
@@ -83,7 +103,7 @@ public abstract class FileCache {
      */
     @PreDestroy
     public void clearCacheDir() {
-        System.out.println("###################### Cleaning up ######################");
+        log.info("Cleaning up: removing cache folder at " + FileNameUtils.getCachePath(path, cachename));
         File dir = new File(FileNameUtils.getCachePath(path, cachename));
         dir.deleteOnExit();
     }
