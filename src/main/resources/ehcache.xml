@@ -10,7 +10,7 @@
 
 	<cache name="titles"
 		maxEntriesLocalHeap="1"
-		maxEntriesLocalDisk="1"
+		maxEntriesLocalDisk="2"
 		eternal="false"
 		diskSpoolBufferSizeMB="20"
 		timeToIdleSeconds="0" 
