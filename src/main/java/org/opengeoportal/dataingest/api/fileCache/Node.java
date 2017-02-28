@@ -1,9 +1,14 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api.fileCache;
+
+import java.io.Serializable;
 
 /**
  * Created by joana on 22/02/17.
  */
-class Node {
+class Node implements Serializable {
     /**
      * Typename name = workspace:dataset .
      */
@@ -108,5 +113,22 @@ class Node {
      */
     public void setNext(final Node next) {
         this.next = next;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return key.hashCode();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        final Node node = (Node) obj;
+        return key.equals(node.key);
     }
 }

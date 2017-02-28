@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api;
 
 import java.util.HashMap;
@@ -31,9 +34,8 @@ public class GeoserverDataStore {
      * Constructor of the Geoserver data store. It fills two class member
      * variables, which store the WFS datastore and dataset (names, titles).
      *
-     * @param uri
-     *            geoserver uri (include filter per workspace)
-     * @throws Exception
+     * @param uri            geoserver uri (include filter per workspace)
+     * @throws Exception the exception
      */
     public GeoserverDataStore(final String uri) throws Exception {
 

@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api;
 
 import java.io.File;
@@ -13,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
+import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.opengeoportal.dataingest.exception.PageFormatException;
@@ -84,6 +88,20 @@ public class DataSetsController {
      */
     @Autowired
     private LocalDownloadService localDownloadService;
+
+    /**
+     * A file cache, following the LRU eviction policy.
+     */
+    @Autowired
+    private LRUFileCache fileCache;
+
+    /**
+     * Sets the file cache.
+     */
+    @Autowired
+    public void setFileCache() {
+        this.localDownloadService.setFileCache(fileCache);
+    }
 
     /**
      * Gets the data sets from all workspaces.
@@ -262,7 +280,7 @@ public class DataSetsController {
                     paginator.getList().size(), paginator.getPage(),
                     paginator.getMaxPages());
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             throw ex;
         }
     }

@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api;
 
 import java.util.Map;

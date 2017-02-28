@@ -9,7 +9,7 @@ package org.opengeoportal.dataingest.exception;
 public class PageNotFoundException extends Exception {
 
     /** The page number. */
-    private int pageNumber;
+    private final int pageNumber;
 
     /**
      * Instantiates a new page not found exception.
@@ -17,7 +17,7 @@ public class PageNotFoundException extends Exception {
      * @param pageNumber
      *            the page number
      */
-    public PageNotFoundException(int pageNumber) {
+    public PageNotFoundException(final int pageNumber) {
         this.pageNumber = pageNumber;
     }
 

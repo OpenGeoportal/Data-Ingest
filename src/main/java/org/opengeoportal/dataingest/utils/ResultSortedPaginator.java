@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.utils;
 
 import java.util.ArrayList;
@@ -297,11 +300,17 @@ public class ResultSortedPaginator {
             this.value = value;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Comparable#compareTo(java.lang.Object)
+         */
         @Override
         public int compareTo(final HashMapElement o) {
             return this.key.compareTo(o.key);
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
         @Override
         public boolean equals(final Object arg0) {
             if (arg0 == null) {
@@ -313,6 +322,9 @@ public class ResultSortedPaginator {
             return ((HashMapElement) arg0).getKey().equals(this.getKey());
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#hashCode()
+         */
         @Override
         public int hashCode() {
             assert false : "hashCode not designed";

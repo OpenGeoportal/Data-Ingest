@@ -3,17 +3,16 @@
  */
 package org.opengeoportal.dataingest.api.download;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * The Class LocalDownloadService.
@@ -24,7 +23,6 @@ public class LocalDownloadService {
     /**
      * A file cache, following the LRU eviction policy.
      */
-    @Autowired
     private LRUFileCache fileCache;
 
     /**
@@ -32,6 +30,15 @@ public class LocalDownloadService {
      */
     @Value("${geoserver.url}")
     private String geoserverUrl;
+
+    /**
+     * Constructor.
+     *
+     * @param fileCache the new file cache
+     */
+    public void setFileCache(final LRUFileCache fileCache) {
+        this.fileCache = fileCache;
+    }
 
     /**
      * Get the file cache of the local download.
@@ -45,11 +52,10 @@ public class LocalDownloadService {
     /**
      * Check if data exists on Geoserver.
      *
-     * @param workspace
-     *            the workspace
-     * @param dataset
-     *            the dataset
+     * @param workspace            the workspace
+     * @param dataset            the dataset
      * @return true
+     * @throws Exception the exception
      */
     private boolean isAValidRequest(final String workspace,
             final String dataset) throws Exception {
@@ -67,12 +73,14 @@ public class LocalDownloadService {
 
         } catch (final java.io.IOException ex) {
 
-            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-            if (fileCache.isCached(typeName)) fileCache.remove(typeName);
+            final String typeName = GeoServerUtils.getTypeName(workspace,
+                    dataset);
+            if (fileCache.isCached(typeName)) {
+                fileCache.remove(typeName);
+            }
 
             return false;
         }
-
 
     }
 
@@ -80,12 +88,17 @@ public class LocalDownloadService {
      * This is the method that we use for getting the file. It uses the
      * FileCache.
      *
-     * @param workspace            the workspace
-     * @param dataset            the dataset
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
      * @return The requested file
-     * @throws FileNotReadyException             File not ready locally
-     * @throws IOException             Signals that an I/O exception has occurred.
-     * @throws Exception the exception
+     * @throws FileNotReadyException
+     *             File not ready locally
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws Exception
+     *             the exception
      */
     public final File getFile(final String workspace, final String dataset)
             throws FileNotReadyException, IOException, java.lang.Exception {

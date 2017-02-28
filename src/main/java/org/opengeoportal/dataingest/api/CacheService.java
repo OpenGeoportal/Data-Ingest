@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api;
 
 import java.io.IOException;
@@ -22,10 +25,9 @@ public class CacheService {
     /**
      * Get datasets names and titles, for a given GeoServer uri.
      *
-     * @param uri
-     *            geoserver uri (it may include the filter for workspace).
+     * @param uri            geoserver uri (it may include the filter for workspace).
      * @return hashmap with dataset (names, titles)
-     * @throws Exception
+     * @throws Exception the exception
      */
     @Cacheable(value = "titles", key = "#uri")
     public HashMap<String, String> getTitles(final String uri)
@@ -48,14 +50,11 @@ public class CacheService {
     /**
      * Gets detailed info about a layer.
      *
-     * @param uri
-     *            geoserver uri
-     * @param workspace
-     *            workspace name
-     * @param dataset
-     *            dataset name
+     * @param uri            geoserver uri
+     * @param workspace            workspace name
+     * @param dataset            dataset name
      * @return summary info about a layer, as hash table
-     * @throws Exception
+     * @throws Exception the exception
      */
     @Cacheable(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)")
     public HashMap<String, String> getInfo(final String uri,

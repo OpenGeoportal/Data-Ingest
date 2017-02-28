@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.utils;
 
 /**
@@ -14,8 +17,10 @@ public final class GeoServerUtils {
     /**
      * Gets the type name.
      *
-     * @param workspace the workspace
-     * @param dataset the dataset
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
      * @return the type name
      */
     public static String getTypeName(final String workspace,
@@ -26,7 +31,8 @@ public final class GeoServerUtils {
     /**
      * Gets the workspace.
      *
-     * @param typerName the typer name
+     * @param typerName
+     *            the typer name
      * @return the workspace
      */
     public static String getWorkspace(final String typerName) {
@@ -39,7 +45,8 @@ public final class GeoServerUtils {
     /**
      * Gets the dataset.
      *
-     * @param typerName the typer name
+     * @param typerName
+     *            the typer name
      * @return the dataset
      */
     public static String getDataset(final String typerName) {

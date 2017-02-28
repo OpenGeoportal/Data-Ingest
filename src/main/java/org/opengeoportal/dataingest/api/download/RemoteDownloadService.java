@@ -1,12 +1,13 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api.download;
 
-import org.opengeoportal.dataingest.api.fileCache.FileManager;
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import java.io.File;
+
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 /**
  * The Class RemoteDownloadService. This class is used to organize the download
@@ -52,50 +53,40 @@ public class RemoteDownloadService {
     /**
      * Prepare download.
      *
-     * @param downloadRequest the download request
-     * @return the file
-     * @throws Exception the exception
+     * @param downloadRequest
+     *            the download request
+     * @throws Exception
+     *             the exception
      */
-    public final File prepareDownload(final DownloadRequest downloadRequest)
-        throws Exception {
+    public final void prepareDownload(final DownloadRequest downloadRequest)
+            throws Exception {
 
         final String workspace = downloadRequest.getWorkspace();
         final String dataset = downloadRequest.getDataset();
 
         final String uri = geoserverUrl + workspace
-            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+                + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+                + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
         final WFSClient client = new WFSClient();
 
-        String cachePath = FileNameUtils.getCachePath(path, cachename);
+        final String cachePath = FileNameUtils.getCachePath(path, cachename);
 
         // Cache diretory does not exist? no problem, we create it
-        File f = new File(cachePath);
+        final File f = new File(cachePath);
         if (!f.exists()) {
             try {
                 f.mkdir();
-            } catch (SecurityException se) {
-                throw new Exception("Could not create " + cachePath + "; please check permissions");
+            } catch (final SecurityException se) {
+                throw new Exception("Could not create " + cachePath
+                        + "; please check permissions");
             }
         }
 
-        final String fileName = FileNameUtils.getFullPathZipFile(cachePath, workspace,
-            dataset);
+        final String fileName = FileNameUtils.getFullPathZipFile(cachePath,
+                workspace, dataset);
 
-        FileManager fileM = null;
-        try {
-            fileM = new FileManager(fileName);
-            if (fileM.getFileAgeinSeconds() <= maxDownloadFileAgeInSeconds) {
-                return fileM.getFile();
-            }
-        } catch (final FileNotReadyException fnrex) {
-            // ok
-        }
-
-
-        final File file = client.getFile(uri, fileName);
-        return file;
+        client.getFile(uri, fileName);
 
     }
 

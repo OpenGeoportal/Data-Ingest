@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api.fileCache;
 
 import java.io.File;
@@ -82,17 +85,17 @@ public class FileManager {
 
     /**
      * Removes the file.
-     * @throws IOException
-     * @throws FileLockedException
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws FileLockedException the file locked exception
      */
     public void removeFile() throws IOException, FileLockedException {
         if (f.exists() && !isLocked()) {
             f.delete();
-        }  else if (f.exists() && isLocked()) {
+        } else if (f.exists() && isLocked()) {
             throw new FileLockedException();
         }
     }
-
 
     /**
      * Lock the file.

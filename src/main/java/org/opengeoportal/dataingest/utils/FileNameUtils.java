@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.utils;
 
 /**
@@ -17,12 +20,14 @@ public final class FileNameUtils {
     /**
      * Gets the zip file name.
      *
-     * @param workspace the workspace
-     * @param dataset   the dataset
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
      * @return the zip file name
      */
     public static String getZipFileName(final String workspace,
-                                        final String dataset) {
+            final String dataset) {
 
         return workspace + "_" + dataset + ".zip";
     }
@@ -30,29 +35,37 @@ public final class FileNameUtils {
     /**
      * Gets the full path zip file.
      *
-     * @param baseDir   file cache complete path on disk, including cache name.
-     * @param workspace the workspace
-     * @param dataset   the dataset
+     * @param baseDir
+     *            file cache complete path on disk, including cache name.
+     * @param workspace
+     *            the workspace
+     * @param dataset
+     *            the dataset
      * @return the full path zip file
      */
-    public static String getFullPathZipFile(final String baseDir, final String workspace,
-                                            final String dataset) {
+    public static String getFullPathZipFile(final String baseDir,
+            final String workspace, final String dataset) {
 
-        return baseDir + "/"
-            + getZipFileName(workspace, dataset);
+        return baseDir + "/" + getZipFileName(workspace, dataset);
     }
 
     /**
-     * Returns the full cache path on disk, by concatening a base directory and a cache name.
+     * Returns the full cache path on disk, by concatening a base directory and
+     * a cache name.
      *
-     * @param path      cache dir on disk
-     * @param cachename cache name
+     * @param path
+     *            cache dir on disk
+     * @param cachename
+     *            cache name
      * @return full cache path, as String
      */
-    public static String getCachePath(String path, String cachename) {
+    public static String getCachePath(final String path,
+            final String cachename) {
         // Remove trailing slash
-        return (path == null || path.isEmpty() ? System.getProperty(
-            "java.io.tmpdir") : path).replaceAll("/$", "") + "/" + cachename.replace("/", "");
+        return (path == null || path.isEmpty()
+                ? System.getProperty("java.io.tmpdir") : path).replaceAll("/$",
+                        "")
+                + "/" + cachename.replace("/", "");
     }
 
 }
