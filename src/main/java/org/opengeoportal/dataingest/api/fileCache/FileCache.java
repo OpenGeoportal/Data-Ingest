@@ -3,15 +3,6 @@
  */
 package org.opengeoportal.dataingest.api.fileCache;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
@@ -24,6 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * Created by joana on 22/02/17.
@@ -188,7 +187,7 @@ public abstract class FileCache implements Serializable {
 
                 fileM = new FileManager(fileName);
                 // Check for age, for oldest files
-                if (fileM.getFileAgeinSeconds() > maxDownloadFileAgeInSeconds) {
+                if (fileM.getFileAgeinSeconds() >= maxDownloadFileAgeInSeconds) {
                     downloadFileFromRemote(workspace, dataset);
                     throw new FileNotReadyException();
                 } else {
@@ -346,7 +345,7 @@ public abstract class FileCache implements Serializable {
             // The files already exists and is not locked (downloading)
             fileM = new FileManager(fileName);
             // Check for age, for oldest files
-            if (fileM.getFileAgeinSeconds() > maxDownloadFileAgeInSeconds) {
+            if (fileM.getFileAgeinSeconds() >= maxDownloadFileAgeInSeconds) {
                 downloadFileFromRemote(workspace, dataset);
                 throw new FileNotReadyException();
             } else {
