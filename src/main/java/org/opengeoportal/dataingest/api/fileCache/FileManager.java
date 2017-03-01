@@ -32,12 +32,10 @@ public class FileManager {
     /**
      * Instantiates a new file manager.
      *
-     * @param path
-     *            the path
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FileNotReadyException
-     *             the file not ready exception
+     * @param path the path
+     * @param aMaxAllowableLockTime Max allowable lock time in seconds
+     * @throws IOException signals that an I/O exception has occurred.
+     * @throws FileNotReadyException the file not ready exception
      */
     public FileManager(final String path, long aMaxAllowableLockTime)
             throws IOException, FileNotReadyException {
@@ -52,15 +50,13 @@ public class FileManager {
     /**
      * Instantiates a new file manager.
      *
-     * @param path
-     *            the path
-     * @param newFile
-     *            the new file
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws FileLockedException
-     *             the file locked exception
+     * @param path the path
+     * @param newFile the new file
+     * @param aMaxAllowableLockTime Max allowable lock time in seconds
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws FileLockedException the file locked exception
      */
+
     public FileManager(final String path, final boolean newFile, long aMaxAllowableLockTime)
             throws IOException, FileLockedException {
         f = new File(path);
