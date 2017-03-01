@@ -17,10 +17,14 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class FileManager {
 
-    /** The f. */
+    /**
+     * The f.
+     */
     private final File f;
 
-    /** The lock. */
+    /**
+     * The lock.
+     */
     private final File lock;
 
     /**
@@ -32,13 +36,13 @@ public class FileManager {
     /**
      * Instantiates a new file manager.
      *
-     * @param path the path
+     * @param path                  the path
      * @param aMaxAllowableLockTime Max allowable lock time in seconds
-     * @throws IOException signals that an I/O exception has occurred.
+     * @throws IOException           signals that an I/O exception has occurred.
      * @throws FileNotReadyException the file not ready exception
      */
     public FileManager(final String path, long aMaxAllowableLockTime)
-            throws IOException, FileNotReadyException {
+        throws IOException, FileNotReadyException {
         f = new File(path);
         this.maxAllowableLockTime = aMaxAllowableLockTime;
         lock = new File(path + ".lock");
@@ -50,15 +54,15 @@ public class FileManager {
     /**
      * Instantiates a new file manager.
      *
-     * @param path the path
-     * @param newFile the new file
+     * @param path                  the path
+     * @param newFile               the new file
      * @param aMaxAllowableLockTime Max allowable lock time in seconds
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException         Signals that an I/O exception has occurred.
      * @throws FileLockedException the file locked exception
      */
 
     public FileManager(final String path, final boolean newFile, long aMaxAllowableLockTime)
-            throws IOException, FileLockedException {
+        throws IOException, FileLockedException {
         f = new File(path);
         this.maxAllowableLockTime = aMaxAllowableLockTime;
         lock = new File(path + ".lock");
@@ -84,7 +88,7 @@ public class FileManager {
     /**
      * Removes the file.
      *
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws IOException         Signals that an I/O exception has occurred.
      * @throws FileLockedException the file locked exception
      */
     public void removeFile() throws IOException, FileLockedException {
@@ -98,12 +102,11 @@ public class FileManager {
     /**
      * Lock the file.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public void lock() throws IOException {
         synchronized (lock) {
-            if(!lock.exists()) {
+            if (!lock.exists()) {
                 lock.createNewFile();
             } else {
                 throw new IOException("Lock already exists");
@@ -114,12 +117,11 @@ public class FileManager {
     /**
      * Unlock the file.
      *
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public void unlock() throws IOException {
         synchronized (lock) {
-            if(lock.exists()) {
+            if (lock.exists()) {
                 lock.delete();
             } else {
                 throw new IOException("Lock does not exists");
@@ -131,8 +133,7 @@ public class FileManager {
      * Checks if is locked.
      *
      * @return true, if is locked
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     public boolean isLocked() throws IOException {
         synchronized (lock) {
@@ -157,16 +158,14 @@ public class FileManager {
      * Gets the file agein seconds.
      *
      * @return the file agein seconds
-     * @throws NumberFormatException
-     *             the number format exception
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws NumberFormatException the number format exception
+     * @throws IOException           Signals that an I/O exception has occurred.
      */
     public long getFileAgeinSeconds()
-            throws NumberFormatException, IOException {
+        throws NumberFormatException, IOException {
         final Path path = f.toPath();
         final BasicFileAttributes attr = Files.readAttributes(path,
-                BasicFileAttributes.class);
+            BasicFileAttributes.class);
 
         final long current = System.currentTimeMillis() / 1000;
         final long creationTime = attr.creationTime().toMillis() / 1000;
@@ -179,16 +178,14 @@ public class FileManager {
      * Gets the lock agein seconds.
      *
      * @return the lock agein seconds
-     * @throws NumberFormatException
-     *             the number format exception
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws NumberFormatException the number format exception
+     * @throws IOException           Signals that an I/O exception has occurred.
      */
     private long getLockAgeinSeconds()
-            throws NumberFormatException, IOException {
+        throws NumberFormatException, IOException {
         final Path path = lock.toPath();
         final BasicFileAttributes attr = Files.readAttributes(path,
-                BasicFileAttributes.class);
+            BasicFileAttributes.class);
 
         final long current = System.currentTimeMillis() / 1000;
         final long creationTime = attr.creationTime().toMillis() / 1000;

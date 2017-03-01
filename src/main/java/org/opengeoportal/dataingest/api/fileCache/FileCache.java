@@ -111,14 +111,14 @@ public abstract class FileCache implements Serializable {
                 }
             }
             log.info("Init cache directory on " + baseDir
-                    + ", with a capacity of "
-                    + (double) capacity / (1024.0 * 1024.0) + " MB");
+                + ", with a capacity of "
+                + (double) capacity / (1024.0 * 1024.0) + " MB");
         } catch (final FileNotFoundException fe) {
             throw new Exception("Cache root path " + path
-                    + " does not exist or is invalid");
+                + " does not exist or is invalid");
         } catch (final java.lang.SecurityException se) {
             throw new Exception("Could not init cache folder at " + baseDir
-                    + "; please check permissions");
+                + "; please check permissions");
         }
     }
 
@@ -129,7 +129,7 @@ public abstract class FileCache implements Serializable {
     @PreDestroy
     public void clearCacheDir() {
         log.info("Cleaning up: removing cache folder at "
-                + FileNameUtils.getCachePath(path, cachename));
+            + FileNameUtils.getCachePath(path, cachename));
         final File dir = new File(FileNameUtils.getCachePath(path, cachename));
         dir.deleteOnExit();
     }
@@ -137,10 +137,8 @@ public abstract class FileCache implements Serializable {
     /**
      * Public interface for the abstract remove, taking a typename as argument.
      *
-     * @param key
-     *            dataset typename (workspace:dataset)
-     * @throws Exception
-     *             the exception
+     * @param key dataset typename (workspace:dataset)
+     * @throws Exception the exception
      */
     public void remove(final String key) throws Exception {
         final Node n = map.get(key);
@@ -156,11 +154,9 @@ public abstract class FileCache implements Serializable {
      * disk, otherwise issue an assynchronous download and register the file on
      * the cache.
      *
-     * @param key
-     *            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return file
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     public File getFileFromCache(final String key) throws java.lang.Exception, CacheCapacityException,
         FileNotReadyException {
@@ -170,11 +166,11 @@ public abstract class FileCache implements Serializable {
         final String workspace = GeoServerUtils.getWorkspace(key);
         final String dataset = GeoServerUtils.getDataset(key);
         final String fileName = FileNameUtils.getFullPathZipFile(
-                FileNameUtils.getCachePath(path, cachename), workspace,
-                dataset);
+            FileNameUtils.getCachePath(path, cachename), workspace,
+            dataset);
         final String uri = geoserverUrl + workspace
-                + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-                + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
         final Node n = map.get(key);
 
         final WFSClient client = new WFSClient();
@@ -191,7 +187,7 @@ public abstract class FileCache implements Serializable {
                         n.setValue(fileSize);
                     } catch (final Exception ex) {
                         throw new Exception(
-                                "Could not register file on the cache");
+                            "Could not register file on the cache");
                     }
                     throw new FileNotReadyException();
                 }
@@ -220,11 +216,9 @@ public abstract class FileCache implements Serializable {
     /**
      * Utility method to check if a file is cached.
      *
-     * @param key
-     *            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return boolean to indicate if its cached (true) or not (false)
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     public boolean isCached(final String key) throws Exception {
         return get(key) != null;
@@ -246,17 +240,15 @@ public abstract class FileCache implements Serializable {
     /**
      * Utility method to remove a file from disk.
      *
-     * @param key
-     *            dataset typename (workspace:dataset)
-     * @throws Exception
-     *             the exception
+     * @param key dataset typename (workspace:dataset)
+     * @throws Exception the exception
      */
     protected void removeFile(final String key) throws Exception {
         final String workspace = GeoServerUtils.getWorkspace(key);
         final String dataset = GeoServerUtils.getDataset(key);
         final String fileName = FileNameUtils.getFullPathZipFile(
-                FileNameUtils.getCachePath(path, cachename), workspace,
-                dataset);
+            FileNameUtils.getCachePath(path, cachename), workspace,
+            dataset);
 
         try {
             final FileManager fileM = new FileManager(fileName, maxAllowableLockTime);
@@ -274,23 +266,18 @@ public abstract class FileCache implements Serializable {
     /**
      * Abstract method to retrieve a node from the cache.
      *
-     * @param key
-     *            dataset typename (workspace:dataset)
+     * @param key dataset typename (workspace:dataset)
      * @return a node or null, if it doesnt find the typename
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     protected abstract Node get(String key) throws Exception;
 
     /**
      * Abstract method to put a file in the cache.
      *
-     * @param key
-     *            dataset typename (workspace:dataset)
-     * @param value
-     *            file size
-     * @throws Exception
-     *             the exception
+     * @param key   dataset typename (workspace:dataset)
+     * @param value file size
+     * @throws Exception the exception
      */
     protected abstract void set(String key, long value) throws Exception;
 
@@ -298,24 +285,22 @@ public abstract class FileCache implements Serializable {
      * Method to remove a file from the cache. - remove it from the disk -
      * unregister it from the cache structure
      *
-     * @param n
-     *            node (typename,size)
-     * @throws Exception
-     *             the exception
+     * @param n node (typename,size)
+     * @throws Exception the exception
      */
     protected abstract void remove(Node n) throws Exception;
 
     /**
      * Gets the file from remote.
      *
-     * @param workspace            the workspace
-     * @param dataset            the dataset
+     * @param workspace the workspace
+     * @param dataset   the dataset
      */
     private void downloadFileFromRemote(final String workspace,
-            final String dataset) {
+                                        final String dataset) {
         final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
         jmsTemplate.convertAndSend("fileRequestsQueue",
-                new DownloadRequest(workspace, dataset));
+            new DownloadRequest(workspace, dataset));
 
     }
 
@@ -323,11 +308,9 @@ public abstract class FileCache implements Serializable {
      * Searches for a physical file on the disk cache, and if it doesn't find
      * it, triggers the asynchronous download.
      *
-     * @param n
-     *            node (typename,size)
+     * @param n node (typename,size)
      * @return a file
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Deprecated
     private File getFile(final Node n) throws Exception {
@@ -336,11 +319,11 @@ public abstract class FileCache implements Serializable {
         final String dataset = GeoServerUtils.getDataset(n.getKey());
 
         final String fileName = FileNameUtils.getFullPathZipFile(
-                FileNameUtils.getCachePath(path, cachename), workspace,
-                dataset);
+            FileNameUtils.getCachePath(path, cachename), workspace,
+            dataset);
         final String uri = geoserverUrl + workspace
-                + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-                + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
         FileManager fileM = null;
 
@@ -377,4 +360,13 @@ public abstract class FileCache implements Serializable {
         return capacity;
     }
 
+    /**
+     * Sets the cache capacity on runtime.
+     * This is a helper function for the tests. You should not really use it.
+     *
+     * @param aCapacity a cache capacity, in bytes
+     */
+    public void setCapacity(long aCapacity) {
+        capacity = aCapacity;
+    }
 }
