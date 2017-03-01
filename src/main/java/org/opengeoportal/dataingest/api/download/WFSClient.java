@@ -57,7 +57,7 @@ public class WFSClient {
             throw new java.io.IOException(
                     "Resource '" + getFullFilePath + "' not " + "found! ");
         }
-        final FileManager out = new FileManager(getFullFilePath, maxAllowableLockTime);
+        final FileManager out = new FileManager(getFullFilePath, true, maxAllowableLockTime);
         try {
             out.lock();
             final FileOutputStream fos = new FileOutputStream(out.getFile());
