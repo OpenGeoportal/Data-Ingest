@@ -3,14 +3,14 @@
  */
 package org.opengeoportal.dataingest.api.fileCache;
 
+import org.opengeoportal.dataingest.exception.FileLockedException;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import org.opengeoportal.dataingest.exception.FileLockedException;
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
 
 /**
  * The Class FileManager.
@@ -27,7 +27,7 @@ public class FileManager {
      * Max allowable lock time in seconds 1 hour is recommended for bigger
      * downloads.
      */
-    public static long maxAllowableLockTime = 3600;
+    private long maxAllowableLockTime;
 
     /**
      * Instantiates a new file manager.
@@ -39,9 +39,10 @@ public class FileManager {
      * @throws FileNotReadyException
      *             the file not ready exception
      */
-    public FileManager(final String path)
+    public FileManager(final String path, long aMaxAllowableLockTime)
             throws IOException, FileNotReadyException {
         f = new File(path);
+        this.maxAllowableLockTime = aMaxAllowableLockTime;
         lock = new File(path + ".lock");
         if (!f.exists() || isLocked()) {
             throw new FileNotReadyException();
@@ -60,9 +61,10 @@ public class FileManager {
      * @throws FileLockedException
      *             the file locked exception
      */
-    public FileManager(final String path, final boolean newFile)
+    public FileManager(final String path, final boolean newFile, long aMaxAllowableLockTime)
             throws IOException, FileLockedException {
         f = new File(path);
+        this.maxAllowableLockTime = aMaxAllowableLockTime;
         lock = new File(path + ".lock");
         if (newFile) {
             if (f.exists() && !isLocked()) {

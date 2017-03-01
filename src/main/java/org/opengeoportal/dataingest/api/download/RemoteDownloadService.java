@@ -3,11 +3,11 @@
  */
 package org.opengeoportal.dataingest.api.download;
 
-import java.io.File;
-
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 /**
  * The Class RemoteDownloadService. This class is used to organize the download
@@ -49,6 +49,12 @@ public class RemoteDownloadService {
      */
     @Value("${cache.path}")
     private String path;
+    /**
+     * Max allowable lock time in seconds 1 hour is recommended for bigger
+     * downloads.
+     */
+    @Value("${file.maxAllowableLockTime}")
+    private long maxAllowableLockTime;
 
     /**
      * Prepare download.
@@ -86,7 +92,7 @@ public class RemoteDownloadService {
         final String fileName = FileNameUtils.getFullPathZipFile(cachePath,
                 workspace, dataset);
 
-        client.getFile(uri, fileName);
+        client.getFile(uri, fileName, maxAllowableLockTime);
 
     }
 

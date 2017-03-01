@@ -38,6 +38,12 @@ public abstract class FileCache implements Serializable {
      */
     protected HashMap<String, Node> map = new HashMap<String, Node>();
     /**
+     * Max allowable lock time in seconds 1 hour is recommended for bigger
+     * downloads.
+     */
+    @Value("${file.maxAllowableLockTime}")
+    private long maxAllowableLockTime;
+    /**
      * Cache directory maximum size (in bytes).
      */
     @Value("${cache.capacity}")
@@ -75,6 +81,9 @@ public abstract class FileCache implements Serializable {
      */
     @PostConstruct
     public void createCacheDir() throws Exception {
+        // Make sure the path is never empty here
+        path = (path == null || path.isEmpty() ? System.getProperty(
+            "java.io.tmpdir") : path);
         final String baseDir = FileNameUtils.getCachePath(path, cachename);
         try {
             // First lets check if the root directory is ok
@@ -185,7 +194,7 @@ public abstract class FileCache implements Serializable {
                     throw new FileNotReadyException();
                 }
 
-                fileM = new FileManager(fileName);
+                fileM = new FileManager(fileName, maxAllowableLockTime);
                 // Check for age, for oldest files
                 if (fileM.getFileAgeinSeconds() >= maxDownloadFileAgeInSeconds) {
                     downloadFileFromRemote(workspace, dataset);
@@ -248,7 +257,7 @@ public abstract class FileCache implements Serializable {
                 dataset);
 
         try {
-            final FileManager fileM = new FileManager(fileName);
+            final FileManager fileM = new FileManager(fileName, maxAllowableLockTime);
             fileM.removeFile();
 
         } catch (final IOException e) {
@@ -343,7 +352,7 @@ public abstract class FileCache implements Serializable {
                 throw new FileNotReadyException();
             }
             // The files already exists and is not locked (downloading)
-            fileM = new FileManager(fileName);
+            fileM = new FileManager(fileName, maxAllowableLockTime);
             // Check for age, for oldest files
             if (fileM.getFileAgeinSeconds() >= maxDownloadFileAgeInSeconds) {
                 downloadFileFromRemote(workspace, dataset);
