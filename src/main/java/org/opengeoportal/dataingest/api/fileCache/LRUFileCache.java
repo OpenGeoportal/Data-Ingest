@@ -3,6 +3,7 @@
  */
 package org.opengeoportal.dataingest.api.fileCache;
 
+import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -58,13 +59,16 @@ public class LRUFileCache extends FileCache {
      *             the exception
      */
     @Override
-    protected void set(final String key, final long value) throws Exception {
+    protected void set(final String key, final long value) throws CacheCapacityException, java.lang.Exception {
         if (map.containsKey(key)) {
             final Node old = map.get(key);
             old.setValue(value);
             removeNode(old);
             setHead(old);
         } else {
+            if (value >= this.getCapacity()) throw new CacheCapacityException(" File " + key + " (" + value +" " +
+                " bytes) exceeds the capacity of the file cache (" + this.getCapacity() + " bytes). Please review " +
+                "your cache configuration.");
             final Node created = new Node(key, value);
             // Here we check of the cache has reached its capacity, and perform
             // accordingly.

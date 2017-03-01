@@ -3,16 +3,17 @@
  */
 package org.opengeoportal.dataingest.api.download;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.opengeoportal.dataingest.api.GeoserverDataStore;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
+import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * The Class LocalDownloadService.
@@ -101,7 +102,7 @@ public class LocalDownloadService {
      *             the exception
      */
     public final File getFile(final String workspace, final String dataset)
-            throws FileNotReadyException, IOException, java.lang.Exception {
+            throws FileNotReadyException, IOException, java.lang.Exception, CacheCapacityException {
 
         // this data exists
         if (!this.isAValidRequest(workspace, dataset)) {

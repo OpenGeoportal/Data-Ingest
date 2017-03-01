@@ -3,25 +3,15 @@
  */
 package org.opengeoportal.dataingest.api;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
+import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
+import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
-import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
-import org.opengeoportal.dataingest.exception.PageFormatException;
-import org.opengeoportal.dataingest.exception.PageNotFoundException;
-import org.opengeoportal.dataingest.exception.PageSizeFormatException;
+import org.opengeoportal.dataingest.exception.*;
 import org.opengeoportal.dataingest.utils.DatasetsPageWrapper;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.ResultSortedPaginator;
@@ -33,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -433,7 +423,9 @@ public class DataSetsController {
             printOutputMessage(response, HttpServletResponse.SC_ACCEPTED,
                     "File not yet ready.");
             return;
-
+        } catch (final CacheCapacityException ccex) {
+            printOutputMessage(response, HttpServletResponse.SC_PRECONDITION_FAILED, ccex.getMessage());
+            return;
         } catch (final IOException ioex) {
             ioex.printStackTrace();
             printOutputMessage(response,

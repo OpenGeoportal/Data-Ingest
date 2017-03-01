@@ -5,6 +5,7 @@ package org.opengeoportal.dataingest.api.fileCache;
 
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
 import org.opengeoportal.dataingest.api.download.WFSClient;
+import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
@@ -161,7 +162,8 @@ public abstract class FileCache implements Serializable {
      * @throws Exception
      *             the exception
      */
-    public File getFileFromCache(final String key) throws Exception {
+    public File getFileFromCache(final String key) throws java.lang.Exception, CacheCapacityException,
+        FileNotReadyException {
 
         final File f = null;
         FileManager fileM;
