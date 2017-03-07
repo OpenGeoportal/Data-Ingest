@@ -39,6 +39,11 @@ For instance:
 ```bash
  export DOCKER_HOST=localhost:2375
 ```
+In OSX, you may need to bind the docker host to the unix socket:
+
+```bash
+ export DOCKER_HOST=unix:///var/run/docker.sock
+```
 
 On a bash shell, you would set it permanently by adding this instruction to your `~/.bashrc`, `~/.bash_profile`.
 
