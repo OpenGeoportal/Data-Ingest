@@ -93,6 +93,8 @@ When the application exits, the cache directory is emptied and removed.
 ## Cache Eviction
 For evicting the cache, we have implemented a [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_.28LRU.29) policy. This is a well-known algorithm, which discards the least recently used items first.
 
+![LRU Cache](https://raw.githubusercontent.com/OpenGeoportal/Data-Ingest/master/lru.png "LRU Cache")
+
 The eviction is triggered when the file we request for download is going to increase the cache till, or over its capacity. If we request to download a file which is larger than the cache capacity, an error will be thrown, prompting the user to review the cache configuration; this error means that there is no way this file can be downloaded, unless we start the application with a larger cache.
 
 ## Cache Invalidation
