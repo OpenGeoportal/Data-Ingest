@@ -50,6 +50,14 @@ For instance:
 
 On a bash shell, you would set it permanently by adding this instruction to your `~/.bashrc`, `~/.bash_profile`.
 
+In OsX the docker daemon __does not__ listen on this address, so you should __not__ set the `DOCKER_HOST` variable.
+
+You can, however, _fake_ the unix docker daemon with this workaround:
+
+```bash
+socat TCP-LISTEN:2375,reuseaddr,fork,bind=localhost UNIX-CONNECT:/var/run/docker.sock &
+```
+
 Important Information:
 ----------------------
 This repository uses large files; to read them correctly, you must enable the support to [Git Large File Storage](https://git-lfs.github.com), by following these steps:
