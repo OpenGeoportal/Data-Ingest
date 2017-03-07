@@ -3,6 +3,7 @@
  */
 package org.opengeoportal.dataingest.api.fileCache;
 
+import org.apache.commons.io.FileUtils;
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
@@ -123,15 +124,31 @@ public abstract class FileCache implements Serializable {
     }
 
     /**
+     * Wrapper of the createCacheDir function, which takes the capacity, cachename and path as arguments.
+     *
+     * @param aCapacity  cache capacity.
+     * @param aCachename cache name.
+     * @param aPath      cache path on disk.
+     * @throws Exception
+     */
+    public void createCacheDir(long aCapacity, String aCachename, String aPath) throws Exception {
+        capacity = aCapacity;
+        cachename = aCachename;
+        path = aPath;
+
+        createCacheDir();
+    }
+
+    /**
      * Shutdown method which removes the cache directory, after the JVM is
      * stopped.
      */
     @PreDestroy
-    public void clearCacheDir() {
+    public void clearCacheDir() throws IOException {
         log.info("Cleaning up: removing cache folder at "
             + FileNameUtils.getCachePath(path, cachename));
         final File dir = new File(FileNameUtils.getCachePath(path, cachename));
-        dir.deleteOnExit();
+        FileUtils.deleteDirectory(dir);
     }
 
     /**
@@ -360,13 +377,4 @@ public abstract class FileCache implements Serializable {
         return capacity;
     }
 
-    /**
-     * Sets the cache capacity on runtime.
-     * This is a helper function for the tests. You should not really use it.
-     *
-     * @param aCapacity a cache capacity, in bytes
-     */
-    public void setCapacity(long aCapacity) {
-        capacity = aCapacity;
-    }
 }

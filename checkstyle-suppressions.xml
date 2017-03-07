@@ -7,4 +7,5 @@
     <suppress checks="TodoComment" files=".*"/>
     <suppress checks="AvoidInlineConditionals" files=".*"/>
     <suppress checks="MagicNumber" files=".*"/>
+    <suppress checks="AvoidStarImport" files="DataSetsController.java"/>
 </suppressions>

@@ -5,7 +5,11 @@ package org.opengeoportal.dataingest.api.download;
 
 import org.apache.commons.io.IOUtils;
 import org.opengeoportal.dataingest.api.fileCache.FileManager;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -35,27 +39,25 @@ public class WFSClient {
     /**
      * Get a file from a WFS request.
      *
-     * @param uri
-     *            address of the service
-     * @param getFullFilePath
-     *            name with path of the file
+     * @param uri                  address of the service
+     * @param getFullFilePath      name with path of the file
+     * @param maxAllowableLockTime Max allowable lock time in seconds 1 hour is recommended for bigger
      * @return file with the dataset
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     public final File getFile(final String uri, final String getFullFilePath, final long maxAllowableLockTime)
-            throws Exception {
+        throws Exception {
 
         final HttpEntity<String> requestEntity = new HttpEntity<String>("",
-                headers);
+            headers);
         final ResponseEntity<byte[]> responseEntity = rest.exchange(uri,
-                HttpMethod.GET, requestEntity, byte[].class);
+            HttpMethod.GET, requestEntity, byte[].class);
         final MediaType contentType = responseEntity.getHeaders()
-                .getContentType();
+            .getContentType();
         if (contentType.getType().equals("text")
-                && contentType.getSubtype().equals("xml")) {
+            && contentType.getSubtype().equals("xml")) {
             throw new java.io.IOException(
-                    "Resource '" + getFullFilePath + "' not " + "found! ");
+                "Resource '" + getFullFilePath + "' not " + "found! ");
         }
         final FileManager out = new FileManager(getFullFilePath, true, maxAllowableLockTime);
         try {
@@ -71,21 +73,18 @@ public class WFSClient {
     /**
      * Get a file sizefrom a WFS request.
      *
-     * @param uri
-     *            address of the service
-     * @param getFullFilePath
-     *            name with path of the file
+     * @param uri             address of the service
+     * @param getFullFilePath name with path of the file
      * @return file with the dataset
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     public final long getFileSize(final String uri,
-            final String getFullFilePath) throws Exception {
+                                  final String getFullFilePath) throws Exception {
 
         final HttpEntity<String> requestEntity = new HttpEntity<String>("",
-                headers);
+            headers);
         final ResponseEntity<byte[]> responseEntity = rest.exchange(uri,
-                HttpMethod.HEAD, requestEntity, byte[].class);
+            HttpMethod.HEAD, requestEntity, byte[].class);
 
         return responseEntity.getHeaders().getContentLength();
 
@@ -94,23 +93,20 @@ public class WFSClient {
     /**
      * Get feature type for a given workspace.
      *
-     * @param uri
-     *            geoserver url
-     * @param workspace
-     *            given workspace
+     * @param uri       geoserver url
+     * @param workspace given workspace
      * @return feature type as string
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     public final String getFeatureType(final String uri, final String workspace)
-            throws Exception {
+        throws Exception {
 
         final HttpEntity<String> requestEntity = new HttpEntity<String>("",
-                headers);
+            headers);
 
         final ResponseEntity<String> responseEntity = rest.exchange(
-                uri + "/rest/workspaces/" + workspace + "/featuretypes.xml",
-                HttpMethod.GET, requestEntity, String.class);
+            uri + "/rest/workspaces/" + workspace + "/featuretypes.xml",
+            HttpMethod.GET, requestEntity, String.class);
 
         return responseEntity.getBody();
 

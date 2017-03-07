@@ -87,9 +87,7 @@ public class LRUFileCache extends FileCache {
      */
     @Override
     protected void remove(final Node n) throws Exception {
-        // First remove file, so if something fails we don't unregister it from
-        // the
-        // cache
+        // First remove file, so if something fails we don't unregister it from the cache
         removeFile(n.getKey());
         map.remove(n.getKey());
         removeNode(n);
