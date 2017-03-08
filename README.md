@@ -79,14 +79,14 @@ File Cache
 For improving the speed of downloads, we implemented a file cache, which stores physical files on disk. The cache uses a memory structure (an hashmap), to store the references to the physical files.
 ## Cache Parameters
 When the application starts, the file cache is initialized with three parameters, which are set on the application.properties file:
-* cache.capacity: the limit of the cache on disk (in bytes)
-* cache path: the disk path of the cache
-* cache.name: the name of the cache, which will be the name of subdirectory, under `cache.path`
+* `cache.capacity`: the limit of the cache on disk (in bytes)
+* `cache path`: the disk path of the cache
+* `cache.name`: the name of the cache, which will be the name of a subdirectory, to be created under under `cache.path`
 
 ## Cache Initialization & Termination
 The `cache.path` parameter can be empty, in which case it will default to the `TMP` directory of the OS. All other variables are mandatory.
 
-As an example, for cache.path=/tmp and cache.name=cache, a directory named `/tmp/cache` would be created on startup. If that directory already existed, and had adequated permissions, it would be reused; otherwise an error would be thrown. Please not that any errors in the cache initialization would cause the application to not start.
+As an example, for _cache.path=/tmp_ and _cache.name=cache_, a directory named `/tmp/cache` would be created on startup. If that directory already existed, and had adequated permissions, it would be reused; otherwise an error would be thrown. Please not that any errors in the cache initialization would cause the application to not start.
 
 When the application exits, the cache directory is emptied and removed.
 
@@ -104,4 +104,5 @@ In principle, subsequent requests for the same `workspace:dataset` will land in 
 
 For removal and update events whithin the Data-Ingest API, we can trigger a cache invalidation which will force a new download request. However, GeoServer can also be accessed outside the API, and in that case we have no way of accessing these events. To mitigate this problem, we implemented a couple of strategies. In order to identify updated files, when a file is requested from the cache, we compare the size of the file on disk with the size on GeoServer (by issuing a request to the size headers). This will not identify the scenarios when a file is updated and has the same size, but will identify the most common scenario when a file is updated its size changes.
 As a last resource, to prevent the cache to live forever, we also implemented a cache validity (in seconds), which is configurable in.application properties with variable: `param.download.max.age.file`. Everytime we hit the cache, we check the age of that file, and decide if it should be invalidated.
+
 Finally, to free disk resources from files that no longer exist in GeoServer, we added a function that removes a file from the cache, whenever GeoServer does not list this file anymore. This function is triggered in the download request, which has a call to check if the file exists in GeoServer.
