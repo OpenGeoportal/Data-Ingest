@@ -3,15 +3,16 @@
  */
 package org.opengeoportal.dataingest.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
+import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by joana on 27/01/17.
@@ -34,7 +35,7 @@ public class GeoserverDataStore {
      * Constructor of the Geoserver data store. It fills two class member
      * variables, which store the WFS datastore and dataset (names, titles).
      *
-     * @param uri            geoserver uri (include filter per workspace)
+     * @param uri geoserver uri (include filter per workspace)
      * @throws Exception the exception
      */
     public GeoserverDataStore(final String uri) throws Exception {
@@ -43,7 +44,7 @@ public class GeoserverDataStore {
 
         final Map connectionParameters = new HashMap();
         connectionParameters.put("WFSDataStoreFactory:GET_CAPABILITIES_URL",
-                getCapabilities);
+            getCapabilities);
         connectionParameters.put("WFSDataStoreFactory:TIMEOUT", TIMEOUT);
 
         try {
@@ -55,7 +56,7 @@ public class GeoserverDataStore {
             final HashMap<String, String> mTtitles = new HashMap<String, String>();
             for (final String typeName : typeNames) {
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
-                        .getFeatureSource(typeName);
+                    .getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
                 mTtitles.put(resourceInfo.getName(), resourceInfo.getTitle());
             }
@@ -64,8 +65,8 @@ public class GeoserverDataStore {
 
         } catch (final java.net.ConnectException ce) {
             throw new Exception("Could not connect to GeoServer " + "at: " + uri
-                    + ". Make sure it is up and "
-                    + "running and that the connection settings are correct!");
+                + ". Make sure it is up and "
+                + "running and that the connection settings are correct!");
         } catch (final Exception ex) {
             throw ex;
         }
@@ -94,32 +95,44 @@ public class GeoserverDataStore {
     /**
      * Get detailed info about one layer.
      *
-     * @param workspace
-     *            given workspace
-     * @param dataset
-     *            given dataset
+     * @param workspace given workspace
+     * @param dataset   given dataset
      * @return hashtable with layer properties
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     public HashMap<String, String> getLayerInfo(final String workspace,
-            final String dataset) throws Exception {
+                                                final String dataset) throws WFSException, Exception {
 
         final HashMap<String, String> layerProps = new HashMap<String, String>();
         final String typeName = workspace + ":" + dataset;
-        final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
-                .getFeatureSource(typeName);
-        final ResourceInfo resourceInfo = featureSource.getInfo();
 
         try {
-            // Example properties
-            layerProps.put("name", resourceInfo.getName()); // typename
+            final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
+                .getFeatureSource(typeName);
+
+            String geometry = featureSource.getSchema().getType(0).getBinding().getSimpleName();
+            int noFeatures = featureSource.getFeatures().size(); // no features
+
+
+            final ResourceInfo resourceInfo = featureSource.getInfo();
+
+
+            layerProps.put("name", dataset);
+            layerProps.put("workspace", workspace);
+            layerProps.put("typename", resourceInfo.getName()); // typename
+            layerProps.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
+            //Last modified date
+            //Is cached
+            layerProps.put("size", String.valueOf(featureSource.getFeatures().size())); // do we want file size instead?
+            //OWS endpoints
             layerProps.put("title", resourceInfo.getTitle());
             layerProps.put("description", resourceInfo.getDescription());
             layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());
             layerProps.put("keywords", resourceInfo.getKeywords().toString());
             return layerProps;
 
+        } catch (final java.io.IOException e) {
+            throw new WFSException(e.getMessage() + " Maybe this is not a vector dataset?");
         } catch (final Exception e) {
             e.printStackTrace();
             throw new Exception("Could not read layer featuretype");
