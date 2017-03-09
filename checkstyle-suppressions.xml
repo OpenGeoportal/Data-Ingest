@@ -8,4 +8,5 @@
     <suppress checks="AvoidInlineConditionals" files=".*"/>
     <suppress checks="MagicNumber" files=".*"/>
     <suppress checks="AvoidStarImport" files="DataSetsController.java"/>
+    <suppress checks="AvoidStarImport" files="WFSClient.java"/>
 </suppressions>

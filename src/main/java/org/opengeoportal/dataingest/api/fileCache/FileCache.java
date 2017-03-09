@@ -185,13 +185,11 @@ public abstract class FileCache implements Serializable {
         final String fileName = FileNameUtils.getFullPathZipFile(
             FileNameUtils.getCachePath(path, cachename), workspace,
             dataset);
-        final String uri = geoserverUrl + workspace
-            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
+
         final Node n = map.get(key);
 
         final WFSClient client = new WFSClient();
-        final long fileSize = client.getFileSize(uri, fileName);
+        final long fileSize = client.getFileSize(geoserverUrl, workspace, dataset);
 
         try {
 
@@ -338,15 +336,12 @@ public abstract class FileCache implements Serializable {
         final String fileName = FileNameUtils.getFullPathZipFile(
             FileNameUtils.getCachePath(path, cachename), workspace,
             dataset);
-        final String uri = geoserverUrl + workspace
-            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
-            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
         FileManager fileM = null;
 
         try {
             final WFSClient client = new WFSClient();
-            final long fileSize = client.getFileSize(uri, fileName);
+            final long fileSize = client.getFileSize(geoserverUrl, workspace, dataset);
 
             // The file size is different from last time
             if (fileSize != n.getValue()) {

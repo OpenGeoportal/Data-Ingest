@@ -3,14 +3,14 @@
  */
 package org.opengeoportal.dataingest.api;
 
-import java.io.IOException;
-import java.util.HashMap;
-
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * This service class acts as a proxy between the controller and
@@ -25,13 +25,13 @@ public class CacheService {
     /**
      * Get datasets names and titles, for a given GeoServer uri.
      *
-     * @param uri            geoserver uri (it may include the filter for workspace).
+     * @param uri geoserver uri (it may include the filter for workspace).
      * @return hashmap with dataset (names, titles)
      * @throws Exception the exception
      */
     @Cacheable(value = "titles", key = "#uri")
     public HashMap<String, String> getTitles(final String uri)
-            throws Exception {
+        throws Exception {
 
         System.out.println("Not using the cache");
 
@@ -40,8 +40,8 @@ public class CacheService {
             ds = new GeoserverDataStore(uri);
         } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: " + uri
-                    + ". Make sure it is up and "
-                    + "running and that the connection settings are correct!");
+                + ". Make sure it is up and "
+                + "running and that the connection settings are correct!");
         }
 
         return ds.titles();
@@ -50,15 +50,17 @@ public class CacheService {
     /**
      * Gets detailed info about a layer.
      *
-     * @param uri            geoserver uri
-     * @param workspace            workspace name
-     * @param dataset            dataset name
+     * @param uri       geoserver uri
+     * @param workspace workspace name
+     * @param dataset   dataset name
+     * @param bFeatureSize boolean to indicate if we want to include the featureSize in the layer properties
      * @return summary info about a layer, as hash table
      * @throws Exception the exception
      */
-    @Cacheable(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)")
+    @Cacheable(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset).concat(#bFeatureSize)")
     public HashMap<String, String> getInfo(final String uri,
-            final String workspace, final String dataset) throws Exception {
+                                           final String workspace, final String dataset, boolean bFeatureSize) throws
+        Exception {
 
         System.out.println("Not using the cache");
 
@@ -67,11 +69,11 @@ public class CacheService {
             ds = new GeoserverDataStore(uri);
         } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: " + uri
-                    + ". Make sure it is up and "
-                    + "running and that the connection settings are correct!");
+                + ". Make sure it is up and "
+                + "running and that the connection settings are correct!");
         }
         try {
-            return ds.getLayerInfo(workspace, dataset);
+            return ds.getLayerInfo(workspace, dataset, bFeatureSize);
         } catch (final IOException e) {
             throw new NoDataFoundOnGeoserverException();
         }
@@ -81,17 +83,14 @@ public class CacheService {
     /**
      * Dummy function to trigger cache eviction.
      *
-     * @param uri
-     *            workspace name
-     * @param workspace
-     *            workspace name
-     * @param dataset
-     *            dataset name
+     * @param uri       workspace name
+     * @param workspace workspace name
+     * @param dataset   dataset name
      */
-    @Caching(evict = { @CacheEvict(value = "titles", allEntries = true),
-            @CacheEvict(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)") })
+    @Caching(evict = {@CacheEvict(value = "titles", allEntries = true),
+        @CacheEvict(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)")})
     public void clearCache(final String uri, final String workspace,
-            final String dataset) {
+                           final String dataset) {
         System.out.println("Clearing the cache");
     }
 
