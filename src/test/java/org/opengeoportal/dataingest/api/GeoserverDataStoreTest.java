@@ -6,6 +6,7 @@ import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.junit.*;
+import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -99,8 +100,16 @@ public class GeoserverDataStoreTest {
             .getFeatureSource(typeName);
         ResourceInfo resourceInfo = featureSource.getInfo();
 
-        // Example properties
-        layerProps.put("name", resourceInfo.getName()); // typename
+        String geometry = featureSource.getSchema().getType(0).getBinding().getSimpleName();
+        int noFeatures = featureSource.getFeatures().size(); // no features
+        final WFSClient client = new WFSClient();
+        final long fileSize = client.getFileSize(uri, workspace, dataset);
+
+        layerProps.put("name", dataset);
+        layerProps.put("workspace", workspace);
+        layerProps.put("typename", resourceInfo.getName()); // typename
+        layerProps.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
+        layerProps.put("size", String.valueOf(fileSize));
         layerProps.put("title", resourceInfo.getTitle());
         layerProps.put("description", resourceInfo.getDescription());
         layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());

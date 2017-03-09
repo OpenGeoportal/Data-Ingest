@@ -8,6 +8,7 @@ import it.geosolutions.geoserver.rest.GeoServerRESTReader;
 import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
@@ -281,23 +282,45 @@ public class DataSetsController {
      * @param workspace given workspace
      * @param dataset   given dataset
      * @param response  the response
+     * @param request the request, so we can parse any parameters
      * @return String dataset info, as a set of properties.
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.GET)
     @ResponseBody
     public final HashMap<String, String> getDataSet(
-            @PathVariable(value = "workspace") final String workspace,
-            @PathVariable(value = "dataset") final String dataset,
-            final HttpServletResponse response) throws Exception {
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset, final HttpServletRequest request,
+        final HttpServletResponse response) throws Exception {
 
         try {
+
+            boolean bIsCached = fileCache.isCached(GeoServerUtils.getTypeName(workspace, dataset));
+            boolean bFeatureSize = false; // By default, we dont return the feature size
+
+            if (request.getParameter("featureSize") != null) {
+                if (request.getParameter("featureSize").isEmpty()) {
+                    throw new FeatureSizeFormatException();
+                } else if (BooleanUtils.toBooleanObject(
+                    request.getParameter("featureSize")) == null) {
+                    throw new FeatureSizeFormatException();
+                } else {
+                    bFeatureSize = BooleanUtils.toBooleanObject(
+                        request.getParameter("featureSize"));
+                }
+            }
+
             final HashMap<String, String> data = service.getInfo(geoserverUrl,
-                    workspace, dataset);
+                workspace, dataset, bFeatureSize);
 
             if (data == null && data.size() == 0) {
                 throw new NoDataFoundOnGeoserverException();
             }
+
+            // We don't want to use the cache for this
+            data.put("cached", String.valueOf(bIsCached));
+
+            //TODO: ows endpoints
 
             return data;
 
@@ -309,10 +332,17 @@ public class DataSetsController {
             printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
                     "Dataset " + dataset + " does not exist");
             return null;
-        } catch (final Exception ex) {
-            throw ex;
+        } catch (final FeatureSizeFormatException fsfex) {
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                "Wrong feature Size format");
+            return null;
+        } catch (final Exception ioex) {
+            ioex.printStackTrace();
+            printOutputMessage(response,
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Internal server error.");
+            return null;
         }
-
     }
 
     /**

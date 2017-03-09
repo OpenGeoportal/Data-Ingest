@@ -7,6 +7,7 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
+import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -30,16 +31,21 @@ public class GeoserverDataStore {
      * Stores a hasmap with dataset (names, titles).
      */
     private HashMap<String, String> hTitles;
+    /**
+     * Geoserver uri.
+     */
+    private String uri;
 
     /**
      * Constructor of the Geoserver data store. It fills two class member
      * variables, which store the WFS datastore and dataset (names, titles).
      *
-     * @param uri geoserver uri (include filter per workspace)
+     * @param aUri geoserver uri (include filter per workspace)
      * @throws Exception the exception
      */
-    public GeoserverDataStore(final String uri) throws Exception {
+    public GeoserverDataStore(final String aUri) throws Exception {
 
+        uri = aUri;
         final String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
 
         final Map connectionParameters = new HashMap();
@@ -93,15 +99,34 @@ public class GeoserverDataStore {
     }
 
     /**
-     * Get detailed info about one layer.
+     * Wrapper for getLayerInfo, with a default value for bFeatureSize (false).
      *
      * @param workspace given workspace
      * @param dataset   given dataset
      * @return hashtable with layer properties
+     * @throws WFSException
+     * @throws Exception
+     */
+    public HashMap<String, String> getLayerInfo(final String workspace,
+                                                final String dataset) throws WFSException,
+        Exception {
+
+        return getLayerInfo(workspace, dataset, false);
+
+    }
+
+    /**
+     * Get detailed info about one layer.
+     *
+     * @param workspace    given workspace
+     * @param dataset      given dataset
+     * @param bFeatureSize boolean to indicate if we want to include the featureSize in the layer properties
+     * @return hashtable with layer properties
      * @throws Exception the exception
      */
     public HashMap<String, String> getLayerInfo(final String workspace,
-                                                final String dataset) throws WFSException, Exception {
+                                                final String dataset, final boolean bFeatureSize) throws WFSException,
+        Exception {
 
         final HashMap<String, String> layerProps = new HashMap<String, String>();
         final String typeName = workspace + ":" + dataset;
@@ -112,19 +137,18 @@ public class GeoserverDataStore {
 
             String geometry = featureSource.getSchema().getType(0).getBinding().getSimpleName();
             int noFeatures = featureSource.getFeatures().size(); // no features
-
+            final WFSClient client = new WFSClient();
+            final long fileSize = client.getFileSize(uri, workspace, dataset); // n.b.: this is the size of the
+            // uncompressed file
 
             final ResourceInfo resourceInfo = featureSource.getInfo();
-
 
             layerProps.put("name", dataset);
             layerProps.put("workspace", workspace);
             layerProps.put("typename", resourceInfo.getName()); // typename
             layerProps.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
-            //Last modified date
-            //Is cached
-            layerProps.put("size", String.valueOf(featureSource.getFeatures().size())); // do we want file size instead?
-            //OWS endpoints
+            if (bFeatureSize) layerProps.put("featureSize", String.valueOf(featureSource.getFeatures().size()));
+            layerProps.put("size", String.valueOf(fileSize));
             layerProps.put("title", resourceInfo.getTitle());
             layerProps.put("description", resourceInfo.getDescription());
             layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());

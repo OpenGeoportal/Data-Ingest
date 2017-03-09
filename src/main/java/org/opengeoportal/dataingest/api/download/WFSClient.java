@@ -5,15 +5,13 @@ package org.opengeoportal.dataingest.api.download;
 
 import org.apache.commons.io.IOUtils;
 import org.opengeoportal.dataingest.api.fileCache.FileManager;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileOutputStream;
+
+//import org.springframework.http.*;
 
 /**
  * Created by joana on 16/01/17.
@@ -73,13 +71,18 @@ public class WFSClient {
     /**
      * Get a file sizefrom a WFS request.
      *
-     * @param uri             address of the service
-     * @param getFullFilePath name with path of the file
-     * @return file with the dataset
-     * @throws Exception the exception
+     * @param geoserverUrl the geoserver url.
+     * @param workspace    a workspace.
+     * @param dataset      a dataset.
+     * @return file size in bytes
+     * @throws Exception
      */
-    public final long getFileSize(final String uri,
-                                  final String getFullFilePath) throws Exception {
+    public final long getFileSize(final String geoserverUrl, final String workspace, final String dataset) throws
+        Exception {
+
+        final String uri = geoserverUrl + workspace
+            + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName="
+            + workspace + ":" + dataset + "&outputFormat=SHAPE-ZIP";
 
         final HttpEntity<String> requestEntity = new HttpEntity<String>("",
             headers);
