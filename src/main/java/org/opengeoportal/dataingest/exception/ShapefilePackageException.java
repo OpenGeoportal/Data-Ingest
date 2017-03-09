@@ -62,5 +62,11 @@ public class ShapefilePackageException extends RuntimeException {
         super(message, null);
 
     }
+    
+    public ShapefilePackageException(Code code, String message) {
+
+        super(message, null);
+
+    }
 
 }
