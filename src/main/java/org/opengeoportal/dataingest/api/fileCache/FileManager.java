@@ -3,14 +3,14 @@
  */
 package org.opengeoportal.dataingest.api.fileCache;
 
-import org.opengeoportal.dataingest.exception.FileLockedException;
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import org.opengeoportal.dataingest.exception.FileLockedException;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
 
 /**
  * The Class FileManager.
