@@ -118,6 +118,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
+    
+    <dependency>
       <groupId>com.spotify</groupId>
       <artifactId>docker-client</artifactId>
       <version>3.5.12</version>

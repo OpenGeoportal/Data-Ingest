@@ -13,10 +13,13 @@ import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.*;
 import org.opengeoportal.dataingest.utils.DatasetsPageWrapper;
+import org.opengeoportal.dataingest.utils.FileConversionUtils;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
+import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengeoportal.dataingest.utils.ResultSortedPaginator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,7 +78,8 @@ public class DataSetsController {
      */
     @Value("${param.dataset.pagesize}")
     private int pageSize;
-
+    
+    
     /**
      * localDownloadService.
      */
@@ -323,23 +327,18 @@ public class DataSetsController {
         @PathVariable(value = "dataset") final String dataset)
         throws Exception {
 
-        final GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
-            geoserverUsername, geoserverPassword);
 
-        final GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(
-            geoserverUrl, geoserverUsername, geoserverPassword);
-
-        final RESTLayer layer = reader.getLayer(workspace, dataset);
-        final RESTFeatureType featureType = reader.getFeatureType(layer);
-        final RESTDataStore data = reader.getDatastore(featureType);
+        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+        
+        RESTDataStore data = geoServerFacade.getDatastore(workspace, dataset);
 
         // Unpublish feature type
-        if (!publisher.unpublishFeatureType(workspace, data.getName(),
+        if (!geoServerFacade.unpublishFeatureType(workspace, data.getName(),
             dataset)) {
             throw new Exception("Could not unpublish featuretype " + dataset
                 + " on store " + data.getName());
         }
-        publisher.reload();
+        geoServerFacade.reload();
 
         // Clear this file from the caches
         service.clearCache(geoserverUrl, workspace, dataset);
@@ -352,6 +351,8 @@ public class DataSetsController {
 
     /**
      * Uploads a given dataset.
+     * 
+     * Test with curl  -v -F file=/tmp/top_states/topp_antos.zip -X POST http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
@@ -362,14 +363,32 @@ public class DataSetsController {
     public final void uploadDataSet(
             @PathVariable(value = "workspace") final String workspace,
             @PathVariable(value = "dataset") final String dataset,
-            @RequestParam("file") MultipartFile file)
+            @RequestParam("file") MultipartFile file,  final HttpServletResponse response)
             throws Exception {
-
-        // TODO
+        
+        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+        
+        if(geoServerFacade.existsWorkspace(workspace)) {
+            if(!geoServerFacade.existsDatastore(workspace, dataset)) {        
+                geoServerFacade.publishShp(workspace, dataset, dataset, FileConversionUtils.multipartToFile(file), "EPSG:4326");
+            } else {
+                printOutputMessage(response,
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Datastore '"+dataset+"' already defined. Try updateDataSet.");
+                    return;
+            }
+        } else {
+            printOutputMessage(response,
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Workspace '"+workspace+"' does not exists.");
+                return;
+        }
     }
 
     /**
      * Updates a given dataset.
+     * 
+     * Test with curl  -v -F file=/tmp/top_states/topp_antos.zip -X PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
@@ -380,8 +399,26 @@ public class DataSetsController {
     public final void updateDataSet(
             @PathVariable(value = "workspace") final String workspace,
             @PathVariable(value = "dataset") final String dataset,
-            @RequestParam("file") MultipartFile file)
+            @RequestParam("file") MultipartFile file,  final HttpServletResponse response)
             throws Exception {
+        
+        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+        
+        if(geoServerFacade.existsWorkspace(workspace)) {
+            if(geoServerFacade.existsDatastore(workspace, dataset)) {        
+                geoServerFacade.publishShp(workspace, dataset, dataset, FileConversionUtils.multipartToFile(file), "EPSG:4326");
+            } else {
+                printOutputMessage(response,
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Datastore '"+dataset+"' is not defined.");
+                    return;
+            }
+        } else {
+            printOutputMessage(response,
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Workspace '"+workspace+"' does not exists.");
+                return;
+        }
 
         // Clear this file from the caches
         service.clearCache(geoserverUrl, workspace, dataset);

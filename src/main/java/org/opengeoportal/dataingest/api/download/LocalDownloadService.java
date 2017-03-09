@@ -3,17 +3,19 @@
  */
 package org.opengeoportal.dataingest.api.download;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
-import org.opengeoportal.dataingest.exception.CacheCapacityException;
-import org.opengeoportal.dataingest.exception.FileNotReadyException;
-import org.opengeoportal.dataingest.utils.GeoServerUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
+import org.opengeoportal.dataingest.exception.CacheCapacityException;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
+import org.opengeoportal.dataingest.utils.GeoServerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * The Class LocalDownloadService.
@@ -43,7 +45,7 @@ public class LocalDownloadService {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
-
+    
     /**
      * Get the file cache of the local download.
      *
@@ -74,13 +76,12 @@ public class LocalDownloadService {
                                     final String dataset) throws Exception {
 
         try {
+            
+            GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
-            final GeoServerRESTReader reader = new GeoServerRESTReader(geoserverUrl,
-                geoserverUsername, geoserverPassword);
+            return geoServerFacade.existsLayer(workspace, dataset, true);
 
-            return reader.existsLayer(workspace, dataset, true);
-
-        } catch (final java.io.IOException ex) {
+        } catch (Exception ex) {
 
             final String typeName = GeoServerUtils.getTypeName(workspace,
                 dataset);
