@@ -12,13 +12,16 @@ services:
         command: ["./wait-for-it.sh", "postgis:5432", "-t", "120", "--", "/opt/geoserver/bin/startup.sh"]
 
     tomcat:
-        image: tomcat:8-jre8-alpine
+        build: ./ogp-harvester        
         ports:
             - "8082:8080"
         links:
             - postgis
         volumes:
          - ./webapps:/usr/local/tomcat/webapps/
+        depends_on:
+            - "postgis"
+        command: ["/usr/local/tomcat/wait-for-it.sh", "postgis:5432", "-t", "120", "--", "catalina.sh run"]
 
     postgis:
         build: ./postgis

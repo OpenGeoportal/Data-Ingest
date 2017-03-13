@@ -9,6 +9,7 @@ import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.WFSException;
+import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -66,9 +67,9 @@ public class GeoserverDataStore {
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
                     .getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
-                List<String> values = Arrays.asList(explodeTypeName(resourceInfo.getName()));
+                List<String> values = Arrays.asList(GeoServerUtils.explodeTypeName(resourceInfo.getName()));
                 values.add(resourceInfo.getTitle());
-                hDatasets.put(resourceInfo.getName(),values);
+                hDatasets.put(resourceInfo.getName(), values);
             }
 
 
@@ -163,18 +164,6 @@ public class GeoserverDataStore {
         } catch (final Exception e) {
             e.printStackTrace();
             throw new Exception("Could not read layer featuretype");
-        }
-    }
-
-
-    String[] explodeTypeName(String aTypeName) throws Exception {
-        try {
-            if (aTypeName.isEmpty() || aTypeName == null) throw new Exception();
-            String[] splited = aTypeName.split("[\\:\\s]+");
-            if (splited.length != 2) throw new Exception();
-            return splited;
-        } catch (Exception ex) {
-            throw new Exception("Could not split typename: " + aTypeName);
         }
     }
 
