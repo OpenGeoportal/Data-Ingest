@@ -19,31 +19,43 @@ import org.opengeoportal.dataingest.exception.UncompressStrategyException;
  * @author Jose García
  */
 public class UncompressStrategyZip implements UncompressStrategy {
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.opengeoportal.dataingest.utils.UncompressStrategy#uncompress(java.io.
+     * File, java.io.File)
+     */
     @Override
-    public void uncompress(File file, File uncompressDir) throws UncompressStrategyException {
+    public void uncompress(final File file, final File uncompressDir)
+            throws UncompressStrategyException {
         InputStream is = null;
         OutputStream out = null;
         ArchiveInputStream in = null;
 
         try {
             is = new FileInputStream(file);
-            in = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
+            in = new ArchiveStreamFactory()
+                    .createArchiveInputStream(ArchiveStreamFactory.ZIP, is);
             ZipArchiveEntry entry = (ZipArchiveEntry) in.getNextEntry();
 
-            while (entry!=null) {
+            while (entry != null) {
                 try {
 
                     String name = entry.getName();
                     name = name.replace('\\', '/');
-                    File destinationFile = new File(uncompressDir, name);
+                    final File destinationFile = new File(uncompressDir, name);
                     if (name.endsWith("/")) {
-                        if (!destinationFile.isDirectory() && !destinationFile.mkdirs()) {
+                        if (!destinationFile.isDirectory()
+                                && !destinationFile.mkdirs()) {
                         }
                         entry = (ZipArchiveEntry) in.getNextEntry();
                         continue;
                     } else if (name.indexOf('/') != -1) {
                         // Create the the parent directory if it doesn't exist
-                        File parentFolder = destinationFile.getParentFile();
+                        final File parentFolder = destinationFile
+                                .getParentFile();
                         if (!parentFolder.isDirectory()) {
                             if (!parentFolder.mkdirs()) {
 
@@ -51,7 +63,8 @@ public class UncompressStrategyZip implements UncompressStrategy {
                         }
                     }
 
-                    out = new FileOutputStream(new File(uncompressDir.getAbsolutePath(), entry.getName()));
+                    out = new FileOutputStream(new File(
+                            uncompressDir.getAbsolutePath(), entry.getName()));
                     IOUtils.copy(in, out);
                 } finally {
                     IOUtils.closeQuietly(out);
@@ -60,7 +73,7 @@ public class UncompressStrategyZip implements UncompressStrategy {
                 entry = (ZipArchiveEntry) in.getNextEntry();
             }
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             ex.printStackTrace();
             FileUtils.deleteQuietly(uncompressDir);
             throw new UncompressStrategyException(ex.getMessage());

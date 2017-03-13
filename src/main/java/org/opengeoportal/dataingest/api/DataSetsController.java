@@ -1,18 +1,30 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
-import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
-import it.geosolutions.geoserver.rest.decoder.RESTLayer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
-import org.opengeoportal.dataingest.exception.*;
+import org.opengeoportal.dataingest.api.upload.LocalUploadService;
+import org.opengeoportal.dataingest.exception.CacheCapacityException;
+import org.opengeoportal.dataingest.exception.FeatureSizeFormatException;
+import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
+import org.opengeoportal.dataingest.exception.PageFormatException;
+import org.opengeoportal.dataingest.exception.PageNotFoundException;
+import org.opengeoportal.dataingest.exception.PageSizeFormatException;
+import org.opengeoportal.dataingest.exception.ShapefilePackageException;
+import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengeoportal.dataingest.utils.DatasetsPageWrapper;
 import org.opengeoportal.dataingest.utils.FileConversionUtils;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
@@ -20,9 +32,7 @@ import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengeoportal.dataingest.utils.ResultSortedPaginator;
 import org.opengeoportal.dataingest.utils.ShapeFileValidator;
-import org.opengeoportal.dataingest.utils.ShapefilePackage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,12 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.List;
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -89,6 +94,12 @@ public class DataSetsController {
      */
     @Autowired
     private LocalDownloadService localDownloadService;
+
+    /**
+     * localUploadService.
+     */
+    @Autowired
+    private LocalUploadService localUploadService;
 
     /**
      * A file cache, following the LRU eviction policy.
@@ -361,7 +372,8 @@ public class DataSetsController {
                     throws Exception {
 
 
-        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+        GeoServerRESTFacade geoServerFacade = 
+                new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
         RESTDataStore data = geoServerFacade.getDatastore(workspace, dataset);
 
@@ -385,7 +397,8 @@ public class DataSetsController {
     /**
      * Uploads a given dataset.
      * 
-     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X POST http://localhost:8080/workspaces/topp/datasets/antos
+     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
+     * POST http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
@@ -398,54 +411,56 @@ public class DataSetsController {
             @PathVariable(value = "dataset") final String dataset,
             @RequestParam("file") MultipartFile file,  final HttpServletResponse response)
                     throws Exception {
-        
+
         // File Validation
         File zipFile;
         try {
-            zipFile = FileConversionUtils.multipartToFile(file);        
+            zipFile = FileConversionUtils.multipartToFile(file);
             ShapeFileValidator.isAValidShapeFile(zipFile);
-        } catch(IOException ioex) {
-            
+        } catch (IOException ioex) {
+
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                     "File not valid");
-            
+
             return;
-        } catch(ShapefilePackageException shpfex) {
-            
+        } catch (ShapefilePackageException shpfex) {
+
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                     shpfex.getMessage());
-            
+
             return;
-        }        
+        }
 
         // GeoserverValidation and send file
-        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+        GeoServerRESTFacade geoServerFacade = 
+                new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
         if(geoServerFacade.existsWorkspace(workspace)) {
-            if(!geoServerFacade.existsDatastore(workspace, dataset)) {  
+            if(!geoServerFacade.existsDatastore(workspace, dataset)) {
 
-                geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, "EPSG:4326");
-                
+                localUploadService.uploadFile(workspace, dataset, zipFile, false);
+
             } else {
                 printOutputMessage(response,
                         HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-                        "Datastore '"+dataset+"' already defined. Try PUT.");
+                        "Datastore '" + dataset + "' already defined. Try PUT.");
                 return;
             }
         } else {
             printOutputMessage(response,
                     HttpServletResponse.SC_NOT_FOUND,
-                    "Workspace '"+workspace+"' does not exists.");
+                    "Workspace '" + workspace + "' does not exists.");
             return;
         }
     }
 
     /**
      * Updates a given dataset.
-     * 
-     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X PUT http://localhost:8080/workspaces/topp/datasets/antos
+     *
+     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
+     * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
@@ -458,46 +473,45 @@ public class DataSetsController {
             @PathVariable(value = "dataset") final String dataset,
             @RequestParam("file") MultipartFile file,  final HttpServletResponse response)
                     throws Exception {
-        
+
         // File Validation
         File zipFile;
         try {
-            zipFile = FileConversionUtils.multipartToFile(file);        
+            zipFile = FileConversionUtils.multipartToFile(file);
             ShapeFileValidator.isAValidShapeFile(zipFile);
-        } catch(IOException ioex) {
+        } catch (IOException ioex) {
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                     "File not valid");
-            
+
             return;
-        } catch(ShapefilePackageException shpfex) {
-            
+        } catch (ShapefilePackageException shpfex) {
+
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                     shpfex.getMessage());
-            
+
             return;
-        }        
+        }
 
         // GeoserverValidation and send file
         GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
-        if(geoServerFacade.existsWorkspace(workspace)) {
-            if(geoServerFacade.existsDatastore(workspace, dataset)) {  
-                
-                geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, "EPSG:4326");
-                
-                
+        if (geoServerFacade.existsWorkspace(workspace)) {
+            if(geoServerFacade.existsDatastore(workspace, dataset)) {
+
+                localUploadService.uploadFile(workspace, dataset, zipFile, true);
+
             } else {
                 printOutputMessage(response,
                         HttpServletResponse.SC_NOT_FOUND,
-                        "Datastore '"+dataset+"' is not defined.");
+                        "Datastore '" + dataset + "' is not defined.");
                 return;
             }
         } else {
             printOutputMessage(response,
                     HttpServletResponse.SC_NOT_FOUND,
-                    "Workspace '"+workspace+"' does not exists.");
+                    "Workspace '" + workspace + "' does not exists.");
             return;
         }
 

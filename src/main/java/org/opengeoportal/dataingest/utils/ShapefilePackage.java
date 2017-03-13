@@ -11,20 +11,18 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.opengeoportal.dataingest.exception.ShapefilePackageException;
-import org.opengeoportal.dataingest.exception.UncompressStrategyException;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengeoportal.dataingest.exception.ShapefilePackageException;
+import org.opengeoportal.dataingest.exception.UncompressStrategyException;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.common.io.Files;
-
 
 /**
  * Utility class to manage shapefile zip packages.
@@ -32,127 +30,172 @@ import com.google.common.io.Files;
  * @author Jose Garcia
  */
 public class ShapefilePackage {
-    private File unzipDir;
-    private String shapefilePath;
 
+    /** The unzip dir. */
+    private File unzipDir;
+
+    /** The shapefile path. */
+    private final String shapefilePath;
+
+    /** The Constant SHP_EXTENSION. */
     // Shapefile mandatory files extensions.
     private final static String SHP_EXTENSION = ".shp";
+
+    /** The Constant DBF_EXTENSION. */
     private final static String DBF_EXTENSION = ".dbf";
+
+    /** The Constant SHX_EXTENSION. */
     private final static String SHX_EXTENSION = ".shx";
+
+    /** The Constant PRJ_EXTENSION. */
     private final static String PRJ_EXTENSION = ".prj";
 
-    public ShapefilePackage(File zipFile) throws ShapefilePackageException {
+    /**
+     * Instantiates a new shapefile package.
+     *
+     * @param zipFile
+     *            the zip file
+     * @throws ShapefilePackageException
+     *             the shapefile package exception
+     */
+    public ShapefilePackage(final File zipFile)
+            throws ShapefilePackageException {
         this.shapefilePath = unpackage(zipFile);
     }
 
     /**
-     * Returns the list of fields of the shapefile (excluding the geometry field).
+     * Returns the list of fields of the shapefile (excluding the geometry
+     * field).
      *
      * @return List of strings containing the shapefile fields.
-     *
-     * @throws Exception
+     * @throws ShapefilePackageException
+     *             the shapefile package exception
      */
-    public List<String> retrieveShapefileFields() throws ShapefilePackageException {
+    public List<String> retrieveShapefileFields()
+            throws ShapefilePackageException {
 
-        List<String> shapefileFields = new ArrayList<String>();
+        final List<String> shapefileFields = new ArrayList<String>();
         ShapefileDataStore store = null;
 
         try {
-            URL shapeURL = new URL("file://" + this.shapefilePath);
+            final URL shapeURL = new URL("file://" + this.shapefilePath);
 
             store = new ShapefileDataStore(shapeURL);
-            String name = store.getTypeNames()[0];
-            FeatureSource source = store.getFeatureSource(name);
+            final String name = store.getTypeNames()[0];
+            final FeatureSource source = store.getFeatureSource(name);
 
-            FeatureType ft = source.getSchema();
+            final FeatureType ft = source.getSchema();
 
-            Collection<PropertyDescriptor> list = ft.getDescriptors();
-            Iterator<PropertyDescriptor> it = list.iterator();
+            final Collection<PropertyDescriptor> list = ft.getDescriptors();
+            final Iterator<PropertyDescriptor> it = list.iterator();
 
-            while(it.hasNext()) {
-                PropertyDescriptor at = it.next();
+            while (it.hasNext()) {
+                final PropertyDescriptor at = it.next();
 
                 if (!(at.getType() instanceof GeometryTypeImpl)) {
                     shapefileFields.add(at.getName().toString());
                 }
             }
 
-        } catch (Exception ex) {
-            throw new ShapefilePackageException(ShapefilePackageException.Code.INVALID_CONTENT.getCode(),
+        } catch (final Exception ex) {
+            throw new ShapefilePackageException(
+                    ShapefilePackageException.Code.INVALID_CONTENT.getCode(),
                     ex.getMessage());
 
         } finally {
-            if (store != null) store.dispose();
+            if (store != null) {
+                store.dispose();
+            }
         }
-
 
         return shapefileFields;
     }
 
+    /**
+     * Retrieve coordinate system.
+     *
+     * @return the string
+     * @throws ShapefilePackageException
+     *             the shapefile package exception
+     */
     public String retrieveCoordinateSystem() throws ShapefilePackageException {
         ShapefileDataStore store = null;
 
         try {
-            URL shapeURL = new URL("file://" + this.shapefilePath);
+            final URL shapeURL = new URL("file://" + this.shapefilePath);
 
             store = new ShapefileDataStore(shapeURL);
-            String name = store.getTypeNames()[0];
-            FeatureSource source = store.getFeatureSource(name);
+            final String name = store.getTypeNames()[0];
+            final FeatureSource source = store.getFeatureSource(name);
 
-            FeatureType ft = source.getSchema();
-            CoordinateReferenceSystem refSystem = ft.getCoordinateReferenceSystem();
+            final FeatureType ft = source.getSchema();
+            final CoordinateReferenceSystem refSystem = ft
+                    .getCoordinateReferenceSystem();
 
             if (refSystem != null) {
                 return refSystem.getName().toString();
             } else {
                 return "";
-                //throw new ShapefilePackageException(ShapefilePackageException.Code.NO_PROJECTION.getCode(),
-                //        "Projection is missing");
+                // throw new
+                // ShapefilePackageException(ShapefilePackageException.Code.NO_PROJECTION.getCode(),
+                // "Projection is missing");
             }
 
-        } catch (ShapefilePackageException ex) {
+        } catch (final ShapefilePackageException ex) {
             throw ex;
 
-        } catch (Exception ex) {
-            throw new ShapefilePackageException(ShapefilePackageException.Code.INVALID_CONTENT.getCode(),
+        } catch (final Exception ex) {
+            throw new ShapefilePackageException(
+                    ShapefilePackageException.Code.INVALID_CONTENT.getCode(),
                     ex.getMessage());
 
         } finally {
-            if (store != null) store.dispose();
+            if (store != null) {
+                store.dispose();
+            }
         }
     }
 
+    /**
+     * Retrieve BBOX in WGS 84.
+     *
+     * @return the string
+     */
     public String retrieveBBOXInWGS84() {
         ShapefileDataStore store = null;
         try {
-            URL shapeURL = new URL("file://" + this.shapefilePath);
+            final URL shapeURL = new URL("file://" + this.shapefilePath);
 
             store = new ShapefileDataStore(shapeURL);
 
-            String name = store.getTypeNames()[0];
-            FeatureSource source = store.getFeatureSource(name);
+            final String name = store.getTypeNames()[0];
+            final FeatureSource source = store.getFeatureSource(name);
 
-            ReferencedEnvelope sourceEnvelope = source.getBounds();
-            CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:4326");
+            final ReferencedEnvelope sourceEnvelope = source.getBounds();
+            final CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:4326");
 
-            ReferencedEnvelope targetEnvelop = sourceEnvelope.transform(targetCRS, true);
+            final ReferencedEnvelope targetEnvelop = sourceEnvelope
+                    .transform(targetCRS, true);
 
-            // EPSG:4326 refers to WGS 84 geographic latitude, then longitude. That is, in this CRS the x axis corresponds to latitude, and the y axis to longitude.
+            // EPSG:4326 refers to WGS 84 geographic latitude, then longitude.
+            // That is, in this CRS the x axis corresponds to latitude, and the
+            // y axis to longitude.
             // Return left,bottom,right,top
-            return targetEnvelop.getMinY() + "," + targetEnvelop.getMinX() + "," +
-                    targetEnvelop.getMaxY() + "," + targetEnvelop.getMaxX();
+            return targetEnvelop.getMinY() + "," + targetEnvelop.getMinX() + ","
+                    + targetEnvelop.getMaxY() + "," + targetEnvelop.getMaxX();
 
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             throw e;
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return "";
 
         } finally {
-            if (store != null) store.dispose();
+            if (store != null) {
+                store.dispose();
+            }
         }
     }
-
 
     /**
      * Remove the temporal folder where the shapefile has been unzipped.
@@ -162,105 +205,131 @@ public class ShapefilePackage {
         if (unzipDir != null) {
             try {
                 FileUtils.deleteDirectory(unzipDir);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 // TODO
             }
         }
     }
 
     /**
-     * Unzips a package and verifies that contains the required files for a shapefile.
+     * Unzips a package and verifies that contains the required files for a
+     * shapefile.
      *
      * @param packageFile
+     *            the package file
      * @return shp file complete path.
-     * @throws ShapefilePackageException if the the package doesn't contain the shapefile mandatory files.
+     * @throws ShapefilePackageException
+     *             if the the package doesn't contain the shapefile mandatory
+     *             files.
      */
-    private String unpackage(File packageFile) throws ShapefilePackageException {
+    private String unpackage(final File packageFile)
+            throws ShapefilePackageException {
         try {
             unzipDir = Files.createTempDir();
 
-            final String packageName = (packageFile.getName().endsWith("shp.zip"))?
-                    packageFile.getName().replace(".shp.zip", ""):
-                    FilenameUtils.removeExtension(packageFile.getName());
+            final String packageName = (packageFile.getName()
+                    .endsWith("shp.zip"))
+                            ? packageFile.getName().replace(".shp.zip", "")
+                            : FilenameUtils
+                                    .removeExtension(packageFile.getName());
 
-            final String packageExtension =  (packageFile.getName().endsWith("shp.zip"))?
-                    "shp.zip":
-                    FilenameUtils.getExtension(packageFile.getName());
+            final String packageExtension = (packageFile.getName()
+                    .endsWith("shp.zip")) ? "shp.zip"
+                            : FilenameUtils.getExtension(packageFile.getName());
 
-            UncompressStrategyFactory.getUncompressStrategy(packageExtension).uncompress(packageFile, unzipDir);
+            UncompressStrategyFactory.getUncompressStrategy(packageExtension)
+                    .uncompress(packageFile, unzipDir);
 
-            int numOfShapefiles = numberOfShapefiles(unzipDir);
-            //boolean isAShapefile = containsAShapefile(unzipDir);
+            final int numOfShapefiles = numberOfShapefiles(unzipDir);
+            // boolean isAShapefile = containsAShapefile(unzipDir);
 
             if (numOfShapefiles == 0) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.NOT_A_SHAPEFILE.getCode(),
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.NOT_A_SHAPEFILE
+                                .getCode(),
                         "Files for the shapefile in the package should have the same name as the package.");
             }
 
             if (numOfShapefiles > 1) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.MULTIPLE_SHAPEFILE.getCode(),
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.MULTIPLE_SHAPEFILE
+                                .getCode(),
                         "The package contains multiple shapefiles .");
             }
 
-            File filesSameName[] = unzipDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return (name.replace(" ", "_").startsWith(packageName + "."));
-                }
-            });
+            final File filesSameName[] = unzipDir
+                    .listFiles(new FilenameFilter() {
+                        @Override
+                        public boolean accept(final File dir,
+                                final String name) {
+                            return (name.replace(" ", "_")
+                                    .startsWith(packageName + "."));
+                        }
+                    });
 
-            File[] unzipFiles = unzipDir.listFiles();
+            final File[] unzipFiles = unzipDir.listFiles();
 
-            if ((filesSameName == null) || (unzipFiles == null) || (filesSameName.length != unzipFiles.length)) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.INVALID_NAME.getCode(),
+            if ((filesSameName == null) || (unzipFiles == null)
+                    || (filesSameName.length != unzipFiles.length)) {
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.INVALID_NAME.getCode(),
                         "Files for the shapefile in the package should have the same name as the package.");
             }
 
-            File prj[] = unzipDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
+            final File prj[] = unzipDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(PRJ_EXTENSION));
                 }
             });
 
-            if  ((prj == null) || (prj.length != 1)) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.NO_PROJECTION.getCode(),
+            if ((prj == null) || (prj.length != 1)) {
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.NO_PROJECTION.getCode(),
                         "Projection is missing");
             }
 
-            File shp[] = unzipDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
+            final File shp[] = unzipDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(SHP_EXTENSION));
                 }
             });
 
             if ((shp == null) || (shp.length != 1)) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.NO_SHP.getCode(),
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.NO_SHP.getCode(),
                         "Package is not a valid shapefile.");
             }
 
-            File dbf[] = unzipDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
+            final File dbf[] = unzipDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(DBF_EXTENSION));
                 }
             });
 
             if ((dbf == null) || (dbf.length != 1)) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.NO_DBF.getCode(),
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.NO_DBF.getCode(),
                         "Package is not a valid shapefile.");
             }
 
-            File shx[] = unzipDir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
+            final File shx[] = unzipDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(SHX_EXTENSION));
                 }
             });
 
             if ((shx == null) || (shx.length != 1)) {
-                throw new ShapefilePackageException(ShapefilePackageException.Code.NO_SHX.getCode(),
+                throw new ShapefilePackageException(
+                        ShapefilePackageException.Code.NO_SHX.getCode(),
                         "Package is not a valid shapefile.");
             }
 
             String path = "";
-            for (File f : shp) {
+            for (final File f : shp) {
                 if (f.getName().endsWith(SHP_EXTENSION)) {
                     path = f.getPath();
                     break;
@@ -269,22 +338,29 @@ public class ShapefilePackage {
 
             return path;
 
-        } catch (ShapefilePackageException ex) {
+        } catch (final ShapefilePackageException ex) {
             FileUtils.deleteQuietly(unzipDir);
             // Re-throw the exception
             throw ex;
 
-        } catch (UncompressStrategyException ex) {
+        } catch (final UncompressStrategyException ex) {
             throw new ShapefilePackageException(1014, // General error
                     ex.getMessage());
         }
 
-
     }
 
-    private boolean containsAShapefile(File unzipDir) {
-        File shp[] = unzipDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
+    /**
+     * Contains A shapefile.
+     *
+     * @param unzipDir
+     *            the unzip dir
+     * @return true, if successful
+     */
+    private boolean containsAShapefile(final File unzipDir) {
+        final File shp[] = unzipDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(final File dir, final String name) {
                 return (name.toLowerCase().endsWith(SHP_EXTENSION));
             }
         });
@@ -292,9 +368,17 @@ public class ShapefilePackage {
         return (shp.length == 1);
     }
 
-    private int numberOfShapefiles(File unzipDir) {
-        File shp[] = unzipDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
+    /**
+     * Number of shapefiles.
+     *
+     * @param unzipDir
+     *            the unzip dir
+     * @return the int
+     */
+    private int numberOfShapefiles(final File unzipDir) {
+        final File shp[] = unzipDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(final File dir, final String name) {
                 return (name.toLowerCase().endsWith(SHP_EXTENSION));
             }
         });
@@ -305,6 +389,5 @@ public class ShapefilePackage {
             return 0;
         }
     }
-
 
 }
