@@ -12,7 +12,9 @@ import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,9 +30,9 @@ public class GeoserverDataStore {
      */
     private WFSDataStore data;
     /**
-     * Stores a hasmap with dataset (names, titles).
+     * Stores a hasmap with datasets key: typename; value: name, workspace, title.
      */
-    private HashMap<String, String> hTitles;
+    private HashMap<String, List<String>> hDatasets = new HashMap<String, List<String>>();
     /**
      * Geoserver uri.
      */
@@ -59,15 +61,16 @@ public class GeoserverDataStore {
 
             final String[] typeNames = data.getTypeNames();
 
-            final HashMap<String, String> mTtitles = new HashMap<String, String>();
+            final HashMap<String, List<String>> mDatasets = new HashMap<String, List<String>>();
             for (final String typeName : typeNames) {
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
                     .getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
-                mTtitles.put(resourceInfo.getName(), resourceInfo.getTitle());
+                List<String> values = Arrays.asList(explodeTypeName(resourceInfo.getName()));
+                values.add(resourceInfo.getTitle());
+                hDatasets.put(resourceInfo.getName(),values);
             }
 
-            hTitles = mTtitles;
 
         } catch (final java.net.ConnectException ce) {
             throw new Exception("Could not connect to GeoServer " + "at: " + uri
@@ -84,8 +87,8 @@ public class GeoserverDataStore {
      *
      * @return hasmap with dataset (names, titles)
      */
-    public HashMap<String, String> titles() {
-        return hTitles;
+    public HashMap<String, List<String>> datasets() {
+        return hDatasets;
     }
 
     /**
@@ -160,6 +163,18 @@ public class GeoserverDataStore {
         } catch (final Exception e) {
             e.printStackTrace();
             throw new Exception("Could not read layer featuretype");
+        }
+    }
+
+
+    String[] explodeTypeName(String aTypeName) throws Exception {
+        try {
+            if (aTypeName.isEmpty() || aTypeName == null) throw new Exception();
+            String[] splited = aTypeName.split("[\\:\\s]+");
+            if (splited.length != 2) throw new Exception();
+            return splited;
+        } catch (Exception ex) {
+            throw new Exception("Could not split typename: " + aTypeName);
         }
     }
 

@@ -72,7 +72,7 @@ public class GeoserverDataStoreTest {
 
         assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
     }
-
+/*
     @Test
     public void titles() throws Exception {
 
@@ -90,7 +90,7 @@ public class GeoserverDataStoreTest {
 
         assertEquals(mTtitles, gds.titles());
     }
-
+*/
     @Test
     public void getLayerInfo() throws Exception {
 
