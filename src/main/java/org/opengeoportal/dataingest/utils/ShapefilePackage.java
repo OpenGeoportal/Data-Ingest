@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -133,7 +135,22 @@ public class ShapefilePackage {
                     .getCoordinateReferenceSystem();
 
             if (refSystem != null) {
-                return refSystem.getName().toString();
+                
+                // Authorities from GeoTools
+                Set<String> authorities = CRS.getSupportedAuthorities(false);
+                // Supported codes from GeoTools
+                Set<String> supportedCodes = new HashSet<String>();
+                
+                for (String authority : authorities) {
+                    supportedCodes.addAll(CRS.getSupportedCodes(authority));
+                }
+                
+                // Check that GeoTools support the code
+                if(supportedCodes.contains(refSystem.getName().toString())) {
+                    return refSystem.getName().toString();
+                } else { 
+                    return null;
+                }
             } else {
                 return "";
                 // throw new

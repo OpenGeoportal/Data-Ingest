@@ -3,7 +3,9 @@ package org.opengeoportal.dataingest.utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Set;
 
+import org.geotools.referencing.CRS;
 import org.opengeoportal.dataingest.exception.ShapefilePackageException;
 
 /**
@@ -28,9 +30,10 @@ public final class ShapeFileValidator {
      *             the shapefile package exception
      * @throws FileNotFoundException
      *             the file not found exception
+     * @throws ShapefileCRSException 
      */
     public static boolean isAValidShapeFile(final File zipFile)
-            throws ShapefilePackageException, FileNotFoundException {
+            throws ShapefilePackageException, FileNotFoundException, ShapefileCRSException {
 
         if (zipFile == null) {
             throw new FileNotFoundException();
@@ -38,10 +41,8 @@ public final class ShapeFileValidator {
 
         final ShapefilePackage shapefilePackage = new ShapefilePackage(zipFile);
 
-        if (shapefilePackage.retrieveCoordinateSystem() == null) {
-            throw new ShapefilePackageException(
-                    ShapefilePackageException.Code.INVALID_CONTENT,
-                    "Unable to retrieve coordinate system in the provided file");
+        if (shapefilePackage.retrieveCoordinateSystem() == null) {            
+            throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
         }
 
         if (shapefilePackage.retrieveBBOXInWGS84() == null) {
