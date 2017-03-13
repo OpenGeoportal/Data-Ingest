@@ -47,7 +47,7 @@ public class CacheServiceTest {
 
         CacheService cs = new CacheService();
 
-        assertTrue(cs.getTitles(uri).equals(cs.getTitles(uri)));
+        assertTrue(cs.getDatasets(uri).equals(cs.getDatasets(uri)));
     }
 
     @Test

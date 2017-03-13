@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * This service class acts as a proxy between the controller and
@@ -30,7 +31,7 @@ public class CacheService {
      * @throws Exception the exception
      */
     @Cacheable(value = "titles", key = "#uri")
-    public HashMap<String, String> getTitles(final String uri)
+    public HashMap<String, List<String>> getDatasets(final String uri)
         throws Exception {
 
         System.out.println("Not using the cache");
@@ -44,7 +45,7 @@ public class CacheService {
                 + "running and that the connection settings are correct!");
         }
 
-        return ds.titles();
+        return ds.datasets();
     }
 
     /**
