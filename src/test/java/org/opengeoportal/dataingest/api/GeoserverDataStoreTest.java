@@ -14,10 +14,7 @@ import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -89,9 +86,9 @@ public class GeoserverDataStoreTest {
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = mockupDataStore
                 .getFeatureSource(typeName);
             ResourceInfo resourceInfo = featureSource.getInfo();
-            List<String> values = Arrays.asList(GeoServerUtils.explodeTypeName(resourceInfo.getName()));
-            values.add(resourceInfo.getTitle());
-            mDatasets.put(resourceInfo.getName(),values);
+            String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
+            mDatasets.put(resourceInfo.getName()
+                , new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
         }
 
         GeoserverDataStore gds = new GeoserverDataStore(uri);
