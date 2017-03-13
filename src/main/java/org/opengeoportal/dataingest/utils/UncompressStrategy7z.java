@@ -18,19 +18,30 @@ import org.opengeoportal.dataingest.exception.UncompressStrategyException;
  */
 
 public class UncompressStrategy7z implements UncompressStrategy {
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.opengeoportal.dataingest.utils.UncompressStrategy#uncompress(java.io.
+     * File, java.io.File)
+     */
     @Override
-    public void uncompress(File file, File uncompressDir) throws UncompressStrategyException {
+    public void uncompress(final File file, final File uncompressDir)
+            throws UncompressStrategyException {
         SevenZFile sevenZFile = null;
-        OutputStream out = null;
+        final OutputStream out = null;
 
         try {
             sevenZFile = new SevenZFile(file);
             SevenZArchiveEntry entry = sevenZFile.getNextEntry();
 
-            while(entry!=null){
+            while (entry != null) {
                 byte[] btoRead = new byte[1024];
-                BufferedOutputStream bout =
-                        new BufferedOutputStream(new FileOutputStream(new File(uncompressDir.getAbsolutePath(), entry.getName())));
+                final BufferedOutputStream bout = new BufferedOutputStream(
+                        new FileOutputStream(
+                                new File(uncompressDir.getAbsolutePath(),
+                                        entry.getName())));
 
                 try {
                     int len = 0;
@@ -47,7 +58,7 @@ public class UncompressStrategy7z implements UncompressStrategy {
                 entry = sevenZFile.getNextEntry();
             }
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             ex.printStackTrace();
             FileUtils.deleteQuietly(uncompressDir);
             throw new UncompressStrategyException(ex.getMessage());

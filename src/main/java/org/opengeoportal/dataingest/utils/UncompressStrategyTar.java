@@ -20,14 +20,31 @@ import org.opengeoportal.dataingest.exception.UncompressStrategyException;
 
 public class UncompressStrategyTar implements UncompressStrategy {
 
-    protected TarArchiveInputStream createTarArchiveInputStream(File file) throws Exception {
-      return new TarArchiveInputStream(
-              new BufferedInputStream(
-                      new FileInputStream(file)));
+    /**
+     * Creates the tar archive input stream.
+     *
+     * @param file
+     *            the file
+     * @return the tar archive input stream
+     * @throws Exception
+     *             the exception
+     */
+    protected TarArchiveInputStream createTarArchiveInputStream(final File file)
+            throws Exception {
+        return new TarArchiveInputStream(
+                new BufferedInputStream(new FileInputStream(file)));
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.opengeoportal.dataingest.utils.UncompressStrategy#uncompress(java.io.
+     * File, java.io.File)
+     */
     @Override
-    public void uncompress(File file, File uncompressDir) throws UncompressStrategyException {
+    public void uncompress(final File file, final File uncompressDir)
+            throws UncompressStrategyException {
         uncompressDir.mkdir();
         TarArchiveInputStream tarIn = null;
         OutputStream out = null;
@@ -39,7 +56,8 @@ public class UncompressStrategyTar implements UncompressStrategy {
 
             while (tarEntry != null) {
                 // create a file with the same name as the tarEntry
-                File destPath = new File(uncompressDir, tarEntry.getName());
+                final File destPath = new File(uncompressDir,
+                        tarEntry.getName());
 
                 if (tarEntry.isDirectory()) {
                     destPath.mkdirs();
@@ -59,7 +77,7 @@ public class UncompressStrategyTar implements UncompressStrategy {
                 tarEntry = tarIn.getNextTarEntry();
             }
 
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             ex.printStackTrace();
             FileUtils.deleteQuietly(uncompressDir);
             throw new UncompressStrategyException(ex.getMessage());

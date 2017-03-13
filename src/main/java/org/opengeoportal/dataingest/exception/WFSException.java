@@ -8,9 +8,10 @@ public class WFSException extends Exception {
     /**
      * Constructor, which supports error messages.
      *
-     * @param message error message
+     * @param message
+     *            error message
      */
-    public WFSException(String message) {
+    public WFSException(final String message) {
         super(message);
     }
 }

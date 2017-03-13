@@ -1,10 +1,23 @@
 package org.opengeoportal.dataingest.exception;
 
+/**
+ * The Class UncompressStrategyException.
+ */
 public class UncompressStrategyException extends Exception {
-    public UncompressStrategyException() {}
 
+    /**
+     * Instantiates a new uncompress strategy exception.
+     */
+    public UncompressStrategyException() {
+    }
 
-    public UncompressStrategyException(String message) {
+    /**
+     * Instantiates a new uncompress strategy exception.
+     *
+     * @param message
+     *            the message
+     */
+    public UncompressStrategyException(final String message) {
         super(message);
     }
 }
