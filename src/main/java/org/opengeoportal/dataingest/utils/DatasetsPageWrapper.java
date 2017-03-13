@@ -4,6 +4,7 @@
 package org.opengeoportal.dataingest.utils;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * The Class DatasetsPageWrapper.
@@ -11,7 +12,7 @@ import java.util.HashMap;
 public class DatasetsPageWrapper {
 
     /** The data. */
-    private HashMap<String, String> data;
+    private HashMap<String, List<String>> data;
 
     /** The showing elements. */
     private int showingElements;
@@ -37,7 +38,7 @@ public class DatasetsPageWrapper {
      * @param totalPages
      *            the total pages
      */
-    public DatasetsPageWrapper(final HashMap<String, String> data,
+    public DatasetsPageWrapper(final HashMap<String, List<String>> data,
             final int totalElements, final int curretPage,
             final int totalPages) {
         this.data = data;
@@ -52,7 +53,7 @@ public class DatasetsPageWrapper {
      *
      * @return the data
      */
-    public final HashMap<String, String> getData() {
+    public final HashMap<String, List<String>> getData() {
         return data;
     }
 
@@ -62,7 +63,7 @@ public class DatasetsPageWrapper {
      * @param data
      *            the data
      */
-    public final void setData(final HashMap<String, String> data) {
+    public final void setData(final HashMap<String, List<String>> data) {
         this.data = data;
     }
 

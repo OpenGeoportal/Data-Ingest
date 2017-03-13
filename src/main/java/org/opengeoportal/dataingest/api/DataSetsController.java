@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -248,16 +249,16 @@ public class DataSetsController {
                         .getAttribute("w_" + workspace);
                 paginator.setPageSize(this.pageSize);
             } else {
-                HashMap<String, String> resultMap = null;
+                HashMap<String, List<String>> resultMap = null;
 
                 if (workspace.equals("*")) {
                     // get data from geoserver
-                    resultMap = service.getTitles(geoserverUrl);
+                    resultMap = service.getDatasets(geoserverUrl);
                 } else {
                     // get data from geoserver
                     try {
                         resultMap = service
-                                .getTitles(geoserverUrl + workspace + "/");
+                                .getDatasets(geoserverUrl + workspace + "/");
                     } catch (final Exception e) {
                         throw new NoDataFoundOnGeoserverException();
                     }

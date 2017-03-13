@@ -43,7 +43,7 @@ public class ResultSortedPaginator {
      * @param sort
      *            the sort
      */
-    public ResultSortedPaginator(final HashMap<String, String> map,
+    public ResultSortedPaginator(final HashMap<String, List<String>> map,
             final int pageSize, final boolean sort) {
 
         dataListFormat = fromHashMapToList(map);
@@ -79,17 +79,17 @@ public class ResultSortedPaginator {
      * @return the list
      */
     private List<HashMapElement> fromHashMapToList(
-            final HashMap<String, String> map) {
+            final HashMap<String, List<String>> map) {
         final List<HashMapElement> list = new ArrayList<HashMapElement>();
 
         // map object comes from the cache, in this way we avoid concurrent
         // modifications
         synchronized (map) {
-            final Iterator<Map.Entry<String, String>> it = map.entrySet()
+            final Iterator<Map.Entry<String, List<String>>> it = map.entrySet()
                     .iterator();
 
             while (it.hasNext()) {
-                final Map.Entry<String, String> pair = it.next();
+                final Map.Entry<String, List<String>> pair = it.next();
                 list.add(new HashMapElement(pair.getKey(), pair.getValue()));
             }
         }
@@ -104,9 +104,9 @@ public class ResultSortedPaginator {
      *            the lista
      * @return the map
      */
-    private Map<String, String> fromListToHashMap(
+    private Map<String, List<String>> fromListToHashMap(
             final List<HashMapElement> lista) {
-        final Map<String, String> map = new HashMap<String, String>();
+        final Map<String, List<String>> map = new HashMap<String, List<String>>();
 
         for (final HashMapElement hashMapElement : lista) {
             map.put(hashMapElement.getKey(), hashMapElement.getValue());
@@ -134,8 +134,8 @@ public class ResultSortedPaginator {
      *
      * @return a List
      */
-    public final HashMap<String, String> getList() {
-        return (HashMap<String, String>) fromListToHashMap(this.dataListFormat);
+    public final HashMap<String, List<String>> getList() {
+        return (HashMap<String, List<String>>) fromListToHashMap(this.dataListFormat);
     }
 
     /**
@@ -143,8 +143,8 @@ public class ResultSortedPaginator {
      *
      * @return a List
      */
-    public final HashMap<String, String> getHashMapForPage() {
-        return (HashMap<String, String>) fromListToHashMap(
+    public final HashMap<String, List<String>> getHashMapForPage() {
+        return (HashMap<String, List<String>>) fromListToHashMap(
                 this.dataListFormat.subList(startingIndex, endingIndex));
     }
 
@@ -247,7 +247,7 @@ public class ResultSortedPaginator {
         private String key;
 
         /** The value. */
-        private String value;
+        private List<String> value;
 
         /**
          * Instantiates a new hash map element.
@@ -257,7 +257,7 @@ public class ResultSortedPaginator {
          * @param value
          *            the value
          */
-        HashMapElement(final String key, final String value) {
+        HashMapElement(final String key, final List<String> value) {
             this.key = key;
             this.value = value;
         }
@@ -286,7 +286,7 @@ public class ResultSortedPaginator {
          *
          * @return the value
          */
-        public String getValue() {
+        public List<String> getValue() {
             return value;
         }
 
@@ -296,7 +296,7 @@ public class ResultSortedPaginator {
          * @param value
          *            the new value
          */
-        public void setValue(final String value) {
+        public void setValue(final List<String> value) {
             this.value = value;
         }
 
