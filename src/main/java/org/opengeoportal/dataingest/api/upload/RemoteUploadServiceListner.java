@@ -21,9 +21,9 @@ public class RemoteUploadServiceListner {
      *            the upload request
      */
     @JmsListener(destination = "uploadQueue", containerFactory = "myContainerFactory")
-    public final void prepareFile(final UploadRequest uploadRequest) {
+    public final void prepareFile(final UploadRequest uploadRequest, final String strEpsg) {
         try {
-            remoteUpladService.sendFile(uploadRequest);
+            remoteUpladService.sendFile(uploadRequest, strEpsg);
         } catch (final Exception e) {
             e.printStackTrace();
             // An appropriate workaround.

@@ -7,31 +7,45 @@ import java.io.File;
  */
 public class UploadRequest {
 
-    /** The workspace. */
+    /**
+     * The workspace.
+     */
     private String workspace;
 
-    /** The dataset. */
+    /**
+     * The dataset.
+     */
     private String dataset;
 
-    /** The zip file. */
+    public String getStrEpsg() {
+        return strEpsg;
+    }
+
+    public void setStrEpsg(String strEpsg) {
+        this.strEpsg = strEpsg;
+    }
+
+    /**
+     * The zip file.
+     */
     private File zipFile;
+
+    private String strEpsg;
 
     /**
      * Instantiates a new download request.
      *
-     * @param workspace
-     *            the workspace
-     * @param dataset
-     *            the dataset
-     * @param zipFile
-     *            the zip file
+     * @param workspace the workspace
+     * @param dataset   the dataset
+     * @param zipFile   the zip file
      */
     public UploadRequest(final String workspace, final String dataset,
-            final File zipFile) {
+                         final File zipFile, final String strEpsg) {
 
         this.workspace = workspace;
         this.dataset = dataset;
         this.zipFile = zipFile;
+        this.strEpsg = strEpsg;
     }
 
     /**
@@ -53,8 +67,7 @@ public class UploadRequest {
     /**
      * Sets the workspace.
      *
-     * @param workspace
-     *            the new workspace
+     * @param workspace the new workspace
      */
     public final void setWorkspace(final String workspace) {
         this.workspace = workspace;
@@ -72,8 +85,7 @@ public class UploadRequest {
     /**
      * Sets the dataset.
      *
-     * @param dataset
-     *            the new dataset
+     * @param dataset the new dataset
      */
     public final void setDataset(final String dataset) {
         this.dataset = dataset;
@@ -91,8 +103,7 @@ public class UploadRequest {
     /**
      * Sets the zip file.
      *
-     * @param zipFile
-     *            the new zip file
+     * @param zipFile the new zip file
      */
     public void setZipFile(final File zipFile) {
         this.zipFile = zipFile;

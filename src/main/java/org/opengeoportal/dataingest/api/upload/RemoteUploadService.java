@@ -1,10 +1,10 @@
 package org.opengeoportal.dataingest.api.upload;
 
-import java.io.File;
-
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 /**
  * The Class RemoteUploadService. This class is used to send a shapefile to GS.
@@ -38,7 +38,7 @@ public class RemoteUploadService {
      * @throws Exception
      *             the exception
      */
-    public final void sendFile(final UploadRequest uploadRequest)
+    public final void sendFile(final UploadRequest uploadRequest, final String strEpsg)
             throws Exception {
 
         final String workspace = uploadRequest.getWorkspace();
@@ -49,7 +49,7 @@ public class RemoteUploadService {
                 geoserverUrl, geoserverUsername, geoserverPassword);
 
         geoServerFacade.publishShp(workspace, dataset, dataset, zipFile,
-                "EPSG:4326");
+            strEpsg);
 
     }
 

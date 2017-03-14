@@ -1,12 +1,11 @@
 package org.opengeoportal.dataingest.utils;
 
+import org.opengeoportal.dataingest.exception.ShapefilePackageException;
+import org.opengis.referencing.FactoryException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Set;
-
-import org.geotools.referencing.CRS;
-import org.opengeoportal.dataingest.exception.ShapefilePackageException;
 
 /**
  * The Class ShapeFileValidator.
@@ -25,15 +24,15 @@ public final class ShapeFileValidator {
      *
      * @param zipFile
      *            the zip file
-     * @return true, if is a valid shape file
+     * @return epsg string for the shapefile; e.g.: "EPSG:4326"
      * @throws ShapefilePackageException
      *             the shapefile package exception
      * @throws FileNotFoundException
      *             the file not found exception
-     * @throws ShapefileCRSException 
+     * @throws ShapefileCRSException
      */
-    public static boolean isAValidShapeFile(final File zipFile)
-            throws ShapefilePackageException, FileNotFoundException, ShapefileCRSException {
+    public static String isAValidShapeFile(final File zipFile)
+            throws ShapefilePackageException, FileNotFoundException, ShapefileCRSException, FactoryException {
 
         if (zipFile == null) {
             throw new FileNotFoundException();
@@ -41,7 +40,8 @@ public final class ShapeFileValidator {
 
         final ShapefilePackage shapefilePackage = new ShapefilePackage(zipFile);
 
-        if (shapefilePackage.retrieveCoordinateSystem() == null) {            
+        String epsg = shapefilePackage.retrieveCoordinateSystem();
+        if ( epsg == null) {
             throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
         }
 
@@ -59,7 +59,7 @@ public final class ShapeFileValidator {
                     "Unable to retrieve any field in the provided file");
         }
 
-        return true;
+        return epsg;
     }
 
 }

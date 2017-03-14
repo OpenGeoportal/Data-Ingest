@@ -413,9 +413,10 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
+        String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            ShapeFileValidator.isAValidShapeFile(zipFile);
+            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile);
         } catch (IOException ioex) {
 
             printOutputMessage(response,
@@ -439,7 +440,7 @@ public class DataSetsController {
         if (geoServerFacade.existsWorkspace(workspace)) {
             if (!geoServerFacade.existsDatastore(workspace, dataset)) {
 
-                localUploadService.uploadFile(workspace, dataset, zipFile, false);
+                localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, false);
 
             } else {
                 printOutputMessage(response,
@@ -475,9 +476,10 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
+        String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            ShapeFileValidator.isAValidShapeFile(zipFile);
+            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile);
         } catch (IOException ioex) {
             printOutputMessage(response,
                 HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
@@ -500,7 +502,7 @@ public class DataSetsController {
         if (geoServerFacade.existsWorkspace(workspace)) {
             if (geoServerFacade.existsDatastore(workspace, dataset)) {
 
-                localUploadService.uploadFile(workspace, dataset, zipFile, true);
+                localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, true);
 
             } else {
                 printOutputMessage(response,
