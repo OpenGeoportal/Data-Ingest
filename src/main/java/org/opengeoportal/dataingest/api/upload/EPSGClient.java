@@ -67,7 +67,7 @@ public class EPSGClient {
             JsonNode codeNode = rootNode.path("codes").findPath("code");
             if (codeNode.isNull()) throw new EPSGClientException("Could not parse 'code' in epsgclient response");
 
-            return codeNode.toString();
+            return codeNode.textValue();
 
         } catch (MalformedURLException ex) {
             throw new EPSGClientException(ex.getMessage());

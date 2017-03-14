@@ -15,8 +15,6 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -135,16 +133,7 @@ public class ShapefilePackage {
             CoordinateReferenceSystem refSystem = store.getSchema().getGeometryDescriptor()
                 .getCoordinateReferenceSystem();
 
-            String wkt;
-            // If its projected, lets get the base CRS
-            if (refSystem instanceof ProjectedCRS) {
-                ProjectedCRS projectedCRS = ((ProjectedCRS) refSystem);
-                GeographicCRS crs = projectedCRS.getBaseCRS();
-                wkt = crs.toWKT();
-
-            } else {
-                wkt = refSystem.toWKT();
-            }
+            String wkt = refSystem.toWKT();
 
             EPSGClient client = new EPSGClient();
             String strCode = client.getEPSGfromWKT(wkt);

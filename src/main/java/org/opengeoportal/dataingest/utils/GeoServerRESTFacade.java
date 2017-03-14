@@ -4,6 +4,7 @@
 package org.opengeoportal.dataingest.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
@@ -156,7 +157,7 @@ public class GeoServerRESTFacade {
      */
     public boolean publishShp(final String workspace, final String storeName,
             final String datasetName, final File shapefile, final String srs)
-            throws Exception {
+            throws FileNotFoundException {
         return publisher.publishShp(workspace, storeName, datasetName, shapefile, srs);
 
     }
