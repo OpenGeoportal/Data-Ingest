@@ -9,9 +9,11 @@ import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.WFSException;
+import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -63,12 +65,12 @@ public class GeoserverDataStore {
 
             final HashMap<String, List<String>> mDatasets = new HashMap<String, List<String>>();
             for (final String typeName : typeNames) {
-                final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
-                    .getFeatureSource(typeName);
+                final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
-                List<String> values = Arrays.asList(explodeTypeName(resourceInfo.getName()));
-                values.add(resourceInfo.getTitle());
-                hDatasets.put(resourceInfo.getName(),values);
+                String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
+                hDatasets.put
+                    (resourceInfo.getName(), new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle
+                        ())));
             }
 
 
@@ -163,18 +165,6 @@ public class GeoserverDataStore {
         } catch (final Exception e) {
             e.printStackTrace();
             throw new Exception("Could not read layer featuretype");
-        }
-    }
-
-
-    String[] explodeTypeName(String aTypeName) throws Exception {
-        try {
-            if (aTypeName.isEmpty() || aTypeName == null) throw new Exception();
-            String[] splited = aTypeName.split("[\\:\\s]+");
-            if (splited.length != 2) throw new Exception();
-            return splited;
-        } catch (Exception ex) {
-            throw new Exception("Could not split typename: " + aTypeName);
         }
     }
 

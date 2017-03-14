@@ -55,4 +55,22 @@ public final class GeoServerUtils {
         }
         return typerName.split(":")[1];
     }
+
+    /**
+     * Split typename into two strings: workspace and dataset.
+     *
+     * @param aTypeName a type name
+     * @return string array with workspace and dataset.
+     * @throws Exception
+     */
+    public static String[] explodeTypeName(String aTypeName) throws Exception {
+        try {
+            if (aTypeName.isEmpty() || aTypeName == null) throw new Exception();
+            String[] splited = aTypeName.split("[\\:\\s]+");
+            if (splited.length != 2) throw new Exception();
+            return splited;
+        } catch (Exception ex) {
+            throw new Exception("Could not split typename: " + aTypeName);
+        }
+    }
 }

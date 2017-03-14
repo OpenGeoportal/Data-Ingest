@@ -5,13 +5,16 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.opengeoportal.dataingest.api.download.WFSClient;
+import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -72,25 +75,27 @@ public class GeoserverDataStoreTest {
 
         assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
     }
-/*
+
     @Test
-    public void titles() throws Exception {
+    public void datasets() throws Exception {
 
         String[] typeNames = mockupDataStore.getTypeNames();
 
-        HashMap<String, String> mTtitles = new HashMap<String, String>();
+        HashMap<String, List<String>> mDatasets = new HashMap<String, List<String>>();
         for (String typeName : typeNames) {
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = mockupDataStore
                 .getFeatureSource(typeName);
             ResourceInfo resourceInfo = featureSource.getInfo();
-            mTtitles.put(resourceInfo.getName(), resourceInfo.getTitle());
+            String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
+            mDatasets.put(resourceInfo.getName()
+                , new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
         }
 
         GeoserverDataStore gds = new GeoserverDataStore(uri);
 
-        assertEquals(mTtitles, gds.titles());
+        assertEquals(mDatasets, gds.datasets());
     }
-*/
+
     @Test
     public void getLayerInfo() throws Exception {
 

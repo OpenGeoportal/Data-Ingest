@@ -24,7 +24,7 @@ import java.util.List;
 public class CacheService {
 
     /**
-     * Get datasets names and titles, for a given GeoServer uri.
+     * Get datasets typenames, workspaces, names and titles, for a given GeoServer uri.
      *
      * @param uri geoserver uri (it may include the filter for workspace).
      * @return hashmap with dataset (names, titles)
