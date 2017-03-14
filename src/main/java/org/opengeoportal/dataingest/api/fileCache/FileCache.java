@@ -1,6 +1,3 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api.fileCache;
 
 import org.apache.commons.io.FileUtils;

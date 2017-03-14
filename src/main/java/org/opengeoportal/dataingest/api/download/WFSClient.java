@@ -1,6 +1,3 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api.download;
 
 import org.apache.commons.io.IOUtils;
@@ -10,8 +7,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.FileOutputStream;
-
-//import org.springframework.http.*;
 
 /**
  * Created by joana on 16/01/17.

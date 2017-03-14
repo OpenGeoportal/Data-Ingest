@@ -1,6 +1,3 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api.upload;
 
 import java.io.File;
@@ -24,7 +21,7 @@ public class UploadRequest {
         return strEpsg;
     }
 
-    public void setStrEpsg(String strEpsg) {
+    public void setStrEpsg(final String strEpsg) {
         this.strEpsg = strEpsg;
     }
 
@@ -33,15 +30,13 @@ public class UploadRequest {
      */
     private File zipFile;
 
-    
-    /**  The request token. */
+    /** The request token. */
     private long ticket;
 
     private String strEpsg;
 
-
     public UploadRequest(final String workspace, final String dataset,
-                         final File zipFile, final String strEpsg, long ticket) {
+            final File zipFile, final String strEpsg, final long ticket) {
 
         this.workspace = workspace;
         this.dataset = dataset;
@@ -69,7 +64,8 @@ public class UploadRequest {
     /**
      * Sets the workspace.
      *
-     * @param workspace the new workspace
+     * @param workspace
+     *            the new workspace
      */
     public final void setWorkspace(final String workspace) {
         this.workspace = workspace;
@@ -87,7 +83,8 @@ public class UploadRequest {
     /**
      * Sets the dataset.
      *
-     * @param dataset the new dataset
+     * @param dataset
+     *            the new dataset
      */
     public final void setDataset(final String dataset) {
         this.dataset = dataset;
@@ -105,7 +102,8 @@ public class UploadRequest {
     /**
      * Sets the zip file.
      *
-     * @param zipFile the new zip file
+     * @param zipFile
+     *            the new zip file
      */
     public void setZipFile(final File zipFile) {
         this.zipFile = zipFile;
@@ -123,9 +121,10 @@ public class UploadRequest {
     /**
      * Sets the ticket.
      *
-     * @param ticket the new ticket
+     * @param ticket
+     *            the new ticket
      */
-    public void setTicket(long ticket) {
+    public void setTicket(final long ticket) {
         this.ticket = ticket;
     }
 }

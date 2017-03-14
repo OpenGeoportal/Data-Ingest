@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api;
 
 import java.io.File;
@@ -296,8 +299,8 @@ public class DataSetsController {
      *
      * @param workspace given workspace
      * @param dataset   given dataset
-     * @param response  the response
      * @param request   the request, so we can parse any parameters
+     * @param response  the response
      * @return String dataset info, as a set of properties.
      * @throws Exception the exception
      */
@@ -406,6 +409,8 @@ public class DataSetsController {
      *
      * @param workspace given workspace
      * @param dataset   given dataset
+     * @param file the file
+     * @param response the response
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.POST)
@@ -472,12 +477,14 @@ public class DataSetsController {
 
     /**
      * Updates a given dataset.
-     *
+     * 
      * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
      * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
+     * @param file the file
+     * @param response the response
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
@@ -547,12 +554,12 @@ public class DataSetsController {
     
     /**
      * Updates a given dataset.
-     *
+     * 
      * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
      * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
-     * @param workspace given workspace
-     * @param dataset   given dataset
+     * @param ticket the ticket
+     * @param response the response
      * @throws Exception the exception
      */
     @RequestMapping(value = "/checkUploadStatus/{ticket}", method = RequestMethod.GET)

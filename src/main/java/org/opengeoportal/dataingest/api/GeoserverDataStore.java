@@ -109,8 +109,8 @@ public class GeoserverDataStore {
      * @param workspace given workspace
      * @param dataset   given dataset
      * @return hashtable with layer properties
-     * @throws WFSException
-     * @throws Exception
+     * @throws WFSException the WFS exception
+     * @throws Exception the exception
      */
     public HashMap<String, String> getLayerInfo(final String workspace,
                                                 final String dataset) throws WFSException,
@@ -127,6 +127,7 @@ public class GeoserverDataStore {
      * @param dataset      given dataset
      * @param bFeatureSize boolean to indicate if we want to include the featureSize in the layer properties
      * @return hashtable with layer properties
+     * @throws WFSException the WFS exception
      * @throws Exception the exception
      */
     public HashMap<String, String> getLayerInfo(final String workspace,

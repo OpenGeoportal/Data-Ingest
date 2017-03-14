@@ -1,6 +1,3 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api.download;
 
 import org.opengeoportal.dataingest.utils.FileNameUtils;
