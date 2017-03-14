@@ -418,11 +418,11 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
-        String crs;
+
+        String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            crs = ShapeFileValidator.isAValidShapeFile(zipFile);
-            crs=crs==null?"EPSG:4326":crs;
+            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile);
         } catch (IOException ioex) {
 
             printOutputMessage(response,
@@ -448,7 +448,8 @@ public class DataSetsController {
                 
                 long ticket = TicketGenerator.openATicket();
 
-                localUploadService.uploadFile(workspace, dataset, zipFile, crs, ticket, false);
+
+                localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, false);
                 printOutputMessage(response,
                         HttpServletResponse.SC_ACCEPTED,
                         "Request for unpload sent. To check status /checkUploadStatus/" + ticket);
@@ -489,11 +490,11 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
-        String crs;
+        String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            crs = ShapeFileValidator.isAValidShapeFile(zipFile);
-            crs=crs==null?"EPSG:4326":crs;
+
+            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile);
         } catch (IOException ioex) {
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
@@ -517,10 +518,11 @@ public class DataSetsController {
                 
                 long ticket = TicketGenerator.openATicket();
                 
-                localUploadService.uploadFile(workspace, dataset, zipFile, crs, ticket, true);
+                localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
                         HttpServletResponse.SC_ACCEPTED,
                         "Request for update sent. To check status /checkUploadStatus/" + ticket);
+
 
             } else {
                 printOutputMessage(response,

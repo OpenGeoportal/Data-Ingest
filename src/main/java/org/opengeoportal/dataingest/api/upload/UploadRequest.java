@@ -10,38 +10,44 @@ import java.io.File;
  */
 public class UploadRequest {
 
-    /** The workspace. */
+    /**
+     * The workspace.
+     */
     private String workspace;
 
-    /** The dataset. */
+    /**
+     * The dataset.
+     */
     private String dataset;
 
-    /** The zip file. */
+    public String getStrEpsg() {
+        return strEpsg;
+    }
+
+    public void setStrEpsg(String strEpsg) {
+        this.strEpsg = strEpsg;
+    }
+
+    /**
+     * The zip file.
+     */
     private File zipFile;
-    
-    /** The crs of the shapefile. */
-    private String crs;
+
     
     /**  The request token. */
     private long ticket;
 
-    /**
-     * Instantiates a new download request.
-     *
-     * @param workspace            the workspace
-     * @param dataset            the dataset
-     * @param zipFile            the zip file
-     * @param crs the crs
-     * @param ticket the ticket
-     */
+    private String strEpsg;
+
+
     public UploadRequest(final String workspace, final String dataset,
-            final File zipFile, final String crs, long ticket) {
+                         final File zipFile, final String strEpsg, long ticket) {
 
         this.workspace = workspace;
         this.dataset = dataset;
         this.zipFile = zipFile;
-        this.crs = crs;
         this.ticket = ticket;
+        this.strEpsg = strEpsg;
     }
 
     /**
@@ -63,8 +69,7 @@ public class UploadRequest {
     /**
      * Sets the workspace.
      *
-     * @param workspace
-     *            the new workspace
+     * @param workspace the new workspace
      */
     public final void setWorkspace(final String workspace) {
         this.workspace = workspace;
@@ -82,8 +87,7 @@ public class UploadRequest {
     /**
      * Sets the dataset.
      *
-     * @param dataset
-     *            the new dataset
+     * @param dataset the new dataset
      */
     public final void setDataset(final String dataset) {
         this.dataset = dataset;
@@ -101,29 +105,10 @@ public class UploadRequest {
     /**
      * Sets the zip file.
      *
-     * @param zipFile
-     *            the new zip file
+     * @param zipFile the new zip file
      */
     public void setZipFile(final File zipFile) {
         this.zipFile = zipFile;
-    }
-
-    /**
-     * Gets the crs.
-     *
-     * @return the crs
-     */
-    public String getCrs() {
-        return crs;
-    }
-
-    /**
-     * Sets the crs.
-     *
-     * @param crs the new crs
-     */
-    public void setCrs(String crs) {
-        this.crs = crs;
     }
 
     /**
