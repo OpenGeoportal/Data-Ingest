@@ -3,6 +3,7 @@ package org.opengeoportal.dataingest.api.upload;
 import java.io.File;
 
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
+import org.opengeoportal.dataingest.utils.TicketGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -44,13 +45,14 @@ public class RemoteUploadService {
         final String workspace = uploadRequest.getWorkspace();
         final String dataset = uploadRequest.getDataset();
         final File zipFile = uploadRequest.getZipFile();
+        final String crs = uploadRequest.getCrs();
 
         final GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(
                 geoserverUrl, geoserverUsername, geoserverPassword);
 
-        geoServerFacade.publishShp(workspace, dataset, dataset, zipFile,
-                "EPSG:4326");
-
+        geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, crs);
+        
+        TicketGenerator.closeATicket(uploadRequest.getTicket());
     }
 
 }

@@ -43,13 +43,13 @@ public class LocalUploadService {
      *             the cache capacity exception
      */
     public final void uploadFile(final String workspace, final String dataset,
-            final File zipFile, final boolean isUpdate)
+            final File zipFile, String crs, long token, final boolean isUpdate)
             throws FileNotReadyException, IOException, java.lang.Exception,
             CacheCapacityException {
 
         final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
         jmsTemplate.convertAndSend("uploadQueue",
-                new UploadRequest(workspace, dataset, zipFile));
+                new UploadRequest(workspace, dataset, zipFile, crs, token));
 
     }
 

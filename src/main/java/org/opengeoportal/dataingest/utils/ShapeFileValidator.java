@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.geotools.referencing.CRS;
 import org.opengeoportal.dataingest.exception.ShapefilePackageException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * The Class ShapeFileValidator.
@@ -21,7 +22,7 @@ public final class ShapeFileValidator {
     }
 
     /**
-     * Checks if is a valid shape file.
+     * Checks if is a valid shape file and return CRS.
      *
      * @param zipFile
      *            the zip file
@@ -32,7 +33,7 @@ public final class ShapeFileValidator {
      *             the file not found exception
      * @throws ShapefileCRSException 
      */
-    public static boolean isAValidShapeFile(final File zipFile)
+    public static String isAValidShapeFile(final File zipFile)
             throws ShapefilePackageException, FileNotFoundException, ShapefileCRSException {
 
         if (zipFile == null) {
@@ -40,8 +41,11 @@ public final class ShapeFileValidator {
         }
 
         final ShapefilePackage shapefilePackage = new ShapefilePackage(zipFile);
+        
+        String crs = shapefilePackage.retrieveCoordinateSystem();
 
-        if (shapefilePackage.retrieveCoordinateSystem() == null) {            
+        if (crs == null) {        
+            
             throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
         }
 
@@ -59,7 +63,7 @@ public final class ShapeFileValidator {
                     "Unable to retrieve any field in the provided file");
         }
 
-        return true;
+        return crs;
     }
 
 }

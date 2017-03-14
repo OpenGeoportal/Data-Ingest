@@ -33,6 +33,7 @@ import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengeoportal.dataingest.utils.ResultSortedPaginator;
 import org.opengeoportal.dataingest.utils.ShapeFileValidator;
+import org.opengeoportal.dataingest.utils.TicketGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -415,9 +416,10 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
+        String crs = null;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            ShapeFileValidator.isAValidShapeFile(zipFile);
+            crs = ShapeFileValidator.isAValidShapeFile(zipFile);
         } catch (IOException ioex) {
 
             printOutputMessage(response,
@@ -440,8 +442,13 @@ public class DataSetsController {
 
         if(geoServerFacade.existsWorkspace(workspace)) {
             if(!geoServerFacade.existsDatastore(workspace, dataset)) {
+                
+                long ticket = TicketGenerator.openATicket();
 
-                localUploadService.uploadFile(workspace, dataset, zipFile, false);
+                localUploadService.uploadFile(workspace, dataset, zipFile, crs, ticket, false);
+                printOutputMessage(response,
+                        HttpServletResponse.SC_ACCEPTED,
+                        "Request for unpload sent. To check status");
 
             } else {
                 printOutputMessage(response,
@@ -477,9 +484,10 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
+        String crs = "EPSG:4326";
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            ShapeFileValidator.isAValidShapeFile(zipFile);
+            crs = ShapeFileValidator.isAValidShapeFile(zipFile);
         } catch (IOException ioex) {
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
@@ -500,8 +508,13 @@ public class DataSetsController {
 
         if (geoServerFacade.existsWorkspace(workspace)) {
             if(geoServerFacade.existsDatastore(workspace, dataset)) {
-
-                localUploadService.uploadFile(workspace, dataset, zipFile, true);
+                
+                long ticket = TicketGenerator.openATicket();
+                
+                localUploadService.uploadFile(workspace, dataset, zipFile, crs, ticket, true);
+                printOutputMessage(response,
+                        HttpServletResponse.SC_ACCEPTED,
+                        "Request for update sent. To check status");
 
             } else {
                 printOutputMessage(response,
