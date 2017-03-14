@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+import org.opengeoportal.dataingest.exception.ShapefileCRSException;
 import org.opengeoportal.dataingest.exception.ShapefilePackageException;
 import org.opengis.referencing.FactoryException;
 
@@ -42,7 +43,7 @@ public final class ShapeFileValidator {
         final ShapefilePackage shapefilePackage = new ShapefilePackage(zipFile);
 
         String epsg = shapefilePackage.retrieveCoordinateSystem();
-        if ( epsg == null) {
+        if (epsg == null) {
             throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
         }
 

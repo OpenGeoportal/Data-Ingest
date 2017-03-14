@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.exception;
 
 /**
@@ -10,7 +13,7 @@ public class CacheCapacityException extends Exception {
      *
      * @param message error message
      */
-    public CacheCapacityException(String message) {
+    public CacheCapacityException(final String message) {
         super(message);
     }
 }

@@ -51,12 +51,14 @@ public class RemoteUploadService {
                 geoserverUrl, geoserverUsername, geoserverPassword);
 
         try {
-            geoServerFacade.publishShp(workspace, dataset, dataset, zipFile,
-                    strEpsg);
-            TicketGenerator.closeATicket(uploadRequest.getTicket());
+            if (geoServerFacade.publishShp(workspace, dataset, dataset, zipFile,
+                    strEpsg)) {
+                TicketGenerator.closeATicket(uploadRequest.getTicket());
+            } else {
+                TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
+            }
         } catch (final Exception ex) {
-            TicketGenerator.closeATicket(uploadRequest.getTicket(),
-                    ex.getMessage());
+            TicketGenerator.closeATicket(uploadRequest.getTicket(), ex.getMessage());
         }
 
     }

@@ -38,19 +38,19 @@ public class ShapefilePackage {
      * The Constant SHP_EXTENSION.
      */
     // Shapefile mandatory files extensions.
-    private final static String SHP_EXTENSION = ".shp";
+    private static final String SHP_EXTENSION = ".shp";
     /**
      * The Constant DBF_EXTENSION.
      */
-    private final static String DBF_EXTENSION = ".dbf";
+    private static final String DBF_EXTENSION = ".dbf";
     /**
      * The Constant SHX_EXTENSION.
      */
-    private final static String SHX_EXTENSION = ".shx";
+    private static final String SHX_EXTENSION = ".shx";
     /**
      * The Constant PRJ_EXTENSION.
      */
-    private final static String PRJ_EXTENSION = ".prj";
+    private static final String PRJ_EXTENSION = ".prj";
     /**
      * The shapefile path.
      */
@@ -263,7 +263,7 @@ public class ShapefilePackage {
                     "The package contains multiple shapefiles .");
             }
 
-            final File filesSameName[] = unzipDir
+            final File[] filesSameName = unzipDir
                 .listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(final File dir,
@@ -282,7 +282,7 @@ public class ShapefilePackage {
                     "Files for the shapefile in the package should have the same name as the package.");
             }
 
-            final File prj[] = unzipDir.listFiles(new FilenameFilter() {
+            final File[] prj = unzipDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(PRJ_EXTENSION));
@@ -295,7 +295,7 @@ public class ShapefilePackage {
                     "Projection is missing");
             }
 
-            final File shp[] = unzipDir.listFiles(new FilenameFilter() {
+            final File[] shp = unzipDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(SHP_EXTENSION));
@@ -308,7 +308,7 @@ public class ShapefilePackage {
                     "Package is not a valid shapefile.");
             }
 
-            final File dbf[] = unzipDir.listFiles(new FilenameFilter() {
+            final File[] dbf = unzipDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(DBF_EXTENSION));
@@ -321,7 +321,7 @@ public class ShapefilePackage {
                     "Package is not a valid shapefile.");
             }
 
-            final File shx[] = unzipDir.listFiles(new FilenameFilter() {
+            final File[] shx = unzipDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(final File dir, final String name) {
                     return (name.toLowerCase().endsWith(SHX_EXTENSION));
@@ -359,11 +359,11 @@ public class ShapefilePackage {
     /**
      * Contains A shapefile.
      *
-     * @param unzipDir the unzip dir
+     * @param unzipDirP the unzip dir
      * @return true, if successful
      */
-    private boolean containsAShapefile(final File unzipDir) {
-        final File shp[] = unzipDir.listFiles(new FilenameFilter() {
+    private boolean containsAShapefile(final File unzipDirP) {
+        final File[] shp = unzipDirP.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(final File dir, final String name) {
                 return (name.toLowerCase().endsWith(SHP_EXTENSION));
@@ -376,11 +376,11 @@ public class ShapefilePackage {
     /**
      * Number of shapefiles.
      *
-     * @param unzipDir the unzip dir
+     * @param unzipDirP the unzip dir
      * @return the int
      */
-    private int numberOfShapefiles(final File unzipDir) {
-        final File shp[] = unzipDir.listFiles(new FilenameFilter() {
+    private int numberOfShapefiles(final File unzipDirP) {
+        final File[] shp = unzipDirP.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(final File dir, final String name) {
                 return (name.toLowerCase().endsWith(SHP_EXTENSION));

@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api.upload;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,6 +23,13 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
 public class EPSGClient {
 
 
+    /**
+     * Gets the EPS gfrom WKT.
+     *
+     * @param srt the srt
+     * @return the EPS gfrom WKT
+     * @throws EPSGClientException the EPSG client exception
+     */
     public String getEPSGfromWKT(String srt) throws EPSGClientException {
 
         try {
@@ -51,7 +61,7 @@ public class EPSGClient {
             JsonNode exactNode = rootNode.path("exact");
             if (exactNode.isNull()) throw new EPSGClientException("Could not parse 'exact' in epsgclient response");
 
-            if (exactNode.asBoolean() == false) return null;
+            if (!exactNode.asBoolean()) return null;
 
             // A code was found; let's retrieve it
             JsonNode codeNode = rootNode.path("codes").findPath("code");

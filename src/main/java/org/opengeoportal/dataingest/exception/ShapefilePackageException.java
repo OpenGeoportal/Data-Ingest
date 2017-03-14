@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.exception;
 
 /**
@@ -8,7 +11,7 @@ public class ShapefilePackageException extends RuntimeException {
     /**
      * The Enum Code.
      */
-    public static enum Code {
+    public enum Code {
 
         /** The no projection. */
         NO_PROJECTION(1003),
@@ -58,7 +61,7 @@ public class ShapefilePackageException extends RuntimeException {
          * @param c
          *            the c
          */
-        private Code(final int c) {
+        Code(final int c) {
 
             code = c;
 

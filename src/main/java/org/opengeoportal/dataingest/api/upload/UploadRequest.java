@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api.upload;
 
 import java.io.File;
@@ -17,10 +20,20 @@ public class UploadRequest {
      */
     private String dataset;
 
+    /**
+     * Gets the str epsg.
+     *
+     * @return the str epsg
+     */
     public String getStrEpsg() {
         return strEpsg;
     }
 
+    /**
+     * Sets the str epsg.
+     *
+     * @param strEpsg the new str epsg
+     */
     public void setStrEpsg(final String strEpsg) {
         this.strEpsg = strEpsg;
     }
@@ -33,8 +46,18 @@ public class UploadRequest {
     /** The request token. */
     private long ticket;
 
+    /** The str epsg. */
     private String strEpsg;
 
+    /**
+     * Instantiates a new upload request.
+     *
+     * @param workspace the workspace
+     * @param dataset the dataset
+     * @param zipFile the zip file
+     * @param strEpsg the str epsg
+     * @param ticket the ticket
+     */
     public UploadRequest(final String workspace, final String dataset,
             final File zipFile, final String strEpsg, final long ticket) {
 
