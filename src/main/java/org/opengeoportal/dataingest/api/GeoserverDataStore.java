@@ -13,7 +13,11 @@ import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by joana on 27/01/17.
@@ -61,12 +65,12 @@ public class GeoserverDataStore {
 
             final HashMap<String, List<String>> mDatasets = new HashMap<String, List<String>>();
             for (final String typeName : typeNames) {
-                final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data
-                    .getFeatureSource(typeName);
+                final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
                 String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
-                hDatasets.put(resourceInfo.getName()
-                    , new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
+                hDatasets.put
+                    (resourceInfo.getName(), new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle
+                        ())));
             }
 
 
