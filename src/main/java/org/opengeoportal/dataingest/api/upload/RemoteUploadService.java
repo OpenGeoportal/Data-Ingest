@@ -50,9 +50,12 @@ public class RemoteUploadService {
         final GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(
                 geoserverUrl, geoserverUsername, geoserverPassword);
 
-        geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, crs);
-        
-        TicketGenerator.closeATicket(uploadRequest.getTicket());
+        try {
+            geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, crs);            
+            TicketGenerator.closeATicket(uploadRequest.getTicket());
+        } catch (Exception ex) {
+            TicketGenerator.closeATicket(uploadRequest.getTicket(), ex.getMessage());
+        }
     }
 
 }

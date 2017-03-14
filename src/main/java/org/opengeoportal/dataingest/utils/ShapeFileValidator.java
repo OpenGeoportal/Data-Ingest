@@ -43,11 +43,11 @@ public final class ShapeFileValidator {
         final ShapefilePackage shapefilePackage = new ShapefilePackage(zipFile);
         
         String crs = shapefilePackage.retrieveCoordinateSystem();
-
-        if (crs == null) {        
-            
-            throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
-        }
+//
+//        if (crs == null) {        
+//            
+//            throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
+//        }
 
         if (shapefilePackage.retrieveBBOXInWGS84() == null) {
             throw new ShapefilePackageException(

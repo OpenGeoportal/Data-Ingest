@@ -20,10 +20,12 @@ import org.opengeoportal.dataingest.api.upload.LocalUploadService;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FeatureSizeFormatException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import org.opengeoportal.dataingest.exception.GeoServerException;
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.opengeoportal.dataingest.exception.PageFormatException;
 import org.opengeoportal.dataingest.exception.PageNotFoundException;
 import org.opengeoportal.dataingest.exception.PageSizeFormatException;
+import org.opengeoportal.dataingest.exception.RequestNotPresentException;
 import org.opengeoportal.dataingest.exception.ShapefilePackageException;
 import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengeoportal.dataingest.utils.DatasetsPageWrapper;
@@ -416,10 +418,11 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
-        String crs = null;
+        String crs;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
             crs = ShapeFileValidator.isAValidShapeFile(zipFile);
+            crs=crs==null?"EPSG:4326":crs;
         } catch (IOException ioex) {
 
             printOutputMessage(response,
@@ -448,7 +451,7 @@ public class DataSetsController {
                 localUploadService.uploadFile(workspace, dataset, zipFile, crs, ticket, false);
                 printOutputMessage(response,
                         HttpServletResponse.SC_ACCEPTED,
-                        "Request for unpload sent. To check status");
+                        "Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
             } else {
                 printOutputMessage(response,
@@ -463,6 +466,8 @@ public class DataSetsController {
             return;
         }
     }
+    
+    
 
     /**
      * Updates a given dataset.
@@ -484,10 +489,11 @@ public class DataSetsController {
 
         // File Validation
         File zipFile;
-        String crs = "EPSG:4326";
+        String crs;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
             crs = ShapeFileValidator.isAValidShapeFile(zipFile);
+            crs=crs==null?"EPSG:4326":crs;
         } catch (IOException ioex) {
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
@@ -514,7 +520,7 @@ public class DataSetsController {
                 localUploadService.uploadFile(workspace, dataset, zipFile, crs, ticket, true);
                 printOutputMessage(response,
                         HttpServletResponse.SC_ACCEPTED,
-                        "Request for update sent. To check status");
+                        "Request for update sent. To check status /checkUploadStatus/" + ticket);
 
             } else {
                 printOutputMessage(response,
@@ -535,6 +541,44 @@ public class DataSetsController {
         if (fileCache.isCached(typeName)) {
             fileCache.remove(typeName);
         }
+    }
+    
+    /**
+     * Updates a given dataset.
+     *
+     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
+     * PUT http://localhost:8080/workspaces/topp/datasets/antos
+     *
+     * @param workspace given workspace
+     * @param dataset   given dataset
+     * @throws Exception the exception
+     */
+    @RequestMapping(value = "/checkUploadStatus/{ticket}", method = RequestMethod.GET)
+    @ResponseBody
+    public final void checkUploadStatus(
+            @PathVariable(value = "ticket") final long ticket, HttpServletResponse response)
+                    throws Exception {
+
+        try {
+            if(TicketGenerator.isClosed(ticket)) {
+                printOutputMessage(response, HttpServletResponse.SC_OK,
+                        "File uploaded.");
+                return;
+            } else {
+                printOutputMessage(response, HttpServletResponse.SC_ACCEPTED,
+                        "Upload in progress.");
+                return;
+            }
+        } catch (RequestNotPresentException rnpex) {
+            printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
+                    "Request not found.");
+            return;
+        } catch (GeoServerException gsex) {
+            printOutputMessage(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "The request ended with an error from GeoServer: " + gsex.getMsg());
+            return;
+        }
+
     }
 
     /**
