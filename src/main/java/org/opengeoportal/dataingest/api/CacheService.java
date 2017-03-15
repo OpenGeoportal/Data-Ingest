@@ -1,6 +1,3 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api;
 
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
