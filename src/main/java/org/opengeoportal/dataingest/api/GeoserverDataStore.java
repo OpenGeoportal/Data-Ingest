@@ -68,9 +68,8 @@ public class GeoserverDataStore {
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
                 String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
-                hDatasets.put
-                    (resourceInfo.getName(), new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle
-                        ())));
+                hDatasets.put(resourceInfo.getName(),
+                        new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
             }
 
 

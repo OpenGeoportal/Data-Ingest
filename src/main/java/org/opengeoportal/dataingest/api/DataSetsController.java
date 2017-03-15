@@ -403,8 +403,8 @@ public class DataSetsController {
 
     /**
      * Uploads a given dataset.
-     * 
-     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
+     *
+     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
      * POST http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
@@ -445,12 +445,12 @@ public class DataSetsController {
         }
 
         // GeoserverValidation and send file
-        GeoServerRESTFacade geoServerFacade = 
+        GeoServerRESTFacade geoServerFacade =
                 new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
-        if(geoServerFacade.existsWorkspace(workspace)) {
-            if(!geoServerFacade.existsDatastore(workspace, dataset)) {
-                
+        if (geoServerFacade.existsWorkspace(workspace)) {
+            if (!geoServerFacade.existsDatastore(workspace, dataset)) {
+
                 long ticket = TicketGenerator.openATicket();
 
 
@@ -472,13 +472,12 @@ public class DataSetsController {
             return;
         }
     }
-    
-    
+
 
     /**
      * Updates a given dataset.
-     * 
-     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
+     *
+     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
      * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
@@ -518,13 +517,14 @@ public class DataSetsController {
         }
 
         // GeoserverValidation and send file
-        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl,
+                geoserverUsername, geoserverPassword);
 
         if (geoServerFacade.existsWorkspace(workspace)) {
-            if(geoServerFacade.existsDatastore(workspace, dataset)) {
-                
+            if (geoServerFacade.existsDatastore(workspace, dataset)) {
+
                 long ticket = TicketGenerator.openATicket();
-                
+
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
                         HttpServletResponse.SC_ACCEPTED,
@@ -551,11 +551,11 @@ public class DataSetsController {
             fileCache.remove(typeName);
         }
     }
-    
+
     /**
      * Updates a given dataset.
-     * 
-     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X 
+     *
+     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
      * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param ticket the ticket
@@ -569,7 +569,7 @@ public class DataSetsController {
                     throws Exception {
 
         try {
-            if(TicketGenerator.isClosed(ticket)) {
+            if (TicketGenerator.isClosed(ticket)) {
                 printOutputMessage(response, HttpServletResponse.SC_OK,
                         "File uploaded.");
                 return;

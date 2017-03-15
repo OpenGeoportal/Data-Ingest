@@ -1,3 +1,6 @@
+/*
+ * @author Antonio
+ */
 package org.opengeoportal.dataingest.api.upload;
 
 import java.io.File;
@@ -25,22 +28,16 @@ public class LocalUploadService {
     /**
      * Upload file.
      *
-     * @param workspace
-     *            the workspace
-     * @param dataset
-     *            the dataset
-     * @param zipFile
-     *            the zip file
-     * @param isUpdate
-     *            the is update
-     * @throws FileNotReadyException
-     *             the file not ready exception
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws Exception
-     *             the exception
-     * @throws CacheCapacityException
-     *             the cache capacity exception
+     * @param workspace            the workspace
+     * @param dataset            the dataset
+     * @param zipFile            the zip file
+     * @param strEpsg the str epsg
+     * @param token the token
+     * @param isUpdate            the is update
+     * @throws FileNotReadyException             the file not ready exception
+     * @throws IOException             Signals that an I/O exception has occurred.
+     * @throws Exception             the exception
+     * @throws CacheCapacityException             the cache capacity exception
      */
     public final void uploadFile(final String workspace, final String dataset,
             final File zipFile, final String strEpsg, final long token,

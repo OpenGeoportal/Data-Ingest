@@ -9,8 +9,6 @@ import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +40,7 @@ public class LocalDownloadService {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
-    
+
     /**
      * Get the file cache of the local download.
      *
@@ -73,8 +71,9 @@ public class LocalDownloadService {
                                     final String dataset) throws Exception {
 
         try {
-            
-            GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+
+            GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl,
+                    geoserverUsername, geoserverPassword);
 
             return geoServerFacade.existsLayer(workspace, dataset, true);
 

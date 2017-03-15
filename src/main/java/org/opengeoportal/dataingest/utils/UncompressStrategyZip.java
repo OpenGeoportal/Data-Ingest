@@ -49,6 +49,7 @@ public class UncompressStrategyZip implements UncompressStrategy {
                     if (name.endsWith("/")) {
                         if (!destinationFile.isDirectory()
                                 && !destinationFile.mkdirs()) {
+                            System.currentTimeMillis();
                         }
                         entry = (ZipArchiveEntry) in.getNextEntry();
                         continue;
@@ -58,7 +59,7 @@ public class UncompressStrategyZip implements UncompressStrategy {
                                 .getParentFile();
                         if (!parentFolder.isDirectory()) {
                             if (!parentFolder.mkdirs()) {
-
+                                System.currentTimeMillis();
                             }
                         }
                     }
