@@ -106,3 +106,42 @@ For removal and update events whithin the Data-Ingest API, we can trigger a cach
 As a last resource, to prevent the cache to live forever, we also implemented a cache validity (in seconds), which is configurable in.application properties with variable: `param.download.max.age.file`. Everytime we hit the cache, we check the age of that file, and decide if it should be invalidated.
 
 Finally, to free disk resources from files that no longer exist in GeoServer, we added a function that removes a file from the cache, whenever GeoServer does not list this file anymore. This function is triggered in the download request, which has a call to check if the file exists in GeoServer.
+
+## Update / Upload methods
+
+The data ingest API let you to upload zip [Shapefiles](https://en.wikipedia.org/wiki/Shapefile) directly to the connected GeoServer instance. 
+
+You can upload a file to an existing workspace WWWWW to define the new datastore and published layer DDDDD by send a POST request to http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
+
+*Example:* 
+```bash
+  curl -v -F file=@/PATHTOYOURFILE/DDDDD.zip -X POST http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
+```
+
+You can update an existing datastore by uploading the shape file DDDDD.zip to an existing workspace WWWWW to the datastore DDDDD by send a PUT request to http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
+
+*Example:*
+```bash
+  curl -v -F file=@/PATHTOYOURFILE/DDDDD.zip -X PUT http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
+```
+These methods are asynchronous with the real upload, so they just give a direct feedback on validation of the file and the ticket number associated with the request (_TICKETNUM_). To check the status of the request the method http://YOURHOST:PORT/checkUploadStatus/TICKETNUM is provided.
+
+### The submitted file must be validate trough the following checks:
+
+1. The uploaded file must be archived in ZIP format
+2. The name of the zip file must be the same of the datastore and of the layer where it will be uploaded
+3. The files in the zip must have the same name as the zip file
+4. The zip file must contain a single shapefile
+5. The shapefile must contain a crs value recognised
+
+
+#### Mandatory files in the zip file
+
+    .shp — shape format; the feature geometry itself
+    .shx — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly
+    .dbf — attribute format; columnar attributes for each shape, in dBase IV format
+
+
+
+
+

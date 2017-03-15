@@ -62,6 +62,10 @@ The database default credentials are:
 
 After it is created, the solr server is initialized with one core, called `postgis`. You can add more cores, through the web UI.
 
+The ogp-harvester runs with the default credentials:
+* user: admin
+* password: ogpharvester
+
 Using the Services
 ------------------
 When the system is up and running, you can access the different services, using the following urls:
