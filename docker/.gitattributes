@@ -1,3 +1,6 @@
 boston_contours.zip filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.bz2 filter=lfs diff=lfs merge=lfs -text
+Data-Ingest-0.0.1-SNAPSHOT.jar filter=lfs diff=lfs merge=lfs -text
+
+

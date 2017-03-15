@@ -37,3 +37,12 @@ services:
             - "8983:8983"
         command: solr-create -c ogp
 
+    data-ingest:
+        build: ./data-ingest        
+        ports:
+            - "8083:8080"
+        depends_on:
+            - "gs"
+        links:
+            - gs
+
