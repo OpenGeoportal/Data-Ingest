@@ -33,7 +33,7 @@ public final class ShapeFileValidator {
      *             the file not found exception
      * @throws ShapefileCRSException
      */
-    public static String isAValidShapeFile(final File zipFile)
+    public static String isAValidShapeFile(final File zipFile, boolean checkSRS)
             throws ShapefilePackageException, FileNotFoundException, ShapefileCRSException, FactoryException {
 
         if (zipFile == null) {

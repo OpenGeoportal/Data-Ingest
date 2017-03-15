@@ -424,7 +424,7 @@ public class DataSetsController {
         String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile);
+            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, true);
         } catch (IOException ioex) {
 
             printOutputMessage(response,
@@ -488,16 +488,30 @@ public class DataSetsController {
     public final void updateDataSet(
             @PathVariable(value = "workspace") final String workspace,
             @PathVariable(value = "dataset") final String dataset,
-            @RequestParam("file") MultipartFile file,  final HttpServletResponse response)
+            @RequestParam("file") MultipartFile file,
+            final HttpServletResponse response,
+            final HttpServletRequest request)
                     throws Exception {
+        
+        String forcedSRS = null;
+        
+        // Forced SRS
+        if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
+            forcedSRS = request.getParameter("forcedSRS");
+        }
 
         // File Validation
         File zipFile;
         String strEpsg;
+        
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
 
-            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile);
+            if(forcedSRS==null) {
+                strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, forcedSRS==null);
+            } else {
+                strEpsg = forcedSRS;
+            }
         } catch (IOException ioex) {
             printOutputMessage(response,
                     HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,

@@ -26,7 +26,7 @@ public class UploadTest {
         boolean noException = false;
         
         try {
-            assertEquals(ShapeFileValidator.isAValidShapeFile(shpf), "EPSG:2964");
+            assertEquals(ShapeFileValidator.isAValidShapeFile(shpf, true), "EPSG:2964");
             noException = true;
         } catch (Exception e) {
             assertTrue(noException);
