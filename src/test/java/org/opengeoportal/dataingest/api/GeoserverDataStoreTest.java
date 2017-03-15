@@ -110,6 +110,8 @@ public class GeoserverDataStoreTest {
         final WFSClient client = new WFSClient();
         final long fileSize = client.getFileSize(uri, workspace, dataset);
 
+        layerProps.put("WFS", uri + "ows?service=wfs");
+        layerProps.put("WMS", uri + "ows?service=wms");
         layerProps.put("name", dataset);
         layerProps.put("workspace", workspace);
         layerProps.put("typename", resourceInfo.getName()); // typename

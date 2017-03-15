@@ -23,10 +23,19 @@ import java.util.Map;
  * Created by joana on 27/01/17.
  */
 public class GeoserverDataStore {
+
     /**
      * Geoserver connection timeout.
      */
     private static final int TIMEOUT = 15000;
+    /**
+     * url subset, used to create the OWS WFS end point.
+     */
+    private static final String WFS_ENDPOINT = "ows?service=wfs";
+    /**
+     * url subset, used to create the OWS WMS end point.
+     */
+    private static final String WMS_ENDPOINT = "ows?service=wms";
     /**
      * Stores a Geotools WFS data store.
      */
@@ -69,7 +78,7 @@ public class GeoserverDataStore {
                 final ResourceInfo resourceInfo = featureSource.getInfo();
                 String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
                 hDatasets.put(resourceInfo.getName(),
-                        new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
+                    new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
             }
 
 
@@ -109,7 +118,7 @@ public class GeoserverDataStore {
      * @param dataset   given dataset
      * @return hashtable with layer properties
      * @throws WFSException the WFS exception
-     * @throws Exception the exception
+     * @throws Exception    the exception
      */
     public HashMap<String, String> getLayerInfo(final String workspace,
                                                 final String dataset) throws WFSException,
@@ -127,7 +136,7 @@ public class GeoserverDataStore {
      * @param bFeatureSize boolean to indicate if we want to include the featureSize in the layer properties
      * @return hashtable with layer properties
      * @throws WFSException the WFS exception
-     * @throws Exception the exception
+     * @throws Exception    the exception
      */
     public HashMap<String, String> getLayerInfo(final String workspace,
                                                 final String dataset, final boolean bFeatureSize) throws WFSException,
@@ -148,6 +157,8 @@ public class GeoserverDataStore {
 
             final ResourceInfo resourceInfo = featureSource.getInfo();
 
+            layerProps.put("WFS", uri + WFS_ENDPOINT);
+            layerProps.put("WMS", uri + WMS_ENDPOINT);
             layerProps.put("name", dataset);
             layerProps.put("workspace", workspace);
             layerProps.put("typename", resourceInfo.getName()); // typename
