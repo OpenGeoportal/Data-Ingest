@@ -124,7 +124,7 @@ You can update an existing datastore by uploading the shape file DDDDD.zip to an
 ```bash
   curl -v -F file=@/PATHTOYOURFILE/DDDDD.zip -X PUT http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
 ```
-These methods are asynchronous with the real upload, so they just give a direct feedback on validation of the file and the ticket number associated with the request (_TICKETNUM_). To check the status of the request the method /checkUploadStatus/TICKETNUM is provided.
+These methods are asynchronous with the real upload, so they just give a direct feedback on validation of the file and the ticket number associated with the request (_TICKETNUM_). To check the status of the request the method http://YOURHOST:PORT/checkUploadStatus/TICKETNUM is provided.
 
 ### The submitted file must be validate trough the following checks:
 
