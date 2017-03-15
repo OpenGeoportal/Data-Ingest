@@ -8,7 +8,6 @@ import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.opengeoportal.dataingest.api.upload.EPSGClient;
 import org.opengeoportal.dataingest.exception.ShapefilePackageException;
 import org.opengeoportal.dataingest.exception.UncompressStrategyException;
 import org.opengis.feature.type.FeatureType;
