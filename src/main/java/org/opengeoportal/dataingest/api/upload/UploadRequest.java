@@ -1,6 +1,3 @@
-/*
- * @author Antonio
- */
 package org.opengeoportal.dataingest.api.upload;
 
 import java.io.File;

@@ -1,7 +1,4 @@
-/*
- * @author Antonio
- */
-package org.opengeoportal.dataingest.api.upload;
+package org.opengeoportal.dataingest.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
