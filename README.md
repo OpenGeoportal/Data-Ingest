@@ -131,7 +131,7 @@ These methods are asynchronous with the real upload, so they just give a direct 
 1. The uploaded file must be archived in ZIP format
 2. The name of the zip file must be the same of the datastore and of the layer where it will be uploaded
 3. The files in the zip must have the same name as the zip file
-4. The zip file must contain a single shapefile
+4. The zip file must contain a single shapefile and the other mandatory files
 5. The shapefile must contain a crs value recognised
 
 
