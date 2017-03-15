@@ -150,11 +150,35 @@ public class GeoServerRESTFacade {
      * @param shapefile            the shapefile
      * @param srs            the srs
      * @return true, if successful
-     * @throws Exception             the file not found exception
+     * @throws FileNotFoundException             the file not found exception
+     */
+    public boolean republishShp(final String workspace, final String storeName,
+            final String datasetName, final File shapefile, final String srs)
+            throws FileNotFoundException {
+
+        if (publisher.unpublishFeatureType(workspace, storeName, datasetName)) {
+            return publisher.publishShp(workspace, storeName, datasetName, shapefile, srs);
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Publish a shape file.
+     *
+     * @param workspace            the workspace
+     * @param storeName            the store name
+     * @param datasetName            the dataset name
+     * @param shapefile            the shapefile
+     * @param srs            the srs
+     * @return true, if successful
+     * @throws FileNotFoundException             the file not found exception
      */
     public boolean publishShp(final String workspace, final String storeName,
             final String datasetName, final File shapefile, final String srs)
             throws FileNotFoundException {
+
         return publisher.publishShp(workspace, storeName, datasetName, shapefile, srs);
 
     }

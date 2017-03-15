@@ -40,7 +40,7 @@ public class UploadTest {
         
         long ticket = TicketGenerator.openATicket();
         
-        UploadRequest up = new UploadRequest("topp", "airports", shpf, "strEpsg", ticket);
+        UploadRequest up = new UploadRequest("topp", "airports", shpf, "strEpsg", ticket, false);
         
         RemoteUploadService rs = new RemoteUploadService();
         

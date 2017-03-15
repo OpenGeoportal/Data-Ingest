@@ -408,6 +408,7 @@ public class DataSetsController {
      * @param dataset   given dataset
      * @param file the file
      * @param response the response
+     * @param request the request
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.POST)
@@ -415,8 +416,18 @@ public class DataSetsController {
     public final void uploadDataSet(
             @PathVariable(value = "workspace") final String workspace,
             @PathVariable(value = "dataset") final String dataset,
-            @RequestParam("file") MultipartFile file,  final HttpServletResponse response)
+            @RequestParam("file") MultipartFile file,
+            final HttpServletResponse response,
+            final HttpServletRequest request)
                     throws Exception {
+
+        // If present any check on the SRS of the shape file will be skipped
+        String forcedSRS = null;
+
+        // Forced SRS
+        if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
+            forcedSRS = request.getParameter("forcedSRS");
+        }
 
         // File Validation
         File zipFile;
@@ -424,7 +435,12 @@ public class DataSetsController {
         String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-            strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, true);
+            if (forcedSRS == null) {
+                strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, true);
+            } else {
+                strEpsg = forcedSRS;
+                ShapeFileValidator.isAValidShapeFile(zipFile, false);
+            }
         } catch (IOException ioex) {
 
             printOutputMessage(response,
@@ -481,6 +497,7 @@ public class DataSetsController {
      * @param dataset   given dataset
      * @param file the file
      * @param response the response
+     * @param request the request
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
@@ -492,9 +509,10 @@ public class DataSetsController {
             final HttpServletResponse response,
             final HttpServletRequest request)
                     throws Exception {
-        
+
+     // If present any check on the SRS of the shape file will be skipped
         String forcedSRS = null;
-        
+
         // Forced SRS
         if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
             forcedSRS = request.getParameter("forcedSRS");
@@ -503,14 +521,15 @@ public class DataSetsController {
         // File Validation
         File zipFile;
         String strEpsg;
-        
+
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
 
-            if(forcedSRS==null) {
-                strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, forcedSRS==null);
+            if (forcedSRS == null) {
+                strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, true);
             } else {
                 strEpsg = forcedSRS;
+                ShapeFileValidator.isAValidShapeFile(zipFile, false);
             }
         } catch (IOException ioex) {
             printOutputMessage(response,

@@ -18,6 +18,11 @@ public class UploadRequest {
     private String dataset;
 
     /**
+     * True if it's a PUT request.
+     */
+    private boolean update;
+
+    /**
      * Gets the str epsg.
      *
      * @return the str epsg
@@ -54,15 +59,17 @@ public class UploadRequest {
      * @param zipFile the zip file
      * @param strEpsg the str epsg
      * @param ticket the ticket
+     * @param update the update
      */
     public UploadRequest(final String workspace, final String dataset,
-            final File zipFile, final String strEpsg, final long ticket) {
+            final File zipFile, final String strEpsg, final long ticket, final boolean update) {
 
         this.workspace = workspace;
         this.dataset = dataset;
         this.zipFile = zipFile;
         this.ticket = ticket;
         this.strEpsg = strEpsg;
+        this.update = update;
     }
 
     /**
@@ -146,5 +153,23 @@ public class UploadRequest {
      */
     public void setTicket(final long ticket) {
         this.ticket = ticket;
+    }
+
+    /**
+     * Checks if is update.
+     *
+     * @return true, if is update
+     */
+    public boolean isUpdate() {
+        return update;
+    }
+
+    /**
+     * Sets the update.
+     *
+     * @param update the new update
+     */
+    public void setUpdate(boolean update) {
+        this.update = update;
     }
 }

@@ -26,6 +26,7 @@ public final class ShapeFileValidator {
      *
      * @param zipFile
      *            the zip file
+     * @param checkSRS if true validate e returns the SRS in the shapefile
      * @return epsg string for the shapefile; e.g.: "EPSG:4326"
      * @throws ShapefilePackageException
      *             the shapefile package exception
@@ -42,9 +43,12 @@ public final class ShapeFileValidator {
 
         final ShapefilePackage shapefilePackage = new ShapefilePackage(zipFile);
 
-        String epsg = shapefilePackage.retrieveCoordinateSystem();
-        if (epsg == null) {
-            throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
+        String epsg = null;
+        if (checkSRS) {
+            epsg = shapefilePackage.retrieveCoordinateSystem();
+            if (epsg == null) {
+                throw new ShapefileCRSException("Unable to retrieve coordinate system in the provided file");
+            }
         }
 
         if (shapefilePackage.retrieveBBOXInWGS84() == null) {

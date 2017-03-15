@@ -46,17 +46,25 @@ public class RemoteUploadService {
         final String dataset = uploadRequest.getDataset();
         final File zipFile = uploadRequest.getZipFile();
         final String strEpsg = uploadRequest.getStrEpsg();
+        final boolean isUpdate = uploadRequest.isUpdate();
 
         final GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(
                 geoserverUrl, geoserverUsername, geoserverPassword);
 
         try {
 
-            if (geoServerFacade.publishShp(workspace, dataset, dataset, zipFile,
-                    strEpsg)) {
-                TicketGenerator.closeATicket(uploadRequest.getTicket());
+            if (isUpdate) {
+                if (geoServerFacade.republishShp(workspace, dataset, dataset, zipFile, strEpsg)) {
+                    TicketGenerator.closeATicket(uploadRequest.getTicket());
+                } else {
+                    TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
+                }
             } else {
-                TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
+                if (geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, strEpsg)) {
+                    TicketGenerator.closeATicket(uploadRequest.getTicket());
+                } else {
+                    TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
+                }
             }
 
         } catch (final Exception ex) {

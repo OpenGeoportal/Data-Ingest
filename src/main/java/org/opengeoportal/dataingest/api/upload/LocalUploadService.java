@@ -45,7 +45,7 @@ public class LocalUploadService {
 
         final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
         jmsTemplate.convertAndSend("uploadQueue",
-                new UploadRequest(workspace, dataset, zipFile, strEpsg, token));
+                new UploadRequest(workspace, dataset, zipFile, strEpsg, token, isUpdate));
 
     }
 
