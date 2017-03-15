@@ -1,11 +1,12 @@
 GENERAL INFORMATION
 ===================
-This composition instantiates support services for the Data-Ingest component. The shipped services are:
+This composition instantiates support services for the Data-Ingest and OGP-Harvester components. The shipped services are:
 
 * Geoserver (2.10)
 * ogpHarvester running on Tomcat 8 (Java 8)
 * PostgreSQL (9.6) with PostGIS
 * SOLR (6.3)
+* Data-Ingest service (1.0.0)
 
 Each service runs in its own container. Decoupling applications into multiple containers makes it much easier to scale horizontally and reuse containers. As a general rule of thumb, we use the latest stable versions available for each software.
 
@@ -72,15 +73,19 @@ When the system is up and running, you can access the different services, using 
 
 Geoserver:
  ```bash
- https://[replace_me]:8081/geoserver
+ http://[replace_me]:8081/geoserver
 ```
 OgpHarvester:
  ```bash
- https://[replace_me]:8082/ogp-harvester/
+ http://[replace_me]:8082/ogp-harvester/
 ```
 Solr:
  ```
- https://[replace_me]:8983/solr/
+ http://[replace_me]:8983/solr/
+```
+Data-Ingest:
+ ```
+ http://[replace_me]:8083/
 ```
 
 If docker runs natively on your platform (_e.g._: Linux, some versions of Mac and some versions of Windows), just replace [replace_me] by _localhost_ (_e.g._: 127.0.0.1). Otherwise, replace it by the address of your docker machine. You can find this address, by typing:
@@ -97,6 +102,15 @@ GeoServer
 Geoserver comes with some sample data, including the large `boston_contours` shapefile. This shapefile is published on the `topp` workspace and `boston_contours` datastore:
 
 http://localhost:8081/geoserver/rest/layers/topp:boston_contours.xml
+
+Data-Ingest
+-----------
+The data-ingest API runs from a jar, packaged on folder `./data-ingest`. On the application.properties file of this jar, the connection settings are setup in order to work with the linked docker container:
+
+```
+geoserver.url=http://gs:8080/geoserver/
+```
+If you ever replace this jar, have in mind to respect this value in application.properties.
 
 Recreating Containers
 =====================
