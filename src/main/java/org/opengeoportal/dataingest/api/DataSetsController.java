@@ -1,17 +1,6 @@
 package org.opengeoportal.dataingest.api;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
@@ -20,6 +9,7 @@ import org.opengeoportal.dataingest.api.upload.LocalUploadService;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FeatureSizeFormatException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
+import org.opengeoportal.dataingest.exception.ForcedSRSFormatException;
 import org.opengeoportal.dataingest.exception.GeoServerException;
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.opengeoportal.dataingest.exception.PageFormatException;
@@ -46,7 +36,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -400,33 +399,42 @@ public class DataSetsController {
 
     /**
      * Uploads a given dataset.
-     *
+     * <p>
      * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
      * POST http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
-     * @param file the file
-     * @param response the response
-     * @param request the request
+     * @param file      the file
+     * @param response  the response
+     * @param request   the request
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.POST)
     @ResponseBody
     public final void uploadDataSet(
-            @PathVariable(value = "workspace") final String workspace,
-            @PathVariable(value = "dataset") final String dataset,
-            @RequestParam("file") MultipartFile file,
-            final HttpServletResponse response,
-            final HttpServletRequest request)
-                    throws Exception {
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset,
+        @RequestParam("file") MultipartFile file,
+        final HttpServletResponse response,
+        final HttpServletRequest request)
+        throws Exception {
 
         // If present any check on the SRS of the shape file will be skipped
         String forcedSRS = null;
 
-        // Forced SRS
-        if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
-            forcedSRS = request.getParameter("forcedSRS");
+        try {
+            // Forced SRS
+            if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
+                if (!StringUtils.isNumeric(request.getParameter("forcedSRS"))) {
+                    throw new ForcedSRSFormatException();
+                }
+                forcedSRS = "EPSG:" + request.getParameter("forcedSRS");
+            }
+        } catch (ForcedSRSFormatException fex){
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                "Wrong SRS format: it must be a numerical code");
+            return;
         }
 
         // File Validation
@@ -459,7 +467,7 @@ public class DataSetsController {
 
         // GeoserverValidation and send file
         GeoServerRESTFacade geoServerFacade =
-                new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
+            new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
         if (geoServerFacade.existsWorkspace(workspace)) {
             if (!geoServerFacade.existsDatastore(workspace, dataset)) {
@@ -469,19 +477,19 @@ public class DataSetsController {
 
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, false);
                 printOutputMessage(response,
-                        HttpServletResponse.SC_ACCEPTED,
-                        "Request for unpload sent. To check status /checkUploadStatus/" + ticket);
+                    HttpServletResponse.SC_ACCEPTED,
+                    "Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
             } else {
                 printOutputMessage(response,
-                        HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-                        "Datastore '" + dataset + "' already defined. Try PUT.");
+                    HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                    "Datastore '" + dataset + "' already defined. Try PUT.");
                 return;
             }
         } else {
             printOutputMessage(response,
-                    HttpServletResponse.SC_NOT_FOUND,
-                    "Workspace '" + workspace + "' does not exists.");
+                HttpServletResponse.SC_NOT_FOUND,
+                "Workspace '" + workspace + "' does not exists.");
             return;
         }
     }
@@ -489,28 +497,28 @@ public class DataSetsController {
 
     /**
      * Updates a given dataset.
-     *
+     * <p>
      * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
      * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
      * @param workspace given workspace
      * @param dataset   given dataset
-     * @param file the file
-     * @param response the response
-     * @param request the request
+     * @param file      the file
+     * @param response  the response
+     * @param request   the request
      * @throws Exception the exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
     @ResponseBody
     public final void updateDataSet(
-            @PathVariable(value = "workspace") final String workspace,
-            @PathVariable(value = "dataset") final String dataset,
-            @RequestParam("file") MultipartFile file,
-            final HttpServletResponse response,
-            final HttpServletRequest request)
-                    throws Exception {
+        @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "dataset") final String dataset,
+        @RequestParam("file") MultipartFile file,
+        final HttpServletResponse response,
+        final HttpServletRequest request)
+        throws Exception {
 
-     // If present any check on the SRS of the shape file will be skipped
+        // If present any check on the SRS of the shape file will be skipped
         String forcedSRS = null;
 
         // Forced SRS
@@ -533,22 +541,22 @@ public class DataSetsController {
             }
         } catch (IOException ioex) {
             printOutputMessage(response,
-                    HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-                    "File not valid");
+                HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                "File not valid");
 
             return;
         } catch (ShapefilePackageException shpfex) {
 
             printOutputMessage(response,
-                    HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-                    shpfex.getMessage());
+                HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                shpfex.getMessage());
 
             return;
         }
 
         // GeoserverValidation and send file
         GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl,
-                geoserverUsername, geoserverPassword);
+            geoserverUsername, geoserverPassword);
 
         if (geoServerFacade.existsWorkspace(workspace)) {
             if (geoServerFacade.existsDatastore(workspace, dataset)) {
@@ -557,20 +565,20 @@ public class DataSetsController {
 
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
-                        HttpServletResponse.SC_ACCEPTED,
-                        "Request for update sent. To check status /checkUploadStatus/" + ticket);
+                    HttpServletResponse.SC_ACCEPTED,
+                    "Request for update sent. To check status /checkUploadStatus/" + ticket);
 
 
             } else {
                 printOutputMessage(response,
-                        HttpServletResponse.SC_NOT_FOUND,
-                        "Datastore '" + dataset + "' is not defined.");
+                    HttpServletResponse.SC_NOT_FOUND,
+                    "Datastore '" + dataset + "' is not defined.");
                 return;
             }
         } else {
             printOutputMessage(response,
-                    HttpServletResponse.SC_NOT_FOUND,
-                    "Workspace '" + workspace + "' does not exists.");
+                HttpServletResponse.SC_NOT_FOUND,
+                "Workspace '" + workspace + "' does not exists.");
             return;
         }
 
@@ -584,37 +592,37 @@ public class DataSetsController {
 
     /**
      * Updates a given dataset.
-     *
+     * <p>
      * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
      * PUT http://localhost:8080/workspaces/topp/datasets/antos
      *
-     * @param ticket the ticket
+     * @param ticket   the ticket
      * @param response the response
      * @throws Exception the exception
      */
     @RequestMapping(value = "/checkUploadStatus/{ticket}", method = RequestMethod.GET)
     @ResponseBody
     public final void checkUploadStatus(
-            @PathVariable(value = "ticket") final long ticket, HttpServletResponse response)
-                    throws Exception {
+        @PathVariable(value = "ticket") final long ticket, HttpServletResponse response)
+        throws Exception {
 
         try {
             if (TicketGenerator.isClosed(ticket)) {
                 printOutputMessage(response, HttpServletResponse.SC_OK,
-                        "File uploaded.");
+                    "File uploaded.");
                 return;
             } else {
                 printOutputMessage(response, HttpServletResponse.SC_ACCEPTED,
-                        "Upload in progress.");
+                    "Upload in progress.");
                 return;
             }
         } catch (RequestNotPresentException rnpex) {
             printOutputMessage(response, HttpServletResponse.SC_NOT_FOUND,
-                    "Request not found.");
+                "Request not found.");
             return;
         } catch (GeoServerException gsex) {
             printOutputMessage(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "The request ended with an error from GeoServer: " + gsex.getMsg());
+                "The request ended with an error from GeoServer: " + gsex.getMsg());
             return;
         }
 
