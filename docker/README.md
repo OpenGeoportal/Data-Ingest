@@ -110,7 +110,10 @@ The data-ingest API runs from a jar, packaged on folder `./data-ingest`. On the 
 ```
 geoserver.url=http://gs:8080/geoserver/
 ```
-If you ever replace this jar, have in mind to respect this value in application.properties.
+You can generate this jar **with the right settings**, directly from you project, by running the script:
+```
+./package-api-container.sh
+```
 
 Recreating Containers
 =====================
