@@ -6,12 +6,10 @@ import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.WFSException;
-import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,7 @@ public class GeoserverDataStore {
     /**
      * Stores a hasmap with datasets key: typename; value: name, workspace, title.
      */
-    private HashMap<String, List<String>> hDatasets = new HashMap<String, List<String>>();
+    private List<Map<String, String>> hDatasets = new ArrayList<Map<String, String>>();
     /**
      * Geoserver uri.
      */
@@ -69,13 +67,22 @@ public class GeoserverDataStore {
 
             final String[] typeNames = data.getTypeNames();
 
-            final HashMap<String, List<String>> mDatasets = new HashMap<String, List<String>>();
+            // Make sure the list is empty
+            if (!hDatasets.isEmpty()) hDatasets.clear();
             for (final String typeName : typeNames) {
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
+                /*
                 String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
                 hDatasets.put(resourceInfo.getName(),
                     new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
+*/
+                Map<String,String> mDatasets = new HashMap<String,String>();
+                mDatasets.put("name", resourceInfo.getName());
+                mDatasets.put("title", resourceInfo.getTitle());
+                mDatasets.put("geometry", "placeholder");
+                mDatasets.put("cached", "placeholder");
+                hDatasets.add(mDatasets);
             }
 
 
@@ -94,7 +101,7 @@ public class GeoserverDataStore {
      *
      * @return hasmap with dataset (names, titles)
      */
-    public HashMap<String, List<String>> datasets() {
+    public List<Map<String, String>> datasets() {
         return hDatasets;
     }
 

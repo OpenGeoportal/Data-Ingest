@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -251,7 +252,7 @@ public class DataSetsController {
                     .getAttribute("w_" + workspace);
                 paginator.setPageSize(this.pageSize);
             } else {
-                HashMap<String, List<String>> resultMap = null;
+                List<Map<String, String>> resultMap = null;
 
                 if (workspace.equals("*")) {
                     // get data from geoserver

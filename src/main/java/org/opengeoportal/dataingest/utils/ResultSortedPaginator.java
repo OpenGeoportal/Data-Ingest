@@ -40,7 +40,7 @@ public class ResultSortedPaginator {
      * @param sort
      *            the sort
      */
-    public ResultSortedPaginator(final HashMap<String, List<String>> map,
+    public ResultSortedPaginator(final List<HashMap<String, String>> map,
             final int pageSize, final boolean sort) {
 
         dataListFormat = fromHashMapToList(map);
@@ -76,12 +76,13 @@ public class ResultSortedPaginator {
      * @return the list
      */
     private List<HashMapElement> fromHashMapToList(
-            final HashMap<String, List<String>> map) {
+            final List<HashMap<String, String>> map) {
         final List<HashMapElement> list = new ArrayList<HashMapElement>();
 
         // map object comes from the cache, in this way we avoid concurrent
         // modifications
         synchronized (map) {
+
             final Iterator<Map.Entry<String, List<String>>> it = map.entrySet()
                     .iterator();
 
@@ -89,6 +90,10 @@ public class ResultSortedPaginator {
                 final Map.Entry<String, List<String>> pair = it.next();
                 list.add(new HashMapElement(pair.getKey(), pair.getValue()));
             }
+
+
+
+
         }
 
         return list;

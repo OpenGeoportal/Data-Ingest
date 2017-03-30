@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This service class acts as a proxy between the controller and
@@ -28,7 +29,7 @@ public class CacheService {
      * @throws Exception the exception
      */
     @Cacheable(value = "titles", key = "#uri")
-    public HashMap<String, List<String>> getDatasets(final String uri)
+    public List<Map<String, String>> getDatasets(final String uri)
         throws Exception {
 
         System.out.println("Not using the cache");

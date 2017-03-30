@@ -1,7 +1,7 @@
 package org.opengeoportal.dataingest.utils;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Class DatasetsPageWrapper.
@@ -9,7 +9,7 @@ import java.util.List;
 public class DatasetsPageWrapper {
 
     /** The data. */
-    private HashMap<String, List<String>> data;
+    private List<Map<String, String>> data;
 
     /** The showing elements. */
     private int showingElements;
@@ -18,7 +18,7 @@ public class DatasetsPageWrapper {
     private int totalElements;
 
     /** The curret page. */
-    private int curretPage;
+    private int currentPage;
 
     /** The total pages. */
     private int totalPages;
@@ -30,18 +30,18 @@ public class DatasetsPageWrapper {
      *            the data
      * @param totalElements
      *            the total elements
-     * @param curretPage
-     *            the curret page
+     * @param currentPage
+     *            the current page
      * @param totalPages
      *            the total pages
      */
-    public DatasetsPageWrapper(final HashMap<String, List<String>> data,
-            final int totalElements, final int curretPage,
+    public DatasetsPageWrapper(final List<Map<String, String>> data,
+            final int totalElements, final int currentPage,
             final int totalPages) {
         this.data = data;
         this.showingElements = data.size();
         this.totalElements = totalElements;
-        this.curretPage = curretPage;
+        this.currentPage = currentPage;
         this.totalPages = totalPages;
     }
 
@@ -50,7 +50,7 @@ public class DatasetsPageWrapper {
      *
      * @return the data
      */
-    public final HashMap<String, List<String>> getData() {
+    public final List<Map<String, String>> getData() {
         return data;
     }
 
@@ -60,7 +60,7 @@ public class DatasetsPageWrapper {
      * @param data
      *            the data
      */
-    public final void setData(final HashMap<String, List<String>> data) {
+    public final void setData(final List<Map<String, String>> data) {
         this.data = data;
     }
 
@@ -88,18 +88,18 @@ public class DatasetsPageWrapper {
      *
      * @return the curret page
      */
-    public final int getCurretPage() {
-        return curretPage;
+    public final int getcurrentPage() {
+        return currentPage;
     }
 
     /**
      * Sets the curret page.
      *
-     * @param curretPage
+     * @param currentPage
      *            the new curret page
      */
-    public final void setCurretPage(final int curretPage) {
-        this.curretPage = curretPage;
+    public final void setcurrentPage(final int currentPage) {
+        this.currentPage = currentPage;
     }
 
     /**
