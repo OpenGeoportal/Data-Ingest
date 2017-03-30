@@ -13,7 +13,7 @@ import java.util.Map;
 public class ResultSortedPaginator {
 
     /** the list over which this class is paging. */
-    private final List<HashMapElement> dataListFormat;
+    private final List<Map<String, String>> dataListFormat;
 
     /** the page size. */
     private int pageSize;
@@ -40,81 +40,16 @@ public class ResultSortedPaginator {
      * @param sort
      *            the sort
      */
-    public ResultSortedPaginator(final List<HashMap<String, String>> map,
+    public ResultSortedPaginator(final List<Map<String, String>> list,
             final int pageSize, final boolean sort) {
 
-        dataListFormat = fromHashMapToList(map);
-
-        orderBy(sort);
+        dataListFormat = list;
 
         this.pageSize = pageSize;
         this.currentPage = 1;
         this.maxPages = 1;
 
         calculatePages();
-    }
-
-    /**
-     * Order by.
-     *
-     * @param sort
-     *            the sort
-     */
-    private void orderBy(final boolean sort) {
-        if (sort) {
-
-            Collections.sort(dataListFormat);
-
-        }
-    }
-
-    /**
-     * From hash map to list.
-     *
-     * @param map
-     *            the map
-     * @return the list
-     */
-    private List<HashMapElement> fromHashMapToList(
-            final List<HashMap<String, String>> map) {
-        final List<HashMapElement> list = new ArrayList<HashMapElement>();
-
-        // map object comes from the cache, in this way we avoid concurrent
-        // modifications
-        synchronized (map) {
-
-            final Iterator<Map.Entry<String, List<String>>> it = map.entrySet()
-                    .iterator();
-
-            while (it.hasNext()) {
-                final Map.Entry<String, List<String>> pair = it.next();
-                list.add(new HashMapElement(pair.getKey(), pair.getValue()));
-            }
-
-
-
-
-        }
-
-        return list;
-    }
-
-    /**
-     * From list to hash map.
-     *
-     * @param lista
-     *            the lista
-     * @return the map
-     */
-    private Map<String, List<String>> fromListToHashMap(
-            final List<HashMapElement> lista) {
-        final Map<String, List<String>> map = new HashMap<String, List<String>>();
-
-        for (final HashMapElement hashMapElement : lista) {
-            map.put(hashMapElement.getKey(), hashMapElement.getValue());
-        }
-
-        return map;
     }
 
     /**
@@ -136,8 +71,8 @@ public class ResultSortedPaginator {
      *
      * @return a List
      */
-    public final HashMap<String, List<String>> getList() {
-        return (HashMap<String, List<String>>) fromListToHashMap(this.dataListFormat);
+    public final List<Map<String, String>> getList() {
+        return this.dataListFormat;
     }
 
     /**
@@ -145,9 +80,8 @@ public class ResultSortedPaginator {
      *
      * @return a List
      */
-    public final HashMap<String, List<String>> getHashMapForPage() {
-        return (HashMap<String, List<String>>) fromListToHashMap(
-                this.dataListFormat.subList(startingIndex, endingIndex));
+    public final List<Map<String, String>> getHashMapForPage() {
+        return this.dataListFormat.subList(startingIndex, endingIndex);
     }
 
     /**
@@ -240,99 +174,6 @@ public class ResultSortedPaginator {
         }
     }
 
-    /**
-     * The Class HashMapElement for representation in List.
-     */
-    static class HashMapElement implements Comparable<HashMapElement> {
-
-        /** The key. */
-        private String key;
-
-        /** The value. */
-        private List<String> value;
-
-        /**
-         * Instantiates a new hash map element.
-         *
-         * @param key
-         *            the key
-         * @param value
-         *            the value
-         */
-        HashMapElement(final String key, final List<String> value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        /**
-         * Gets the key.
-         *
-         * @return the key
-         */
-        public String getKey() {
-            return key;
-        }
-
-        /**
-         * Sets the key.
-         *
-         * @param key
-         *            the new key
-         */
-        public void setKey(final String key) {
-            this.key = key;
-        }
-
-        /**
-         * Gets the value.
-         *
-         * @return the value
-         */
-        public List<String> getValue() {
-            return value;
-        }
-
-        /**
-         * Sets the value.
-         *
-         * @param value
-         *            the new value
-         */
-        public void setValue(final List<String> value) {
-            this.value = value;
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Comparable#compareTo(java.lang.Object)
-         */
-        @Override
-        public int compareTo(final HashMapElement o) {
-            return this.key.compareTo(o.key);
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
-        @Override
-        public boolean equals(final Object arg0) {
-            if (arg0 == null) {
-                return false;
-            }
-            if (!(arg0 instanceof HashMapElement)) {
-                return false;
-            }
-            return ((HashMapElement) arg0).getKey().equals(this.getKey());
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Object#hashCode()
-         */
-        @Override
-        public int hashCode() {
-            assert false : "hashCode not designed";
-            return 1;
-        }
-
-    }
+   
 
 }
