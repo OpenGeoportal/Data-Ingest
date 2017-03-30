@@ -80,8 +80,8 @@ public class GeoserverDataStore {
                 Map<String,String> mDatasets = new HashMap<String,String>();
                 mDatasets.put("name", resourceInfo.getName());
                 mDatasets.put("title", resourceInfo.getTitle());
-                mDatasets.put("geometry", "placeholder");
-                mDatasets.put("cached", "placeholder");
+                mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
+                //mDatasets.put("cached", "placeholder");
                 hDatasets.add(mDatasets);
             }
 
