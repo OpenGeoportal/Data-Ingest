@@ -1,9 +1,5 @@
 package org.opengeoportal.dataingest.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,36 +8,45 @@ import java.util.Map;
  */
 public class ResultSortedPaginator {
 
-    /** the list over which this class is paging. */
+    /**
+     * the list over which this class is paging.
+     */
     private final List<Map<String, String>> dataListFormat;
 
-    /** the page size. */
+    /**
+     * the page size.
+     */
     private int pageSize;
 
-    /** the current page. */
+    /**
+     * the current page.
+     */
     private int currentPage;
 
-    /** the starting index. */
+    /**
+     * the starting index.
+     */
     private int startingIndex;
 
-    /** the ending index. */
+    /**
+     * the ending index.
+     */
     private int endingIndex;
 
-    /** the maximum number of pages. */
+    /**
+     * the maximum number of pages.
+     */
     private int maxPages;
 
     /**
      * Instantiates a new result sorted paginator.
      *
-     * @param map
-     *            the map
-     * @param pageSize
-     *            the page size
-     * @param sort
-     *            the sort
+     * @param list     the datasets list
+     * @param pageSize page size
+     * @param sort     defines sorting
      */
     public ResultSortedPaginator(final List<Map<String, String>> list,
-            final int pageSize, final boolean sort) {
+                                 final int pageSize, final boolean sort) {
 
         dataListFormat = list;
 
@@ -96,8 +101,7 @@ public class ResultSortedPaginator {
     /**
      * Sets the page size.
      *
-     * @param pageSize
-     *            the page size as an int
+     * @param pageSize the page size as an int
      */
     public final void setPageSize(final int pageSize) {
         this.pageSize = pageSize;
@@ -116,8 +120,7 @@ public class ResultSortedPaginator {
     /**
      * Sets the page size.
      *
-     * @param p
-     *            the page as an int
+     * @param p the page as an int
      */
     public final void setPage(final int p) {
         if (p >= maxPages) {
@@ -174,6 +177,5 @@ public class ResultSortedPaginator {
         }
     }
 
-   
 
 }

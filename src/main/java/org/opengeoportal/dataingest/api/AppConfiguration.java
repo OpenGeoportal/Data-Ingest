@@ -16,7 +16,7 @@ public class AppConfiguration {
 
     /** The GUI host. */
     @Value("${param.dataingestgui.host}")
-    private String GUIHost;
+    private String guiHost;
 
     /**
      * Cors filter.
@@ -28,7 +28,7 @@ public class AppConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin(GUIHost);
+        config.addAllowedOrigin(guiHost);
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

@@ -72,12 +72,7 @@ public class GeoserverDataStore {
             for (final String typeName : typeNames) {
                 final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
                 final ResourceInfo resourceInfo = featureSource.getInfo();
-                /*
-                String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
-                hDatasets.put(resourceInfo.getName(),
-                    new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
-*/
-                Map<String,String> mDatasets = new HashMap<String,String>();
+                Map<String, String> mDatasets = new HashMap<String, String>();
                 mDatasets.put("name", resourceInfo.getName());
                 mDatasets.put("title", resourceInfo.getTitle());
                 mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());

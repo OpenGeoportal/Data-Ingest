@@ -120,6 +120,22 @@ public class DataSetsController {
     }
 
     /**
+     * Unpaginated version of the get datasets request.
+     *
+     * @param request  the request (no arguments)
+     * @param response the http response
+     * @return the list of datasets as a an angular.js friendly list of key values
+     * @throws Exception
+     */
+    @RequestMapping(value = "/allDatasets", method = RequestMethod.GET)
+    @ResponseBody
+    public final List<Map<String, String>> getAllDataSets(
+        final HttpServletRequest request,
+        final HttpServletResponse response) throws Exception {
+        return service.getDatasets(geoserverUrl);
+    }
+
+    /**
      * Gets the data sets from all workspaces.
      *
      * @param request  the request
@@ -432,7 +448,7 @@ public class DataSetsController {
                 }
                 forcedSRS = "EPSG:" + request.getParameter("forcedSRS");
             }
-        } catch (ForcedSRSFormatException fex){
+        } catch (ForcedSRSFormatException fex) {
             printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
                 "Wrong SRS format: it must be a numerical code");
             return;

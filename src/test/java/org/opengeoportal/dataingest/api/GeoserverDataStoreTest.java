@@ -10,11 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.opengeoportal.dataingest.api.download.WFSClient;
-import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -81,19 +83,20 @@ public class GeoserverDataStoreTest {
 
         String[] typeNames = mockupDataStore.getTypeNames();
 
-        HashMap<String, List<String>> mDatasets = new HashMap<String, List<String>>();
+        List<Map<String, String>> hDatasets = new ArrayList<Map<String, String>>();
         for (String typeName : typeNames) {
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = mockupDataStore
                 .getFeatureSource(typeName);
             ResourceInfo resourceInfo = featureSource.getInfo();
-            String[] split = GeoServerUtils.explodeTypeName(resourceInfo.getName());
-            mDatasets.put(resourceInfo.getName()
-                , new ArrayList<>(Arrays.asList(split[0], split[1], resourceInfo.getTitle())));
+            Map<String,String> mDatasets = new HashMap<String,String>();
+            mDatasets.put("name", resourceInfo.getName());
+            mDatasets.put("title", resourceInfo.getTitle());
+            mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
+            hDatasets.add(mDatasets);
         }
 
         GeoserverDataStore gds = new GeoserverDataStore(uri);
-
-        assertEquals(mDatasets, gds.datasets());
+        assertEquals(hDatasets, gds.datasets());
     }
 
     @Test

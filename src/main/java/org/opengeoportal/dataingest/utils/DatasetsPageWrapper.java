@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Class DatasetsPageWrapper. 
+ * The Class DatasetsPageWrapper.
  */
 public class DatasetsPageWrapper {
 
@@ -93,13 +93,12 @@ public class DatasetsPageWrapper {
     }
 
     /**
-     * Sets the curret page.
+     * Sets the current page.
      *
-     * @param currentPage
-     *            the new curret page
+     * @param aPage the new current page
      */
-    public final void setcurrentPage(final int currentPage) {
-        this.currentPage = currentPage;
+    public final void setcurrentPage(final int aPage) {
+        this.currentPage = aPage;
     }
 
     /**
