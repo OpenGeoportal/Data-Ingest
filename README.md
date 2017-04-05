@@ -57,23 +57,6 @@ You can, however, _fake_ the unix docker daemon with this workaround:
 ```bash
 socat TCP-LISTEN:2375,reuseaddr,fork,bind=localhost UNIX-CONNECT:/var/run/docker.sock &
 ```
-
-Important Information:
-----------------------
-This repository uses large files; to read them correctly, you must enable the support to [Git Large File Storage](https://git-lfs.github.com), by following these steps:
-* Download and install the [git-lfs extension](https://git-lfs.github.com).
-* Initialize it, by typing `git lfs install`
-* Change to the root of this folder (if you are not already there) and type `git lfs track "*.zip`
-
-You only need to do this once. If you find out that the large zip file does not download correctly, you can fix it by removing it and checking it out again:
-
-```bash
-rm docker/geoserver/boston_contours.zip
-```
-
-```bash
-git checkout docker/geoserver/boston_contours.zip
-```
 File Cache
 ==========
 For improving the speed of downloads, we implemented a file cache, which stores physical files on disk. The cache uses a memory structure (an hashmap), to store the references to the physical files.
@@ -109,11 +92,11 @@ Finally, to free disk resources from files that no longer exist in GeoServer, we
 
 ## Update / Upload methods
 
-The data ingest API let you to upload zip [Shapefiles](https://en.wikipedia.org/wiki/Shapefile) directly to the connected GeoServer instance. 
+The data ingest API let you to upload zip [Shapefiles](https://en.wikipedia.org/wiki/Shapefile) directly to the connected GeoServer instance.
 
 You can upload a file to an existing workspace WWWWW to define the new datastore and published layer DDDDD by send a POST request to http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
 
-*Example:* 
+*Example:*
 ```bash
   curl -v -F file=@/PATHTOYOURFILE/DDDDD.zip -X POST http://YOURHOST:PORT/workspaces/WWWWW/datasets/DDDDD
 ```
@@ -140,8 +123,3 @@ These methods are asynchronous with the real upload, so they just give a direct 
     .shp — shape format; the feature geometry itself
     .shx — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly
     .dbf — attribute format; columnar attributes for each shape, in dBase IV format
-
-
-
-
-
