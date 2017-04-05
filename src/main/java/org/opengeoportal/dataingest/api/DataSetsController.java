@@ -129,10 +129,13 @@ public class DataSetsController {
      */
     @RequestMapping(value = "/allDatasets", method = RequestMethod.GET)
     @ResponseBody
-    public final List<Map<String, String>> getAllDataSets(
+    public final Map<String, List<Map<String, String>>> getAllDataSets(
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
-        return service.getDatasets(geoserverUrl);
+        List<Map<String, String>> result =  service.getDatasets(geoserverUrl);
+        Map<String, List<Map<String, String>>> map= new HashMap<String, List<Map<String, String>>>();
+        map.put("data", result);
+        return map;
     }
 
     /**
