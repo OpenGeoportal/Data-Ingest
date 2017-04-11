@@ -14,7 +14,7 @@
 		eternal="false"
 		diskSpoolBufferSizeMB="20"
 		timeToIdleSeconds="0"
-		timeToLiveSeconds="30"
+		timeToLiveSeconds="1200"
 		memoryStoreEvictionPolicy="LFU"
 		transactionalMode="off">
 		<persistence strategy="localTempSwap" />
@@ -26,7 +26,7 @@
 		eternal="false"
 		diskSpoolBufferSizeMB="200"
 		timeToIdleSeconds="0"
-		timeToLiveSeconds="600"
+		timeToLiveSeconds="1200"
 		memoryStoreEvictionPolicy="LFU"
 		transactionalMode="off">
 		<persistence strategy="localTempSwap" />
