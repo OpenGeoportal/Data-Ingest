@@ -133,7 +133,7 @@ public class DataSetsController {
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
         List<Map<String, String>> result =  service.getDatasets(geoserverUrl);
-        Map<String, List<Map<String, String>>> map= new HashMap<String, List<Map<String, String>>>();
+        Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
         map.put("data", result);
         return map;
     }
