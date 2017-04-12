@@ -498,7 +498,7 @@ public class DataSetsController {
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, false);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
-                    "Request for unpload sent. To check status /checkUploadStatus/" + ticket);
+                    ticket + "* Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
             } else {
                 printOutputMessage(response,
@@ -586,7 +586,7 @@ public class DataSetsController {
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
-                    "Request for update sent. To check status /checkUploadStatus/" + ticket);
+                    ticket + "* Request for update sent. To check status /checkUploadStatus/" + ticket);
 
 
             } else {
