@@ -78,7 +78,6 @@ public class GeoserverDataStore {
                     mDatasets.put("name", resourceInfo.getName());
                     mDatasets.put("title", resourceInfo.getTitle());
                     mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
-                    //mDatasets.put("cached", "placeholder");
                     hDatasets.add(mDatasets);
                 }
 

@@ -72,7 +72,7 @@ public class GeoserverDataStoreTest {
     @Test
     public void datastore() throws Exception {
 
-        GeoserverDataStore gds = new GeoserverDataStore(uri);
+        GeoserverDataStore gds = new GeoserverDataStore(uri,false);
         WFSDataStore testDataStore = gds.datastore();
 
         assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
@@ -95,7 +95,7 @@ public class GeoserverDataStoreTest {
             hDatasets.add(mDatasets);
         }
 
-        GeoserverDataStore gds = new GeoserverDataStore(uri);
+        GeoserverDataStore gds = new GeoserverDataStore(uri, true);
         assertEquals(hDatasets, gds.datasets());
     }
 
@@ -125,7 +125,7 @@ public class GeoserverDataStoreTest {
         layerProps.put("crs", resourceInfo.getCRS().toWKT().toString());
         layerProps.put("keywords", resourceInfo.getKeywords().toString());
 
-        GeoserverDataStore gds = new GeoserverDataStore(uri);
+        GeoserverDataStore gds = new GeoserverDataStore(uri, false);
 
         assertEquals(layerProps, gds.getLayerInfo(workspace, dataset));
 
