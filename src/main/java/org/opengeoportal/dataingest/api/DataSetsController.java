@@ -133,7 +133,7 @@ public class DataSetsController {
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
         List<Map<String, String>> result =  service.getDatasets(geoserverUrl);
-        Map<String, List<Map<String, String>>> map= new HashMap<String, List<Map<String, String>>>();
+        Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
         map.put("data", result);
         return map;
     }
@@ -498,7 +498,7 @@ public class DataSetsController {
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, false);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
-                    "Request for unpload sent. To check status /checkUploadStatus/" + ticket);
+                    ticket + "* Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
             } else {
                 printOutputMessage(response,
@@ -586,7 +586,7 @@ public class DataSetsController {
                 localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
-                    "Request for update sent. To check status /checkUploadStatus/" + ticket);
+                    ticket + "* Request for update sent. To check status /checkUploadStatus/" + ticket);
 
 
             } else {
