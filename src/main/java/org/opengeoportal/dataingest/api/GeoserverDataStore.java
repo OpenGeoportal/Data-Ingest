@@ -51,7 +51,7 @@ public class GeoserverDataStore {
      * @param aUri geoserver uri (include filter per workspace)
      * @throws Exception the exception
      */
-    public GeoserverDataStore(final String aUri) throws Exception {
+    public GeoserverDataStore(final String aUri, boolean bInit) throws Exception {
 
         uri = aUri;
         final String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
@@ -65,21 +65,24 @@ public class GeoserverDataStore {
             final WFSDataStoreFactory dsf = new WFSDataStoreFactory();
             data = dsf.createDataStore(connectionParameters);
 
-            final String[] typeNames = data.getTypeNames();
+            if (bInit){
 
-            // Make sure the list is empty
-            if (!hDatasets.isEmpty()) hDatasets.clear();
-            for (final String typeName : typeNames) {
-                final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
-                final ResourceInfo resourceInfo = featureSource.getInfo();
-                Map<String, String> mDatasets = new HashMap<String, String>();
-                mDatasets.put("name", resourceInfo.getName());
-                mDatasets.put("title", resourceInfo.getTitle());
-                mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
-                //mDatasets.put("cached", "placeholder");
-                hDatasets.add(mDatasets);
+                final String[] typeNames = data.getTypeNames();
+
+                // Make sure the list is empty
+                if (!hDatasets.isEmpty()) hDatasets.clear();
+                for (final String typeName : typeNames) {
+                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
+                    final ResourceInfo resourceInfo = featureSource.getInfo();
+                    Map<String, String> mDatasets = new HashMap<String, String>();
+                    mDatasets.put("name", resourceInfo.getName());
+                    mDatasets.put("title", resourceInfo.getTitle());
+                    mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
+                    //mDatasets.put("cached", "placeholder");
+                    hDatasets.add(mDatasets);
+                }
+
             }
-
 
         } catch (final java.net.ConnectException ce) {
             throw new Exception("Could not connect to GeoServer " + "at: " + uri
@@ -88,6 +91,8 @@ public class GeoserverDataStore {
         } catch (final Exception ex) {
             throw ex;
         }
+
+
     }
 
     /**

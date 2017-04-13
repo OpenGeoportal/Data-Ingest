@@ -36,7 +36,7 @@ public class CacheService {
 
         GeoserverDataStore ds = null;
         try {
-            ds = new GeoserverDataStore(uri);
+            ds = new GeoserverDataStore(uri, true);
         } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: " + uri
                 + ". Make sure it is up and "
@@ -65,7 +65,7 @@ public class CacheService {
 
         GeoserverDataStore ds = null;
         try {
-            ds = new GeoserverDataStore(uri);
+            ds = new GeoserverDataStore(uri, false);
         } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: " + uri
                 + ". Make sure it is up and "
