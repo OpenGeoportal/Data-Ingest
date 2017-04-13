@@ -49,6 +49,7 @@ public class GeoserverDataStore {
      * variables, which store the WFS datastore and dataset (names, titles).
      *
      * @param aUri geoserver uri (include filter per workspace)
+     * @param bInit boolean to indicate if we should initialize the hDatasets structure.
      * @throws Exception the exception
      */
     public GeoserverDataStore(final String aUri, boolean bInit) throws Exception {
@@ -65,14 +66,15 @@ public class GeoserverDataStore {
             final WFSDataStoreFactory dsf = new WFSDataStoreFactory();
             data = dsf.createDataStore(connectionParameters);
 
-            if (bInit){
+            if (bInit) {
 
                 final String[] typeNames = data.getTypeNames();
 
                 // Make sure the list is empty
                 if (!hDatasets.isEmpty()) hDatasets.clear();
                 for (final String typeName : typeNames) {
-                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = data.getFeatureSource(typeName);
+                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource
+                        = data.getFeatureSource(typeName);
                     final ResourceInfo resourceInfo = featureSource.getInfo();
                     Map<String, String> mDatasets = new HashMap<String, String>();
                     mDatasets.put("name", resourceInfo.getName());

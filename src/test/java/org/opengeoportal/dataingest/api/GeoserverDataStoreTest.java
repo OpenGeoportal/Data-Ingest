@@ -72,7 +72,7 @@ public class GeoserverDataStoreTest {
     @Test
     public void datastore() throws Exception {
 
-        GeoserverDataStore gds = new GeoserverDataStore(uri,false);
+        GeoserverDataStore gds = new GeoserverDataStore(uri, false);
         WFSDataStore testDataStore = gds.datastore();
 
         assertEquals(mockupDataStore.getCapabilitiesURL(), testDataStore.getCapabilitiesURL());
@@ -88,7 +88,7 @@ public class GeoserverDataStoreTest {
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = mockupDataStore
                 .getFeatureSource(typeName);
             ResourceInfo resourceInfo = featureSource.getInfo();
-            Map<String,String> mDatasets = new HashMap<String,String>();
+            Map<String, String> mDatasets = new HashMap<String, String>();
             mDatasets.put("name", resourceInfo.getName());
             mDatasets.put("title", resourceInfo.getTitle());
             mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
