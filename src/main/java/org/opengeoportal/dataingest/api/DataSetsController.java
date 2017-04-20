@@ -29,6 +29,7 @@ import org.opengeoportal.dataingest.utils.TicketGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,6 +48,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * Creates a resource controller which handles the various GET, DELETE, POST and
@@ -498,8 +500,18 @@ public class DataSetsController {
         if (geoServerFacade.existsWorkspace(workspace)) {
 
             try {
+
+                // This layer already exists in this workspace
+                if (geoServerFacade.existsLayer(workspace, dataset, true)) {
+                    printOutputMessage(response,
+                        HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                        "Dataset '" + dataset
+                            + "' already exists in workspace " + workspace);
+                    throw new Exception();
+                }
+
                 // You did not pass a store, but a store exists with this name
-                if ((store == null || store.isEmpty()) && geoServerFacade.existsDatastore(workspace, dataset)){
+                if ((store == null || store.isEmpty()) && geoServerFacade.existsDatastore(workspace, dataset)) {
                     printOutputMessage(response,
                         HttpServletResponse.SC_METHOD_NOT_ALLOWED,
                         "If you want to upload " + dataset + " to an existing store, please "
@@ -508,7 +520,7 @@ public class DataSetsController {
                     throw new Exception();
                 }
                 // You passed a store parameter, but the store does not exist
-                if ((store != null && !store.isEmpty()) && !geoServerFacade.existsDatastore(workspace, store)){
+                if ((store != null && !store.isEmpty()) && !geoServerFacade.existsDatastore(workspace, store)) {
                     printOutputMessage(response,
                         HttpServletResponse.SC_METHOD_NOT_ALLOWED,
                         "There is no store: '" + store + "' on the "
@@ -518,8 +530,7 @@ public class DataSetsController {
 
                 // If we arrived here, then everything is fine. Let's proceed with the upload.
                 long ticket = TicketGenerator.openATicket();
-
-                localUploadService.uploadFile(workspace,( (store != null && !store.isEmpty())?store:dataset ),
+                localUploadService.uploadFile(workspace, ((store != null && !store.isEmpty()) ? store : dataset),
                     dataset, zipFile, strEpsg, ticket, false);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
@@ -550,11 +561,10 @@ public class DataSetsController {
      * @param request   the request
      * @throws Exception the exception
      */
-    @RequestMapping(value = "/workspaces/{workspace}/stores/{store}/datasets/{dataset}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
     @ResponseBody
     public final void updateDataSet(
         @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "store") final String store,
         @PathVariable(value = "dataset") final String dataset,
         @RequestParam("file") MultipartFile file,
         final HttpServletResponse response,
@@ -601,23 +611,38 @@ public class DataSetsController {
         GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl,
             geoserverUsername, geoserverPassword);
 
+        String store = null;
         if (geoServerFacade.existsWorkspace(workspace)) {
-            if (geoServerFacade.existsDatastore(workspace, store)) {
+            try {
+                if (!geoServerFacade.existsLayer(workspace, dataset, true)) {
+                    printOutputMessage(response,
+                        HttpServletResponse.SC_NOT_FOUND,
+                        "Could not find dataset '" + dataset + "' in workspace:"
+                            + workspace + ".");
+                    throw new Exception();
+                }
+                RESTDataStore ds = geoServerFacade.getDatastore(workspace, dataset);
+                if (ds == null) {
+                    printOutputMessage(response,
+                        HttpServletResponse.SC_NOT_FOUND,
+                        "Could not find a valid store for layer '" + dataset + "' in workspace:"
+                            + workspace + ".");
+                    throw new Exception();
+                }
+                store = ds.getName();
 
-                long ticket = TicketGenerator.openATicket();
-
-                localUploadService.uploadFile(workspace, store, dataset, zipFile, strEpsg, ticket, true);
-                printOutputMessage(response,
-                    HttpServletResponse.SC_ACCEPTED,
-                    ticket + "* Request for update sent. To check status /checkUploadStatus/" + ticket);
-
-
-            } else {
-                printOutputMessage(response,
-                    HttpServletResponse.SC_NOT_FOUND,
-                    "Datastore '" + store + "' is not defined.");
+            } catch (Exception ex) {
                 return;
             }
+
+            Assert.isTrue(store != null, "store name must not be null");
+
+            long ticket = TicketGenerator.openATicket();
+
+            localUploadService.uploadFile(workspace, store, dataset, zipFile, strEpsg, ticket, true);
+            printOutputMessage(response,
+                HttpServletResponse.SC_ACCEPTED,
+                ticket + "* Request for update sent. To check status /checkUploadStatus/" + ticket);
         } else {
             printOutputMessage(response,
                 HttpServletResponse.SC_NOT_FOUND,

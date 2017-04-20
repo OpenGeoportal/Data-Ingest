@@ -25,7 +25,8 @@ public class LocalUploadService {
     /**
      * Upload file.
      *
-     * @param workspace            the workspace
+     * @param workspace          the workspace
+     * @param store            the datastore
      * @param dataset            the dataset
      * @param zipFile            the zip file
      * @param strEpsg the str epsg
