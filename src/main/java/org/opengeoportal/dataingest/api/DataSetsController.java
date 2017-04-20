@@ -536,7 +536,7 @@ public class DataSetsController {
             return;
         }
     }
-    
+
     /**
      * Updates a given dataset.
      * <p>
@@ -550,10 +550,11 @@ public class DataSetsController {
      * @param request   the request
      * @throws Exception the exception
      */
-    @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/workspaces/{workspace}/stores/{store}/datasets/{dataset}", method = RequestMethod.PUT)
     @ResponseBody
     public final void updateDataSet(
         @PathVariable(value = "workspace") final String workspace,
+        @PathVariable(value = "store") final String store,
         @PathVariable(value = "dataset") final String dataset,
         @RequestParam("file") MultipartFile file,
         final HttpServletResponse response,
@@ -601,11 +602,11 @@ public class DataSetsController {
             geoserverUsername, geoserverPassword);
 
         if (geoServerFacade.existsWorkspace(workspace)) {
-            if (geoServerFacade.existsDatastore(workspace, dataset)) {
+            if (geoServerFacade.existsDatastore(workspace, store)) {
 
                 long ticket = TicketGenerator.openATicket();
 
-                localUploadService.uploadFile(workspace, dataset, dataset, zipFile, strEpsg, ticket, true);
+                localUploadService.uploadFile(workspace, store, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
                     ticket + "* Request for update sent. To check status /checkUploadStatus/" + ticket);
@@ -614,7 +615,7 @@ public class DataSetsController {
             } else {
                 printOutputMessage(response,
                     HttpServletResponse.SC_NOT_FOUND,
-                    "Datastore '" + dataset + "' is not defined.");
+                    "Datastore '" + store + "' is not defined.");
                 return;
             }
         } else {
