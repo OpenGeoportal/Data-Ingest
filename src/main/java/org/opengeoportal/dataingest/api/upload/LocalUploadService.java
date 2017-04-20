@@ -1,14 +1,14 @@
 package org.opengeoportal.dataingest.api.upload;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * The Class LocalUploadService.
@@ -36,7 +36,7 @@ public class LocalUploadService {
      * @throws Exception             the exception
      * @throws CacheCapacityException             the cache capacity exception
      */
-    public final void uploadFile(final String workspace, final String dataset,
+    public final void uploadFile(final String workspace, final String store, final String dataset,
             final File zipFile, final String strEpsg, final long token,
             final boolean isUpdate)
 
@@ -45,7 +45,7 @@ public class LocalUploadService {
 
         final JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
         jmsTemplate.convertAndSend("uploadQueue",
-                new UploadRequest(workspace, dataset, zipFile, strEpsg, token, isUpdate));
+                new UploadRequest(workspace, store, dataset, zipFile, strEpsg, token, isUpdate));
 
     }
 

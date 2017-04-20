@@ -9,7 +9,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -38,8 +37,8 @@ public class CacheService {
      *
      * @throws Exception
      */
-    @PostConstruct
-    private void fillCache() throws Exception {
+  //  @PostConstruct
+    public void fillCache() throws Exception {
         try {
             log.info("Filling datasets list cache...");
             getDatasets(geoserverUrl);

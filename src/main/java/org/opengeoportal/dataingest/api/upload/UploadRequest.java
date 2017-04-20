@@ -18,6 +18,11 @@ public class UploadRequest {
     private String dataset;
 
     /**
+     * The store.
+     */
+    private String store;
+
+    /**
      * True if it's a PUT request.
      */
     private boolean update;
@@ -55,16 +60,18 @@ public class UploadRequest {
      * Instantiates a new upload request.
      *
      * @param workspace the workspace
+     * @param store the datastore
      * @param dataset the dataset
      * @param zipFile the zip file
      * @param strEpsg the str epsg
      * @param ticket the ticket
      * @param update the update
      */
-    public UploadRequest(final String workspace, final String dataset,
+    public UploadRequest(final String workspace, final String store, final String dataset,
             final File zipFile, final String strEpsg, final long ticket, final boolean update) {
 
         this.workspace = workspace;
+        this.store = store;
         this.dataset = dataset;
         this.zipFile = zipFile;
         this.ticket = ticket;
@@ -77,6 +84,25 @@ public class UploadRequest {
      */
     public UploadRequest() {
 
+    }
+
+    /**
+     * Gets the datastore.
+     *
+     * @return the datastore name
+     */
+    public final String getStore() {
+        return store;
+    }
+
+    /**
+     * Sets the datastore.
+     *
+     * @param store
+     *            the new datastore
+     */
+    public final void setStore(final String store) {
+        this.store = store;
     }
 
     /**

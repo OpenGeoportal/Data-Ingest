@@ -44,6 +44,7 @@ public class RemoteUploadService {
 
         final String workspace = uploadRequest.getWorkspace();
         final String dataset = uploadRequest.getDataset();
+        final String store = uploadRequest.getStore();
         final File zipFile = uploadRequest.getZipFile();
         final String strEpsg = uploadRequest.getStrEpsg();
         final boolean isUpdate = uploadRequest.isUpdate();
@@ -54,13 +55,13 @@ public class RemoteUploadService {
         try {
 
             if (isUpdate) {
-                if (geoServerFacade.republishShp(workspace, dataset, dataset, zipFile, strEpsg)) {
+                if (geoServerFacade.republishShp(workspace, store, dataset, zipFile, strEpsg)) {
                     TicketGenerator.closeATicket(uploadRequest.getTicket());
                 } else {
                     TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
                 }
             } else {
-                if (geoServerFacade.publishShp(workspace, dataset, dataset, zipFile, strEpsg)) {
+                if (geoServerFacade.publishShp(workspace, store, dataset, zipFile, strEpsg)) {
                     TicketGenerator.closeATicket(uploadRequest.getTicket());
                 } else {
                     TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");

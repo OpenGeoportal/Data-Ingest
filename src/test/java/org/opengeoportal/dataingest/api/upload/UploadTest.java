@@ -1,16 +1,15 @@
 package org.opengeoportal.dataingest.api.upload;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.junit.Test;
 import org.opengeoportal.dataingest.exception.GeoServerException;
 import org.opengeoportal.dataingest.utils.ShapeFileValidator;
 import org.opengeoportal.dataingest.utils.TicketGenerator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UploadTest {
 
@@ -24,7 +23,7 @@ public class UploadTest {
 
         File shpf = new File(AIRPORTS_SHAPEFILE);
         boolean noException = false;
-        
+
         try {
             assertEquals(ShapeFileValidator.isAValidShapeFile(shpf, true), "EPSG:2964");
             noException = true;
@@ -33,23 +32,23 @@ public class UploadTest {
         }
 
     }
-    
+
     @Test
     public void testUpload() throws Exception {
         File shpf = new File(AIRPORTS_SHAPEFILE);
-        
+
         long ticket = TicketGenerator.openATicket();
-        
-        UploadRequest up = new UploadRequest("topp", "airports", shpf, "strEpsg", ticket, false);
-        
+
+        UploadRequest up = new UploadRequest("topp", "airports", "airports", shpf, "strEpsg", ticket, false);
+
         RemoteUploadService rs = new RemoteUploadService();
-        
+
         ReflectionTestUtils.setField(rs, "geoserverUrl", geoserverUrl);
         ReflectionTestUtils.setField(rs, "geoserverUsername", geoserverUsername);
         ReflectionTestUtils.setField(rs, "geoserverPassword", geoserverPassword);
-        
+
         rs.sendFile(up);
-        
+
         try {
             assertTrue(TicketGenerator.isClosed(ticket));
         } catch(GeoServerException e) {}

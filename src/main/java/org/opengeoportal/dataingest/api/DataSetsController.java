@@ -440,6 +440,12 @@ public class DataSetsController {
         final HttpServletRequest request)
         throws Exception {
 
+        // Retrieve store parameter, if it exists
+        String store = null;
+        if (request.getParameter("store") != null && !request.getParameter("store").isEmpty()) {
+            store = request.getParameter("store");
+        }
+
         // If present any check on the SRS of the shape file will be skipped
         String forcedSRS = null;
 
@@ -490,22 +496,39 @@ public class DataSetsController {
             new GeoServerRESTFacade(geoserverUrl, geoserverUsername, geoserverPassword);
 
         if (geoServerFacade.existsWorkspace(workspace)) {
-            if (!geoServerFacade.existsDatastore(workspace, dataset)) {
 
+            try {
+                // You did not pass a store, but a store exists with this name
+                if ((store == null || store.isEmpty()) && geoServerFacade.existsDatastore(workspace, dataset)){
+                    printOutputMessage(response,
+                        HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                        "If you want to upload " + dataset + " to an existing store, please "
+                            + " pass the 'store' parameter. Otherwise, make sure there is no datastore "
+                    + "named '" + dataset + "'.");
+                    throw new Exception();
+                }
+                // You passed a store parameter, but the store does not exist
+                if ((store != null && !store.isEmpty()) && !geoServerFacade.existsDatastore(workspace, store)){
+                    printOutputMessage(response,
+                        HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                        "There is no store: '" + store + "' on the "
+                            + workspace + " workspace");
+                    throw new Exception();
+                }
+
+                // If we arrived here, then everything is fine. Let's proceed with the upload.
                 long ticket = TicketGenerator.openATicket();
 
-
-                localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, false);
+                localUploadService.uploadFile(workspace,( (store != null && !store.isEmpty())?store:dataset ),
+                    dataset, zipFile, strEpsg, ticket, false);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
                     ticket + "* Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
-            } else {
-                printOutputMessage(response,
-                    HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-                    "Datastore '" + dataset + "' already defined. Try PUT.");
+            } catch (Exception ex) {
                 return;
             }
+
         } else {
             printOutputMessage(response,
                 HttpServletResponse.SC_NOT_FOUND,
@@ -513,8 +536,7 @@ public class DataSetsController {
             return;
         }
     }
-
-
+    
     /**
      * Updates a given dataset.
      * <p>
@@ -583,7 +605,7 @@ public class DataSetsController {
 
                 long ticket = TicketGenerator.openATicket();
 
-                localUploadService.uploadFile(workspace, dataset, zipFile, strEpsg, ticket, true);
+                localUploadService.uploadFile(workspace, dataset, dataset, zipFile, strEpsg, ticket, true);
                 printOutputMessage(response,
                     HttpServletResponse.SC_ACCEPTED,
                     ticket + "* Request for update sent. To check status /checkUploadStatus/" + ticket);
@@ -723,4 +745,5 @@ public class DataSetsController {
         out.println(message);
         response.flushBuffer();
     }
+
 }
