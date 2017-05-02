@@ -659,10 +659,7 @@ public class DataSetsController {
     }
 
     /**
-     * Updates a given dataset.
-     * <p>
-     * Test with curl  -v -F file=@/tmp/top_states/topp_antos.zip -X
-     * PUT http://localhost:8080/workspaces/topp/datasets/antos
+     * Give the status of UPLOAD/UPDATE request
      *
      * @param ticket   the ticket
      * @param response the response
