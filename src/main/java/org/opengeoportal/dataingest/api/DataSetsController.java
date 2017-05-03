@@ -141,6 +141,26 @@ public class DataSetsController {
     }
 
     /**
+     * Mockup of the Unpaginated version of the get datasets request.
+     * Smaller request, filtered for the 'db' workspace, for test purposes.
+     *
+     * @param request  the request (no arguments)
+     * @param response the http response
+     * @return the list of datasets as a an angular.js friendly list of key values
+     * @throws Exception
+     */
+    @RequestMapping(value = "/allDatasetsMockup", method = RequestMethod.GET)
+    @ResponseBody
+    public final Map<String, List<Map<String, String>>> getAllDataSetsMockup(
+        final HttpServletRequest request,
+        final HttpServletResponse response) throws Exception {
+        List<Map<String, String>> result =  service.getDatasets(geoserverUrl + "db" + "/");
+        Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
+        map.put("data", result);
+        return map;
+    }
+
+    /**
      * Gets the data sets from all workspaces.
      *
      * @param request  the request
