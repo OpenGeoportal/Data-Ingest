@@ -9,10 +9,10 @@
 	<!-- For reference http://www.ehcache.org/ehcache.xml -->
 
 	<cache name="titles"
-		maxEntriesLocalHeap="1"
-		maxEntriesLocalDisk="2"
+		maxEntriesLocalHeap="20"
+		maxEntriesLocalDisk="100"
 		eternal="false"
-		diskSpoolBufferSizeMB="20"
+		diskSpoolBufferSizeMB="200"
 		timeToIdleSeconds="0"
 		timeToLiveSeconds="1200"
 		memoryStoreEvictionPolicy="LFU"
