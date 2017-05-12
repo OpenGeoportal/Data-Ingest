@@ -1,6 +1,7 @@
 package org.opengeoportal.dataingest.api.fileCache;
 
 import org.apache.commons.io.FileUtils;
+import org.opengeoportal.dataingest.api.download.DownloadManager;
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
@@ -36,6 +37,13 @@ public abstract class FileCache implements Serializable {
      * File Cache structure, which holds the nodes.
      */
     protected HashMap<String, Node> map = new HashMap<String, Node>();
+
+    /**
+     * Solr url (from the application.properties).
+     */
+    @Value("${localSolr.url}")
+    private String localSolrUrl;
+
     /**
      * Max allowable lock time in seconds 1 hour is recommended for bigger
      * downloads.
@@ -210,7 +218,9 @@ public abstract class FileCache implements Serializable {
                     downloadFileFromRemote(workspace, dataset);
                     throw new FileNotReadyException();
                 } else {
-                    return fileM.getFile();
+                    //return fileM.getFile();
+                    DownloadManager dM= new DownloadManager();
+                    return dM.getFile(workspace, dataset, localSolrUrl, geoserverUrl, fileName);
                 }
 
             } else { // File is not cached
