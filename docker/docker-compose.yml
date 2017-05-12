@@ -43,6 +43,8 @@ services:
             - "8083:8080"
         depends_on:
             - "gs"
+            - "solr"
         links:
             - gs
+            - solr
 
