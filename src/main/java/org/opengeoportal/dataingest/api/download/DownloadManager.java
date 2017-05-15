@@ -27,9 +27,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by joana on 12/05/17.
@@ -54,18 +55,24 @@ public class DownloadManager {
         this.headers = new HttpHeaders();
     }
 
-    public final File getFile(final String workspace, final String dataset, String localSolrUrl, final String uri,
+    public final File getFile(final String workspace, final String dataset, String localSolrUrl, final
+    String uri,
                               final String getFullFilePath)
         throws Exception {
 
         String strMetadataFilePath = createXmlFileFromTypeName(workspace, dataset, localSolrUrl);
 
-        ArrayList<String> fileNames = new ArrayList<>();
-        fileNames.add(getFullFilePath);
-        fileNames.add(strMetadataFilePath);
+        HashMap<String, String> hFileNames = new HashMap<String, String>();
+        hFileNames.put(getFullFilePath, workspace + "_" + dataset + ".zip");
+        hFileNames.put(strMetadataFilePath, workspace + "_" + dataset + ".xml");
 
-        File f = ZipUtils.createZip(fileNames, FileNameUtils.getFullPathZipFile(System.getProperty("java.io.tmpdir"),
+        File f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(System.getProperty
+                ("java.io.tmpdir"),
             workspace, dataset));
+
+        //Cleanup xml file
+        File fm = new File(strMetadataFilePath);
+        fm.delete();
 
         final HttpEntity<String> requestEntity = new HttpEntity<String>("",
             headers);
@@ -80,7 +87,6 @@ public class DownloadManager {
         }
 
         return f;
-        //TODO CLEANUP
     }
 
 
@@ -112,10 +118,10 @@ public class DownloadManager {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        String strMetadataFilePath = System.getProperty("java.io.tmpdir") + "/" + WorkspaceName + "_" + Name + ".xml";
-        StreamResult result = new StreamResult(new File(strMetadataFilePath));
+        File temp = File.createTempFile("metadata", ".xml");
+        StreamResult result = new StreamResult(temp);
         transformer.transform(source, result);
 
-        return strMetadataFilePath;
+        return temp.getAbsolutePath();
     }
 }

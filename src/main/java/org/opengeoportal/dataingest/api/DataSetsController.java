@@ -44,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -761,15 +762,23 @@ public class DataSetsController {
             + FileNameUtils.getZipFileName(workspace, dataset));
         InputStream is = null;
 
-        try {
+        //try {
             // get your file as InputStream
             is = new FileInputStream(file);
             // copy it to response's OutputStream
-            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
+            OutputStream out = response.getOutputStream();
+            org.apache.commons.io.IOUtils.copy(is, out);
+            //response.flushBuffer();
+
+            //Cleanup
+            out.close();
+            is.close();
+            file.delete();
+
+            /*
         } finally {
             org.apache.commons.io.IOUtils.closeQuietly(is);
-        }
+        }*/
     }
 
     /**
