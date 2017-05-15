@@ -1,7 +1,7 @@
 package org.opengeoportal.dataingest.api.fileCache;
 
 import org.apache.commons.io.FileUtils;
-import org.opengeoportal.dataingest.api.download.DownloadManager;
+import org.opengeoportal.dataingest.api.download.DownloadWrapper;
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
@@ -218,8 +218,7 @@ public abstract class FileCache implements Serializable {
                     downloadFileFromRemote(workspace, dataset);
                     throw new FileNotReadyException();
                 } else {
-                    //return fileM.getFile();
-                    DownloadManager dM= new DownloadManager();
+                    DownloadWrapper dM= new DownloadWrapper();
                     return dM.getFile(workspace, dataset, localSolrUrl, geoserverUrl, fileName);
                 }
 

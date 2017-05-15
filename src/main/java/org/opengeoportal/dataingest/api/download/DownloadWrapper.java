@@ -27,7 +27,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ import java.util.HashMap;
  * Created by joana on 12/05/17.
  */
 
-public class DownloadManager {
+public class DownloadWrapper {
 
     /**
      * rest template.
@@ -50,7 +49,7 @@ public class DownloadManager {
     /**
      * Constructor of the download client.
      */
-    public DownloadManager() {
+    public DownloadWrapper() {
         this.rest = new RestTemplate();
         this.headers = new HttpHeaders();
     }
