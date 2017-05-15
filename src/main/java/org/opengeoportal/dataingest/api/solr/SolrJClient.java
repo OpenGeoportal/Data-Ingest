@@ -44,10 +44,11 @@ public class SolrJClient implements SolrClient {
         QueryResponse response = null;
         try {
             response = solrClient.query(query);
-            if (response.getResults().getNumFound() != 1) throw new
+            /*
+            if (response.getResults().getNumFound() > 1) throw new
                 SolrServerException("SearchForDataset query must" +
-                " return exactly one result; instead it returned: " +
-                Long.toString(response.getResults().getNumFound()));
+                " *not* return multiple results; it had returned: " +
+                Long.toString(response.getResults().getNumFound()));*/
         } catch (SolrServerException e) {
             throw new MetadataException(e.getMessage());
         } catch (IOException e) {

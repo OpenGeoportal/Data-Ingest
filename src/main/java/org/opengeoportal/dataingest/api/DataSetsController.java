@@ -95,6 +95,16 @@ public class DataSetsController {
     @Value("${param.dataset.pagesize}")
     private int pageSize;
 
+    /**
+     * Disk path of the file cache (where we store the physical files).
+     */
+    @Value("${cache.path}")
+    private String path;
+    /**
+     * Name of the cache, which is the directory to be created on given path.
+     */
+    @Value("${cache.name}")
+    private String cachename;
 
     /**
      * localDownloadService.
@@ -773,9 +783,11 @@ public class DataSetsController {
             org.apache.commons.io.IOUtils.closeQuietly(out);
             org.apache.commons.io.IOUtils.closeQuietly(is);
 
-            File dir = new File(file.getParent());
-            file.delete();
-            dir.delete();
+            if (file.getParent()!= FileNameUtils.getCachePath(path, cachename)) {
+                File dir = new File(file.getParent());
+                file.delete();
+                dir.delete();
+            }
         }
     }
 

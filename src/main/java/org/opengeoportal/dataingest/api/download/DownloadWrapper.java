@@ -6,6 +6,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.opengeoportal.dataingest.api.solr.SolrClient;
 import org.opengeoportal.dataingest.api.solr.SolrJClient;
 import org.opengeoportal.dataingest.exception.MetadataException;
+import org.opengeoportal.dataingest.exception.NoMetadataException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.ZipUtils;
 import org.springframework.http.HttpEntity;
@@ -56,38 +57,44 @@ public class DownloadWrapper {
     }
 
     public final File getFile(final String workspace, final String dataset, String localSolrUrl, final
-    String uri,
-                              final String getFullFilePath)
+    String uri, final String getFullFilePath)
         throws Exception {
 
-        String strMetadataFilePath = createXmlFileFromTypeName(workspace, dataset, localSolrUrl);
+        File f = null;
 
-        HashMap<String, String> hFileNames = new HashMap<String, String>();
-        hFileNames.put(getFullFilePath, workspace + "_" + dataset + ".zip");
-        hFileNames.put(strMetadataFilePath, workspace + "_" + dataset + ".xml");
+        try {
+            String strMetadataFilePath = createXmlFileFromTypeName(workspace, dataset, localSolrUrl);
 
-        // Create temp dir
-        String tempDir = System.getProperty
-            ("java.io.tmpdir") + "/" +  ".dataingest-zip-" + UUID.randomUUID();
-        Boolean success = (new File(tempDir)).mkdirs();
-        if (!success) throw new Exception("Could not create temporary directory for zip file, on: " + tempDir);
+            HashMap<String, String> hFileNames = new HashMap<String, String>();
+            hFileNames.put(getFullFilePath, workspace + "_" + dataset + ".zip");
+            hFileNames.put(strMetadataFilePath, workspace + "_" + dataset + ".xml");
 
-        File f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(tempDir, workspace, dataset));
+            // Create temp dir
+            String tempDir = System.getProperty
+                ("java.io.tmpdir") + "/" + ".dataingest-zip-" + UUID.randomUUID();
+            Boolean success = (new File(tempDir)).mkdirs();
+            if (!success) throw new Exception("Could not create temporary directory for zip file, on: " + tempDir);
 
-        //Cleanup xml file
-        File fm = new File(strMetadataFilePath);
-        fm.delete();
+            f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(tempDir, workspace, dataset));
 
-        final HttpEntity<String> requestEntity = new HttpEntity<String>("",
-            headers);
-        final ResponseEntity<byte[]> responseEntity = rest.exchange(uri,
-            HttpMethod.GET, requestEntity, byte[].class);
-        final MediaType contentType = responseEntity.getHeaders()
-            .getContentType();
-        if (contentType.getType().equals("text")
-            && contentType.getSubtype().equals("xml")) {
-            throw new java.io.IOException(
-                "Resource '" + strMetadataFilePath + "' not " + "found! ");
+            //Cleanup xml file
+            File fm = new File(strMetadataFilePath);
+            fm.delete();
+
+            final HttpEntity<String> requestEntity = new HttpEntity<String>("",
+                headers);
+            final ResponseEntity<byte[]> responseEntity = rest.exchange(uri,
+                HttpMethod.GET, requestEntity, byte[].class);
+            final MediaType contentType = responseEntity.getHeaders()
+                .getContentType();
+            if (contentType.getType().equals("text")
+                && contentType.getSubtype().equals("xml")) {
+                throw new java.io.IOException(
+                    "Resource '" + strMetadataFilePath + "' not " + "found! ");
+            }
+
+        } catch (NoMetadataException ex){
+            return new File(getFullFilePath);
         }
 
         return f;
@@ -96,12 +103,15 @@ public class DownloadWrapper {
 
     private String createXmlFileFromTypeName(String WorkspaceName, String Name, String localSolrUrl)
         throws SolrServerException, ParserConfigurationException, IOException, SAXException,
-        TransformerException, SolrServerException, MetadataException {
+        TransformerException, SolrServerException, MetadataException, NoMetadataException {
 
         SolrClient solrClient = new SolrJClient(localSolrUrl);
         QueryResponse qr = solrClient.searchForDataset("cite",
             "SDE2.MATWN_3764_B6N44_1852_P5"); // TODO: Update this to Production
         SolrDocumentList docs = qr.getResults();
+
+        if (docs.getNumFound()==0) throw new NoMetadataException();
+
         String str = docs.get(0).getFieldValue("FgdcText").toString();
 
         //Fix, until we find a better solution for reading the contents of the solr doc
