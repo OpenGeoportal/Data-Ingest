@@ -772,7 +772,10 @@ public class DataSetsController {
         } finally {
             org.apache.commons.io.IOUtils.closeQuietly(out);
             org.apache.commons.io.IOUtils.closeQuietly(is);
+
+            File dir = new File(file.getParent());
             file.delete();
+            dir.delete();
         }
     }
 

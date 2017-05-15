@@ -19,6 +19,7 @@ public class ZipUtils {
     public static File createZip(HashMap<String, String> hFileNames, final
     String fileName) throws Exception {
 
+
         FileOutputStream zip_output = new FileOutputStream(new File(fileName));
         File zipFile;
 
@@ -48,7 +49,6 @@ public class ZipUtils {
         }
 
         return zipFile;
-        //return zip_output;
     }
 
 

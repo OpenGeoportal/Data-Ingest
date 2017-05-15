@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Created by joana on 12/05/17.
@@ -65,9 +66,13 @@ public class DownloadWrapper {
         hFileNames.put(getFullFilePath, workspace + "_" + dataset + ".zip");
         hFileNames.put(strMetadataFilePath, workspace + "_" + dataset + ".xml");
 
-        File f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(System.getProperty
-                ("java.io.tmpdir"),
-            workspace, dataset));
+        // Create temp dir
+        String tempDir = System.getProperty
+            ("java.io.tmpdir") + "/" +  ".dataingest-zip-" + UUID.randomUUID();
+        Boolean success = (new File(tempDir)).mkdirs();
+        if (!success) throw new Exception("Could not create temporary directory for zip file, on: " + tempDir);
+
+        File f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(tempDir, workspace, dataset));
 
         //Cleanup xml file
         File fm = new File(strMetadataFilePath);
@@ -117,7 +122,7 @@ public class DownloadWrapper {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        File temp = File.createTempFile("metadata", ".xml");
+        File temp = File.createTempFile("dataingest-metadata-", ".tmp");
         StreamResult result = new StreamResult(temp);
         transformer.transform(source, result);
 
