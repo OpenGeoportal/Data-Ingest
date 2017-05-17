@@ -109,7 +109,8 @@ public class DownloadWrapper {
         QueryResponse qr = solrClient.searchForDataset(WorkspaceName, Name);
         SolrDocumentList docs = qr.getResults();
 
-        if (docs.getNumFound()==0) throw new NoMetadataException();
+        if (docs.getNumFound() == 0)
+            throw new NoMetadataException("Did not find any records for " + WorkspaceName + ":" + Name);
 
         String str = docs.get(0).getFieldValue("FgdcText").toString();
 
@@ -119,7 +120,7 @@ public class DownloadWrapper {
         sb.deleteCharAt(str.length() - 2);
         str = sb.toString();
 
-        System.out.println(str);
+        //System.out.println(str);
 
         // Just in case, check that the xml is correct: remove from Production?
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

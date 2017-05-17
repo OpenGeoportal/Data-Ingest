@@ -5,14 +5,11 @@ package org.opengeoportal.dataingest.api.solr;
  */
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.opengeoportal.dataingest.exception.MetadataException;
+import org.opengeoportal.dataingest.exception.NoMetadataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Class for retrieve info from a remote Solr instance.
@@ -33,7 +30,7 @@ public class SolrJClient implements SolrClient {
 
     @Override
     public QueryResponse searchForDataset(String WorkspaceName, String Name) throws
-        MetadataException {
+        NoMetadataException {
 
         SolrQuery query = new SolrQuery();
         query.setQuery("Name" + ":" + Name);
@@ -44,11 +41,12 @@ public class SolrJClient implements SolrClient {
         QueryResponse response = null;
         try {
             response = solrClient.query(query);
-        } catch (SolrServerException e) {
-            throw new MetadataException(e.getMessage());
-        } catch (IOException e) {
-            throw new MetadataException(e.getMessage());
+
+        } catch (Exception e) {// If there are errors, we just skip the metadata
+            e.printStackTrace();
+            throw new NoMetadataException(e.getMessage());
         }
+
         return response;
 
     }
