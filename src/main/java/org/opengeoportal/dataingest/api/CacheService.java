@@ -120,4 +120,15 @@ public class CacheService {
         System.out.println("Clearing the cache");
     }
 
+    /**
+     * Dummy function to trigger dataset list cache eviction.
+     *
+     */
+    @Caching(evict = {@CacheEvict(value = "titles", allEntries = true)})
+    public void clearCacheAll() {
+        System.out.println("Clearing dataset list the cache");
+    }
+
+
+
 }

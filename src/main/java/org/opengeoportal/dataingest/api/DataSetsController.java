@@ -567,6 +567,9 @@ public class DataSetsController {
                     HttpServletResponse.SC_ACCEPTED,
                     ticket + "* Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
+                // Uploading data triggers a cache eviction, in order to have the complete dataset list
+                service.clearCacheAll();
+
             } catch (Exception ex) {
                 return;
             }
