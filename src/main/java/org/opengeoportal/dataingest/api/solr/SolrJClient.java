@@ -37,18 +37,13 @@ public class SolrJClient implements SolrClient {
 
         SolrQuery query = new SolrQuery();
         query.setQuery("Name" + ":" + Name);
-        //TODO: filter also by the workspace
         query.addField("FgdcText");
+        query.addFilterQuery("WorkspaceName" + ":" + WorkspaceName);
         query.setRows(1);
 
         QueryResponse response = null;
         try {
             response = solrClient.query(query);
-            /*
-            if (response.getResults().getNumFound() > 1) throw new
-                SolrServerException("SearchForDataset query must" +
-                " *not* return multiple results; it had returned: " +
-                Long.toString(response.getResults().getNumFound()));*/
         } catch (SolrServerException e) {
             throw new MetadataException(e.getMessage());
         } catch (IOException e) {
