@@ -44,7 +44,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -774,22 +773,24 @@ public class DataSetsController {
         response.setHeader("Content-Disposition", "attachment;filename=\""
             + FileNameUtils.getZipFileName(workspace, dataset));
         InputStream is = null;
-        OutputStream out = null;
 
         try {
             // get your file as InputStream
             is = new FileInputStream(file);
             // copy it to response's OutputStream
-            out = response.getOutputStream();
-            org.apache.commons.io.IOUtils.copy(is, out);
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            response.flushBuffer();
         } finally {
-            org.apache.commons.io.IOUtils.closeQuietly(out);
             org.apache.commons.io.IOUtils.closeQuietly(is);
 
-            if (file.getParent()!= FileNameUtils.getCachePath(path, cachename)) {
-                File dir = new File(file.getParent());
-                file.delete();
-                dir.delete();
+            try {
+                if (!file.getParent().equals(FileNameUtils.getCachePath(path, cachename))) {
+                    File dir = new File(file.getParent());
+                    file.delete();
+                    dir.delete();
+                }
+            } catch (Exception ex){
+                ex.printStackTrace();
             }
         }
     }
