@@ -9,11 +9,7 @@ import org.opengeoportal.dataingest.exception.MetadataException;
 import org.opengeoportal.dataingest.exception.NoMetadataException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.opengeoportal.dataingest.utils.ZipUtils;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -80,18 +76,6 @@ public class DownloadWrapper {
             //Cleanup xml file
             File fm = new File(strMetadataFilePath);
             fm.delete();
-
-            final HttpEntity<String> requestEntity = new HttpEntity<String>("",
-                headers);
-            final ResponseEntity<byte[]> responseEntity = rest.exchange(uri,
-                HttpMethod.GET, requestEntity, byte[].class);
-            final MediaType contentType = responseEntity.getHeaders()
-                .getContentType();
-            if (contentType.getType().equals("text")
-                && contentType.getSubtype().equals("xml")) {
-                throw new java.io.IOException(
-                    "Resource '" + strMetadataFilePath + "' not " + "found! ");
-            }
 
         } catch (NoMetadataException ex){
             return new File(getFullFilePath);

@@ -43,7 +43,7 @@ public class SolrJClient implements SolrClient {
             response = solrClient.query(query);
 
         } catch (Exception e) {// If there are errors, we just skip the metadata
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new NoMetadataException(e.getMessage());
         }
 

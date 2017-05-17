@@ -165,7 +165,7 @@ public class DataSetsController {
     public final Map<String, List<Map<String, String>>> getAllDataSetsMockup(
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
-        List<Map<String, String>> result =  service.getDatasets(geoserverUrl + "db" + "/");
+        List<Map<String, String>> result =  service.getDatasets(geoserverUrl + "topp" + "/");
         Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
         map.put("data", result);
         return map;
