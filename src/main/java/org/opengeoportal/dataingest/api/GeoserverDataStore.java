@@ -1,5 +1,10 @@
 package org.opengeoportal.dataingest.api;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
@@ -8,11 +13,6 @@ import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by joana on 27/01/17.

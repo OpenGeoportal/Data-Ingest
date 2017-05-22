@@ -1,10 +1,10 @@
 package org.opengeoportal.dataingest.api.download;
 
+import java.io.File;
+
 import org.opengeoportal.dataingest.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 /**
  * The Class RemoteDownloadService. This class is used to organize the download

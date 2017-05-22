@@ -1,5 +1,10 @@
 package org.opengeoportal.dataingest.api;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,11 +13,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This service class acts as a proxy between the controller and
