@@ -97,18 +97,9 @@ public class DataIngestApplication {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable().authorizeRequests()
-            .antMatchers(HttpMethod.GET, "/datasets").anonymous()
-            .antMatchers(HttpMethod.POST, "/datasets").anonymous()
-            .antMatchers(HttpMethod.GET, "/allDatasets").anonymous()
-            .antMatchers(HttpMethod.POST, "/allDatasets").anonymous()
-            .antMatchers(HttpMethod.GET, "/allDatasetsMockup").anonymous()
-            .antMatchers(HttpMethod.POST, "/allDatasetsMockup").anonymous()
-            .antMatchers(HttpMethod.GET, "/workspaces/*").anonymous()
-            .antMatchers(HttpMethod.POST, "/workspaces/*").anonymous()
-            .antMatchers(HttpMethod.GET, "/datasets").anonymous()
-            .antMatchers(HttpMethod.POST, "/datasets").anonymous()
-            .antMatchers(HttpMethod.POST, "/login").permitAll()
-            .anyRequest().authenticated()
+//            .antMatchers(HttpMethod.GET, "/datasets").anonymous()
+//            .antMatchers(HttpMethod.POST, "/login").permitAll()
+            .anyRequest().anonymous()
             .and()
             .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
                     UsernamePasswordAuthenticationFilter.class)
