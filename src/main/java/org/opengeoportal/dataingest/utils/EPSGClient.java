@@ -1,8 +1,6 @@
 package org.opengeoportal.dataingest.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.opengeoportal.dataingest.exception.EPSGClientException;
+import static org.apache.http.HttpHeaders.USER_AGENT;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -12,7 +10,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import static org.apache.http.HttpHeaders.USER_AGENT;
+import org.opengeoportal.dataingest.exception.EPSGClientException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Created by joana on 14/03/17.

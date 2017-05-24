@@ -1,12 +1,16 @@
 package org.opengeoportal.dataingest.api.download;
 
-import org.apache.commons.io.IOUtils;
-import org.opengeoportal.dataingest.api.fileCache.FileManager;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
-
 import java.io.File;
 import java.io.FileOutputStream;
+
+import org.apache.commons.io.IOUtils;
+import org.opengeoportal.dataingest.api.fileCache.FileManager;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by joana on 16/01/17.

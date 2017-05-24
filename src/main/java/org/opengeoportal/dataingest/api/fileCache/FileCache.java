@@ -1,8 +1,17 @@
 package org.opengeoportal.dataingest.api.fileCache;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.apache.commons.io.FileUtils;
-import org.opengeoportal.dataingest.api.download.DownloadWrapper;
 import org.opengeoportal.dataingest.api.download.DownloadRequest;
+import org.opengeoportal.dataingest.api.download.DownloadWrapper;
 import org.opengeoportal.dataingest.api.download.WFSClient;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
@@ -15,14 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
 
 /**
  * Created by joana on 22/02/17.

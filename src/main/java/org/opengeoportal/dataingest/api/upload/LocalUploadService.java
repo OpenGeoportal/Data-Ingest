@@ -1,14 +1,14 @@
 package org.opengeoportal.dataingest.api.upload;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * The Class LocalUploadService.
