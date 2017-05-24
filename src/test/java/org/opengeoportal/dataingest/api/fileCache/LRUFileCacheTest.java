@@ -277,7 +277,7 @@ public class LRUFileCacheTest {
         String workspace = GeoServerUtils.getWorkspace(key);
         String dataset = GeoServerUtils.getDataset(key);
         String fileName = FileNameUtils.getFullPathZipFile(
-            FileNameUtils.getCachePath(PATH, CACHENAME), workspace,
+            FileNameUtils.getCachePath(PATH, CACHENAME),
             dataset);
         File f = new File(fileName);
         return f.createNewFile();

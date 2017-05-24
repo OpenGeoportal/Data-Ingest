@@ -773,7 +773,7 @@ public class DataSetsController {
         response.setHeader("Content-Transfer-Encoding", "binary");
         // Filename
         response.setHeader("Content-Disposition", "attachment;filename=\""
-            + FileNameUtils.getZipFileName(workspace, dataset));
+            + FileNameUtils.getZipFileName(dataset));
         InputStream is = null;
 
         try {

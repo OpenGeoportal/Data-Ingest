@@ -16,17 +16,15 @@ public final class FileNameUtils {
 
     /**
      * Gets the zip file name.
-     *
-     * @param workspace
-     *            the workspace
      * @param dataset
      *            the dataset
      * @return the zip file name
      */
-    public static String getZipFileName(final String workspace,
+    public static String getZipFileName(
             final String dataset) {
 
-        return workspace + "_" + dataset + ".zip";
+        //return workspace + "_" + dataset + ".zip";
+        return dataset + ".zip";
     }
 
     /**
@@ -41,9 +39,10 @@ public final class FileNameUtils {
      * @return the full path zip file
      */
     public static String getFullPathZipFile(final String baseDir,
-            final String workspace, final String dataset) {
+            final String dataset) {
 
-        return baseDir + "/" + getZipFileName(workspace, dataset);
+        //return baseDir + "/" + getZipFileName(workspace, dataset);
+        return baseDir + "/" + getZipFileName(dataset);
     }
 
     /**

@@ -29,8 +29,8 @@ public class ZipUtils {
                 .ZIP, zip_output);
 
             for (String key : hFileNames.keySet()){
-                logical_zip.putArchiveEntry(new ZipArchiveEntry(hFileNames.get(key)));
-                IOUtils.copy(new FileInputStream(key), logical_zip);
+                logical_zip.putArchiveEntry(new ZipArchiveEntry(key));
+                IOUtils.copy(new FileInputStream(hFileNames.get(key)), logical_zip);
                 logical_zip.closeArchiveEntry();
             }
 

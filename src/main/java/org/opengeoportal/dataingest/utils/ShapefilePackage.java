@@ -69,6 +69,8 @@ public class ShapefilePackage {
         this.shapefilePath = unpackage(zipFile);
     }
 
+    public File getUnzipDir(){return unzipDir;}
+
     /**
      * Returns the list of fields of the shapefile (excluding the geometry
      * field).
@@ -208,6 +210,7 @@ public class ShapefilePackage {
         }
     }
 
+
     /**
      * Unzips a package and verifies that contains the required files for a
      * shapefile.
@@ -251,6 +254,10 @@ public class ShapefilePackage {
                         .getCode(),
                     "The package contains multiple shapefiles .");
             }
+
+
+            File wfsrequest = new File (unzipDir + "/wfsrequest.txt");
+            if (wfsrequest.exists())wfsrequest.delete();
 
             final File[] filesSameName = unzipDir
                 .listFiles(new FilenameFilter() {
