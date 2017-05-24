@@ -8,6 +8,7 @@ import org.opengeoportal.dataingest.api.solr.SolrJClient;
 import org.opengeoportal.dataingest.exception.MetadataException;
 import org.opengeoportal.dataingest.exception.NoMetadataException;
 import org.opengeoportal.dataingest.utils.FileNameUtils;
+import org.opengeoportal.dataingest.utils.ShapefilePackage;
 import org.opengeoportal.dataingest.utils.ZipUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
@@ -61,9 +62,18 @@ public class DownloadWrapper {
         try {
             String strMetadataFilePath = createXmlFileFromTypeName(workspace, dataset, localSolrUrl);
 
+            ShapefilePackage shapefilePackage = new ShapefilePackage(new File(getFullFilePath));
+
             HashMap<String, String> hFileNames = new HashMap<String, String>();
-            hFileNames.put(getFullFilePath, workspace + "_" + dataset + ".zip");
-            hFileNames.put(strMetadataFilePath, workspace + "_" + dataset + ".xml");
+
+            File[] directoryListing = shapefilePackage.getUnzipDir().listFiles();
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    hFileNames.put(child.getName(), child.getPath());
+                }
+            }
+
+            hFileNames.put(dataset + ".xml", strMetadataFilePath);
 
             // Create temp dir
             String tempDir = System.getProperty
@@ -71,8 +81,9 @@ public class DownloadWrapper {
             Boolean success = (new File(tempDir)).mkdirs();
             if (!success) throw new Exception("Could not create temporary directory for zip file, on: " + tempDir);
 
-            f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(tempDir, workspace, dataset));
+            f = ZipUtils.createZip(hFileNames, FileNameUtils.getFullPathZipFile(tempDir, dataset));
 
+            shapefilePackage.dispose();
             //Cleanup xml file
             File fm = new File(strMetadataFilePath);
             fm.delete();
@@ -90,7 +101,8 @@ public class DownloadWrapper {
         TransformerException, SolrServerException, MetadataException, NoMetadataException {
 
         SolrClient solrClient = new SolrJClient(localSolrUrl);
-        QueryResponse qr = solrClient.searchForDataset(WorkspaceName, Name);
+        //QueryResponse qr = solrClient.searchForDataset(WorkspaceName, Name);
+        QueryResponse qr = solrClient.searchForDataset("cite", "SDE2.MATWN_3764_B6N44_1852_P5");
         SolrDocumentList docs = qr.getResults();
 
         if (docs.getNumFound() == 0)

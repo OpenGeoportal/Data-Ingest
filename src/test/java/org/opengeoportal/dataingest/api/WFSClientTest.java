@@ -30,7 +30,7 @@ public class WFSClientTest {
     private static String dataset = "tasmania_cities";
     final static String fileName = FileNameUtils.getFullPathZipFile(System.getProperty(
         "java.io.tmpdir"),
-        workspace, dataset);
+         dataset);
     private static String uri = "http://localhost:{PORT}/geoserver/";
     private long maxAllowableLockTime = 3600;
     private int fileSize = 1383;

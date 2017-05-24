@@ -188,7 +188,7 @@ public abstract class FileCache implements Serializable {
         final String workspace = GeoServerUtils.getWorkspace(key);
         final String dataset = GeoServerUtils.getDataset(key);
         final String fileName = FileNameUtils.getFullPathZipFile(
-            FileNameUtils.getCachePath(path, cachename), workspace,
+            FileNameUtils.getCachePath(path, cachename),
             dataset);
 
         final Node n = map.get(key);
@@ -268,7 +268,7 @@ public abstract class FileCache implements Serializable {
         final String workspace = GeoServerUtils.getWorkspace(key);
         final String dataset = GeoServerUtils.getDataset(key);
         final String fileName = FileNameUtils.getFullPathZipFile(
-            FileNameUtils.getCachePath(path, cachename), workspace,
+            FileNameUtils.getCachePath(path, cachename),
             dataset);
 
         try {
@@ -340,7 +340,7 @@ public abstract class FileCache implements Serializable {
         final String dataset = GeoServerUtils.getDataset(n.getKey());
 
         final String fileName = FileNameUtils.getFullPathZipFile(
-            FileNameUtils.getCachePath(path, cachename), workspace,
+            FileNameUtils.getCachePath(path, cachename),
             dataset);
 
         FileManager fileM = null;

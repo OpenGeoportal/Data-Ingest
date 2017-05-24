@@ -87,7 +87,7 @@ public class RemoteDownloadService {
         }
 
         final String fileName = FileNameUtils.getFullPathZipFile(cachePath,
-                workspace, dataset);
+                dataset);
 
         client.getFile(uri, fileName, maxAllowableLockTime);
 
