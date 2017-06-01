@@ -1,7 +1,6 @@
 package org.opengeoportal.dataingest.security;
 
-import static java.util.Collections.emptyList;
-
+import java.util.Collections;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,35 +12,61 @@ import org.springframework.security.core.Authentication;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+/**
+ * The Class TokenAuthenticationService.
+ */
 class TokenAuthenticationService {
-  static final long EXPIRATIONTIME = 864_000_000; // 10 days
-  static final String SECRET = "ThisIsASecret";
-  static final String TOKEN_PREFIX = "Bearer";
-  static final String HEADER_STRING = "Authorization";
+    
+    /** The Constant EXPIRATIONTIME. */
+    static final long EXPIRATIONTIME = 864_000_000; // 10 days
+    
+    /** The Constant SECRET. */
+    static final String SECRET = "ThisIsASecret";
+    
+    /** The Constant TOKEN_PREFIX. */
+    static final String TOKEN_PREFIX = "Bearer";
+    
+    /** The Constant HEADER_STRING. */
+    static final String HEADER_STRING = "Authorization";
 
-  static void addAuthentication(HttpServletResponse res, String username) {
-    String JWT = Jwts.builder()
-        .setSubject(username)
-        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
-        .signWith(SignatureAlgorithm.HS512, SECRET)
-        .compact();
-    res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
-  }
-
-  static Authentication getAuthentication(HttpServletRequest request) {
-    String token = request.getHeader(HEADER_STRING);
-    if (token != null) {
-      // parse the token.
-      String user = Jwts.parser()
-          .setSigningKey(SECRET)
-          .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-          .getBody()
-          .getSubject();
-
-      return user != null ?
-          new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
-          null;
+    /**
+     * Adds the authentication.
+     *
+     * @param res the res
+     * @param username the username
+     */
+    static void addAuthentication(final HttpServletResponse res,
+            final String username) {
+        final String JWT = Jwts.builder().setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis()
+                        + TokenAuthenticationService.EXPIRATIONTIME))
+                .signWith(SignatureAlgorithm.HS512,
+                        TokenAuthenticationService.SECRET)
+                .compact();
+        res.addHeader(TokenAuthenticationService.HEADER_STRING,
+                TokenAuthenticationService.TOKEN_PREFIX + " " + JWT);
     }
-    return null;
-  }
+
+    /**
+     * Gets the authentication.
+     *
+     * @param request the request
+     * @return the authentication
+     */
+    static Authentication getAuthentication(final HttpServletRequest request) {
+        final String token = request
+                .getHeader(TokenAuthenticationService.HEADER_STRING);
+        if (token != null) {
+            // parse the token.
+            final String user = Jwts.parser()
+                    .setSigningKey(TokenAuthenticationService.SECRET)
+                    .parseClaimsJws(token.replace(
+                            TokenAuthenticationService.TOKEN_PREFIX, ""))
+                    .getBody().getSubject();
+
+            return user != null ? new UsernamePasswordAuthenticationToken(user,
+                    null, Collections.emptyList()) : null;
+        }
+        return null;
+    }
 }

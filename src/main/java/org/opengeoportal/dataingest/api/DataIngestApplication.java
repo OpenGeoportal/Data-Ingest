@@ -1,5 +1,8 @@
 package org.opengeoportal.dataingest.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jms.ConnectionFactory;
 
 import org.opengeoportal.dataingest.security.JWTAuthenticationFilter;
@@ -24,6 +27,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.Header;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.web.bind.annotation.RestController;
 
 //import org.springframework.cache.annotation.EnableCaching;
@@ -88,31 +93,56 @@ public class DataIngestApplication {
         converter.setTypeIdPropertyName("_type");
         return converter;
     }
-    
 
     @Configuration
     @EnableWebSecurity
     public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-        
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable().authorizeRequests()
-//            .antMatchers(HttpMethod.GET, "/datasets").anonymous()
-//            .antMatchers(HttpMethod.POST, "/login").permitAll()
+            .antMatchers(HttpMethod.GET, "/datasets").anonymous()
+            .antMatchers(HttpMethod.GET, "/allDatasets").anonymous()
+            .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets").anonymous()
+            .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets/{dataset}").anonymous()
+            .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets/{dataset}/download").anonymous()
+            .antMatchers(HttpMethod.GET, "/checkUploadStatus/{ticket}").authenticated()
+            .antMatchers(HttpMethod.PUT, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
+            .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
+            .antMatchers(HttpMethod.DELETE, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
+            .antMatchers(HttpMethod.POST, "/login").permitAll()
             .anyRequest().anonymous()
             .and()
             .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
                     UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JWTAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter.class);
+
+            Header header1 = new Header("Access-Control-Allow-Origin", "*");
+            Header header2 = new Header("Access-Control-Allow-Headers", "Content-Type", "Authorization" , "origin", "X-Auth-Token", "x-ats-type");
+            Header header3 = new Header("Access-Control-Allow-Methods", "GET", "POST", "PUT", "DELETE", "OPTIONS");
+
+            List<Header> headers = new ArrayList<>();
+
+            headers.add(header1);
+            headers.add(header2);
+            headers.add(header3);
+
+            http.headers()
+            .addHeaderWriter(new StaticHeadersWriter(headers));
+
         }    
-        
+
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
             auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
+            .inMemoryAuthentication()
+            .withUser("admin").password("ogpharvester").roles("USER");
+            auth
+            .inMemoryAuthentication()
+            .withUser("user").password("ogpharvester").roles("USER");
+        }      
+
     }
 
 }
