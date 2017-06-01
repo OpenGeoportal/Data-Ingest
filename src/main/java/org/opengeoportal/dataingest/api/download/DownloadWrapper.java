@@ -101,8 +101,8 @@ public class DownloadWrapper {
         TransformerException, SolrServerException, MetadataException, NoMetadataException {
 
         SolrClient solrClient = new SolrJClient(localSolrUrl);
-        //QueryResponse qr = solrClient.searchForDataset(WorkspaceName, Name);
-        QueryResponse qr = solrClient.searchForDataset("cite", "SDE2.MATWN_3764_B6N44_1852_P5");
+        QueryResponse qr = solrClient.searchForDataset(WorkspaceName, Name);
+        //QueryResponse qr = solrClient.searchForDataset("cite", "SDE2.MATWN_3764_B6N44_1852_P5");
         SolrDocumentList docs = qr.getResults();
 
         if (docs.getNumFound() == 0)
