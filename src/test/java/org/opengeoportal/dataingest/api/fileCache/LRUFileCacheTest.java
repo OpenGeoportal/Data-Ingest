@@ -34,6 +34,7 @@ public class LRUFileCacheTest {
     private long MAX = 1000;
     private int ITERATIONS = 50;
 
+    private String workspace = "ws";
     /**
      * Mockup dataset names: from docker container names :-) .
      */
@@ -223,17 +224,18 @@ public class LRUFileCacheTest {
         int lru = 0 + (int) (Math.random() * 5);
 
         // Setup
-        for (int i = 0; i <= 5; i++) {
-            fileCache.set(names.get(i), 100);
-            if (!mockupFile(names.get(i))) throw new java.io.EOFException("Could not mockup file " + names.get(i));
+        for (int i = 0; i < 5; i++) {
+            String typename = workspace + ":" + names.get(i);
+            fileCache.set(typename, 100);
+            if (!mockupFile(typename)) throw new java.io.EOFException("Could not mockup file " + typename);
         }
 
         // Use all values but lru
-        for (int i = 0; i <= 5; ++i) if (i != lru) fileCache.get(names.get(i));
+        for (int i = 0; i < 5; ++i) if (i != lru) fileCache.get(workspace + ":" + names.get(i));
 
-        fileCache.set(names.get(6), 100);
+        fileCache.set(workspace + ":" + names.get(6), 100);
 
-        assertTrue(fileCache.get(names.get(lru)) == null);
+        assertTrue(fileCache.get(workspace + ":" + names.get(lru)) == null);
     }
 
     /**
@@ -274,7 +276,6 @@ public class LRUFileCacheTest {
      * @throws IOException
      */
     private boolean mockupFile(String key) throws IOException {
-        String workspace = GeoServerUtils.getWorkspace(key);
         String dataset = GeoServerUtils.getDataset(key);
         String fileName = FileNameUtils.getFullPathZipFile(
             FileNameUtils.getCachePath(PATH, CACHENAME),
