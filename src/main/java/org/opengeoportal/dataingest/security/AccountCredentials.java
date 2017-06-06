@@ -5,10 +5,14 @@ package org.opengeoportal.dataingest.security;
  */
 public class AccountCredentials {
 
-    /** The username. */
+    /**
+     * The username.
+     */
     private String username;
-    
-    /** The password. */
+
+    /**
+     * The password.
+     */
     private String password;
 
     /**
@@ -21,21 +25,21 @@ public class AccountCredentials {
     }
 
     /**
-     * Gets the username.
-     *
-     * @return the username
-     */
-    public String getUsername() {
-        return this.username;
-    }
-
-    /**
      * Sets the password.
      *
      * @param password the new password
      */
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    /**
+     * Gets the username.
+     *
+     * @return the username
+     */
+    public String getUsername() {
+        return this.username;
     }
 
     /**

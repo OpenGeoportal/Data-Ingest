@@ -1,10 +1,5 @@
 package org.opengeoportal.dataingest.api;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jms.ConnectionFactory;
-
 import org.opengeoportal.dataingest.security.JWTAuthenticationFilter;
 import org.opengeoportal.dataingest.security.JWTLoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +26,10 @@ import org.springframework.security.web.header.Header;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.jms.ConnectionFactory;
+import java.util.ArrayList;
+import java.util.List;
+
 //import org.springframework.cache.annotation.EnableCaching;
 
 /**
@@ -49,30 +48,26 @@ public class DataIngestApplication {
     /**
      * This is the main method which runs the web application.
      *
-     * @param args
-     *            Unused.
-     * @throws Exception
-     *             General exception
+     * @param args Unused.
+     * @throws Exception General exception
      */
 
     public static void main(final String[] args) throws Exception {
         final ConfigurableApplicationContext context = SpringApplication
-                .run(DataIngestApplication.class, args);
+            .run(DataIngestApplication.class, args);
     }
 
     /**
      * Container factory.
      *
-     * @param connectionFactory
-     *            the connection factory
-     * @param configurer
-     *            the configurer
+     * @param connectionFactory the connection factory
+     * @param configurer        the configurer
      * @return the default jms listener container factory
      */
     @Bean
     public JmsListenerContainerFactory<?> myContainerFactory(
-            final ConnectionFactory connectionFactory,
-            final DefaultJmsListenerContainerFactoryConfigurer configurer) {
+        final ConnectionFactory connectionFactory,
+        final DefaultJmsListenerContainerFactoryConfigurer configurer) {
         final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         // This provides all boot's default to this factory, including the
         // message converter
@@ -94,32 +89,42 @@ public class DataIngestApplication {
         return converter;
     }
 
+    /**
+     * Web Security Configuration.
+     */
     @Configuration
     @EnableWebSecurity
     public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+        /**
+         * Configuration.
+         *
+         * @param http HttpSecurity
+         * @throws Exception
+         */
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable().authorizeRequests()
-            .antMatchers(HttpMethod.GET, "/datasets").anonymous()
-            .antMatchers(HttpMethod.GET, "/allDatasets").anonymous()
-            .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets").anonymous()
-            .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets/{dataset}").anonymous()
-            .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets/{dataset}/download").anonymous()
-            .antMatchers(HttpMethod.GET, "/checkUploadStatus/{ticket}").authenticated()
-            .antMatchers(HttpMethod.PUT, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
-            .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
-            .antMatchers(HttpMethod.DELETE, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
-            .antMatchers(HttpMethod.POST, "/login").permitAll()
-            .anyRequest().anonymous()
-            .and()
-            .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
+                .antMatchers(HttpMethod.GET, "/datasets").anonymous()
+                .antMatchers(HttpMethod.GET, "/allDatasets").anonymous()
+                .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets").anonymous()
+                .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets/{dataset}").anonymous()
+                .antMatchers(HttpMethod.GET, "/workspaces/{workspace}/datasets/{dataset}/download").anonymous()
+                .antMatchers(HttpMethod.GET, "/checkUploadStatus/{ticket}").authenticated()
+                .antMatchers(HttpMethod.PUT, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
+                .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
+                .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .anyRequest().anonymous()
+                .and()
+                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
                     UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTAuthenticationFilter(),
+                .addFilterBefore(new JWTAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter.class);
 
             Header header1 = new Header("Access-Control-Allow-Origin", "*");
-            Header header2 = new Header("Access-Control-Allow-Headers", "Content-Type", "Authorization" , "origin", "X-Auth-Token", "x-ats-type");
+            Header header2 = new Header("Access-Control-Allow-Headers", "Content-Type", "Authorization", "origin",
+                "X-Auth-Token", "x-ats-type");
             Header header3 = new Header("Access-Control-Allow-Methods", "GET", "POST", "PUT", "DELETE", "OPTIONS");
 
             List<Header> headers = new ArrayList<>();
@@ -129,19 +134,25 @@ public class DataIngestApplication {
             headers.add(header3);
 
             http.headers()
-            .addHeaderWriter(new StaticHeadersWriter(headers));
+                .addHeaderWriter(new StaticHeadersWriter(headers));
 
-        }    
+        }
 
+        /**
+         * Global Configuration.
+         *
+         * @param auth Authentication Manager Builder
+         * @throws Exception
+         */
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
             auth
-            .inMemoryAuthentication()
-            .withUser("admin").password("ogpharvester").roles("USER");
+                .inMemoryAuthentication()
+                .withUser("admin").password("ogpharvester").roles("USER");
             auth
-            .inMemoryAuthentication()
-            .withUser("user").password("ogpharvester").roles("USER");
-        }      
+                .inMemoryAuthentication()
+                .withUser("user").password("ogpharvester").roles("USER");
+        }
 
     }
 

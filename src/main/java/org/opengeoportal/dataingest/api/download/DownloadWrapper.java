@@ -53,9 +53,19 @@ public class DownloadWrapper {
         this.headers = new HttpHeaders();
     }
 
-    public final File getFile(final String workspace, final String dataset, String localSolrUrl, final
-    String uri, final String getFullFilePath)
-        throws Exception {
+    /**
+     * Retrieve metadata from SOLR, as an XML and the shapefile from the cache; to have everything on the root of the
+     * zip, it unzips the shapefile before zipping everything, together with the shapefile files.
+     *
+     * @param workspace       a workspace
+     * @param dataset         a dataset name
+     * @param localSolrUrl    the url of a solr instance
+     * @param getFullFilePath path of the shapefile
+     * @return a zip file with the result
+     * @throws Exception
+     */
+    public final File getFile(final String workspace, final String dataset, String localSolrUrl,
+                              final String getFullFilePath) throws Exception {
 
         File f = null;
 
@@ -76,8 +86,8 @@ public class DownloadWrapper {
             hFileNames.put(dataset + ".shp.xml", strMetadataFilePath);
 
             // Create temp dir
-            String tempDir = System.getProperty
-                ("java.io.tmpdir") + "/" + ".dataingest-zip-" + UUID.randomUUID();
+            String tempDir = System.getProperty("java.io.tmpdir")
+                + "/" + ".dataingest-zip-" + UUID.randomUUID();
             Boolean success = (new File(tempDir)).mkdirs();
             if (!success) throw new Exception("Could not create temporary directory for zip file, on: " + tempDir);
 
@@ -88,7 +98,7 @@ public class DownloadWrapper {
             File fm = new File(strMetadataFilePath);
             fm.delete();
 
-        } catch (NoMetadataException ex){
+        } catch (NoMetadataException ex) {
             return new File(getFullFilePath);
         }
 
@@ -96,6 +106,22 @@ public class DownloadWrapper {
     }
 
 
+    /**
+     * Creates an XML file, from a solr query, based on the workspace and dataset name.
+     *
+     * @param WorkspaceName a workspace name
+     * @param Name          a dataset name
+     * @param localSolrUrl  the url of a solr instance
+     * @return the complete path of the created metadata file
+     * @throws SolrServerException
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     * @throws TransformerException
+     * @throws SolrServerException
+     * @throws MetadataException
+     * @throws NoMetadataException
+     */
     private String createXmlFileFromTypeName(String WorkspaceName, String Name, String localSolrUrl)
         throws SolrServerException, ParserConfigurationException, IOException, SAXException,
         TransformerException, SolrServerException, MetadataException, NoMetadataException {
@@ -105,8 +131,9 @@ public class DownloadWrapper {
         //QueryResponse qr = solrClient.searchForDataset("cite", "SDE2.MATWN_3764_B6N44_1852_P5");
         SolrDocumentList docs = qr.getResults();
 
-        if (docs.getNumFound() == 0)
+        if (docs.getNumFound() == 0) {
             throw new NoMetadataException("Did not find any records for " + WorkspaceName + ":" + Name);
+        }
 
         String str = docs.get(0).getFieldValue("FgdcText").toString();
 

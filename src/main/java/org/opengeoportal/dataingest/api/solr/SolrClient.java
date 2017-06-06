@@ -8,10 +8,10 @@ import org.opengeoportal.dataingest.exception.NoMetadataException;
  */
 public interface SolrClient {
     /**
-     * Searches for a geoserver dataset stored in solr, based on the typename
+     * Searches for a geoserver dataset stored in solr, based on the typename.
      *
      * @param WorkspaceName dataset workspace
-     * @param WorkspaceName dataset name
+     * @param Name dataset name
      * @return result of the query
      */
     QueryResponse searchForDataset(String WorkspaceName, String Name) throws NoMetadataException;

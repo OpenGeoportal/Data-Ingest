@@ -1,14 +1,6 @@
 package org.opengeoportal.dataingest.utils;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.FeatureSource;
@@ -23,7 +15,14 @@ import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.google.common.io.Files;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Utility class to manage shapefile zip packages.
@@ -69,7 +68,14 @@ public class ShapefilePackage {
         this.shapefilePath = unpackage(zipFile);
     }
 
-    public File getUnzipDir(){return unzipDir;}
+    /**
+     * Get Directory where the file is unzipped.
+     *
+     * @return the folder where the file is unzipped.
+     */
+    public File getUnzipDir() {
+        return unzipDir;
+    }
 
     /**
      * Returns the list of fields of the shapefile (excluding the geometry
@@ -256,8 +262,8 @@ public class ShapefilePackage {
             }
 
 
-            File wfsrequest = new File (unzipDir + "/wfsrequest.txt");
-            if (wfsrequest.exists())wfsrequest.delete();
+            File wfsrequest = new File(unzipDir + "/wfsrequest.txt");
+            if (wfsrequest.exists()) wfsrequest.delete();
 
             final File[] filesSameName = unzipDir
                 .listFiles(new FilenameFilter() {

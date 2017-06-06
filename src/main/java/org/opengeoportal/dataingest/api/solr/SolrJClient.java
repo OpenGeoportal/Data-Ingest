@@ -16,18 +16,35 @@ import org.slf4j.LoggerFactory;
  */
 public class SolrJClient implements SolrClient {
 
-    // private String solrUrl;
-    private HttpSolrClient solrClient;
-
+    /**
+     * Logger interface, to write messages.
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Solr client.
+     */
+    private HttpSolrClient solrClient;
+
+    /**
+     * Constructor.
+     *
+     * @param solrUrl Url of the SOLR instance
+     */
     public SolrJClient(String solrUrl) {
 
         HttpSolrClient solr = new HttpSolrClient(solrUrl);
         this.solrClient = solr;
     }
 
-
+    /**
+     * Search for a dataset in SOLR.
+     *
+     * @param WorkspaceName Workspace name
+     * @param Name Dataset name
+     * @return A query response
+     * @throws NoMetadataException
+     */
     @Override
     public QueryResponse searchForDataset(String WorkspaceName, String Name) throws
         NoMetadataException {
@@ -42,7 +59,7 @@ public class SolrJClient implements SolrClient {
         try {
             response = solrClient.query(query);
 
-        } catch (Exception e) {// If there are errors, we just skip the metadata
+        } catch (Exception e) { // If there are errors, we just skip the metadata
             //e.printStackTrace();
             throw new NoMetadataException(e.getMessage());
         }

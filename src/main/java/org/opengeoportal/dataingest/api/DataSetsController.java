@@ -1,18 +1,6 @@
 package org.opengeoportal.dataingest.api;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
@@ -49,7 +37,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -146,7 +144,7 @@ public class DataSetsController {
     public final Map<String, List<Map<String, String>>> getAllDataSets(
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
-        List<Map<String, String>> result =  service.getDatasets(geoserverUrl);
+        List<Map<String, String>> result = service.getDatasets(geoserverUrl);
         Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
         map.put("data", result);
         return map;
@@ -166,7 +164,7 @@ public class DataSetsController {
     public final Map<String, List<Map<String, String>>> getAllDataSetsMockup(
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
-        List<Map<String, String>> result =  service.getDatasets(geoserverUrl + "topp" + "/");
+        List<Map<String, String>> result = service.getDatasets(geoserverUrl + "topp" + "/");
         Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
         map.put("data", result);
         return map;
@@ -548,7 +546,7 @@ public class DataSetsController {
                         HttpServletResponse.SC_METHOD_NOT_ALLOWED,
                         "If you want to upload " + dataset + " to an existing store, please "
                             + " pass the 'store' parameter. Otherwise, make sure there is no datastore "
-                    + "named '" + dataset + "'.");
+                            + "named '" + dataset + "'.");
                     throw new Exception();
                 }
                 // You passed a store parameter, but the store does not exist
@@ -694,7 +692,7 @@ public class DataSetsController {
     }
 
     /**
-     * Give the status of UPLOAD/UPDATE request
+     * Give the status of UPLOAD/UPDATE request.
      *
      * @param ticket   the ticket
      * @param response the response
@@ -791,12 +789,12 @@ public class DataSetsController {
                     file.delete();
                     dir.delete();
                 }
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
- 
+
     /**
      * Prints the output message.
      *

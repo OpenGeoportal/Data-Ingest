@@ -32,8 +32,6 @@ public final class FileNameUtils {
      *
      * @param baseDir
      *            file cache complete path on disk, including cache name.
-     * @param workspace
-     *            the workspace
      * @param dataset
      *            the dataset
      * @return the full path zip file

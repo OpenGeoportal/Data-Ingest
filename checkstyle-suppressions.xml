@@ -9,4 +9,12 @@
     <suppress checks="MagicNumber" files=".*"/>
     <suppress checks="AvoidStarImport" files="DataSetsController.java"/>
     <suppress checks="AvoidStarImport" files="WFSClient.java"/>
+    <suppress checks="HideUtilityClassConstructor" files="TokenAuthenticationService.java"/>
+    <suppress checks="HideUtilityClassConstructor" files="ZipUtils.java"/>
+    <suppress checks="LocalFinalVariableName" files="TokenAuthenticationService.java"/>
+    <suppress checks="LocalVariableName" files="ZipUtils.java"/>
+    <suppress checks="LineLength" files="JWTLoginFilter.java"/>
+    <suppress checks="ParameterName" files="SolrJClient.java"/>
+    <suppress checks="ParameterName" files="SolrClient.java"/>
+    <suppress checks="ParameterName" files="DownloadWrapper.java"/>
 </suppressions>
