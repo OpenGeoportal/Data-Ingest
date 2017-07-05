@@ -25,6 +25,10 @@ https://docs.docker.com/compose/install/
 
 Note that in some platforms, you will need to install docker-machine in addition to docker and compose.
 
+Depending on where you have placed the directory, you may need to enable file-sharing.
+
+See the section 'Data-Ingest' below to build the jar for the data ingest component with the correct configuration.
+
 After that, to build and run the system for the first time you want to go to the root directory and run _docker-compose_. If you run the system on your local machine, you can type:
  ```bash
   docker-compose up
