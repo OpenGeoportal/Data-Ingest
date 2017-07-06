@@ -123,3 +123,13 @@ These methods are asynchronous with the real upload, so they just give a direct 
     .shp — shape format; the feature geometry itself
     .shx — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly
     .dbf — attribute format; columnar attributes for each shape, in dBase IV format
+    
+## Swagger API documentation
+A Swagger based UI for the API is available at:
+```
+http://YOURHOST:PORT/swagger-ui.html
+```
+The JSON representation is available at:
+```
+http://YOURHOST:PORT/v2/api-docs
+```
