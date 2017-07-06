@@ -23,7 +23,7 @@ mvn clean install  -Drelax
 ```
 The [docker](./docker) folder contains an orchestration with the complete service stack for a development environment.
 
-For detailed instructions on how-to run the docker composition which instantiates a service stack, please refer to the related [README](./docker/README.md) file.
+For detailed instructions on how-to run the docker composition which instantiates a service stack, please refer to the related [README](./docker/README.md) file. Note that although a copy of the data-ingest service is included in the composition, you'll need to run a separate instance. The docker composition is intended for development only and is designed to interact with either the data-ingest service or the harvester outside the container.
 
 There is a batch of unit tests associated to this build. If you want to build _without_ the tests, run:
 
