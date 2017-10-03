@@ -10,6 +10,7 @@ import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FeatureSizeFormatException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.exception.ForcedSRSFormatException;
+import org.opengeoportal.dataingest.exception.GeoServerDataStoreException;
 import org.opengeoportal.dataingest.exception.GeoServerException;
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
 import org.opengeoportal.dataingest.exception.PageFormatException;
@@ -45,9 +46,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -64,7 +70,7 @@ public class DataSetsController {
     /**
      * Stores a hash of the list of layers.
      */
-    private final int oldLayerList = -1;
+    //private final int oldLayerList = -1;
     /**
      * Cache service.
      */
@@ -105,6 +111,11 @@ public class DataSetsController {
     @Value("${cache.name}")
     private String cachename;
 
+    /*
+     * List of typenames, to be read by the cache.
+     */
+    private Set<String> typenames = null;
+
     /**
      * localDownloadService.
      */
@@ -144,7 +155,64 @@ public class DataSetsController {
     public final Map<String, List<Map<String, String>>> getAllDataSets(
         final HttpServletRequest request,
         final HttpServletResponse response) throws Exception {
-        List<Map<String, String>> result = service.getDatasets(geoserverUrl);
+
+        try {
+            return getPlainDataSets(geoserverUrl);
+        } catch (final GeoServerDataStoreException gdex) {
+            gdex.printStackTrace();
+            printOutputMessage(response,
+                HttpServletResponse.SC_PRECONDITION_FAILED,
+                gdex.getMessage());
+            return null;
+        } catch (final Exception ioex) {
+            ioex.printStackTrace();
+            printOutputMessage(response,
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                ioex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * This function retrieves the complete list of datasets.
+     * To construct this response we cache two things: a list of typenames, which is stored
+     * in a vector, and the response for each of these typenames, which is stored in the cache service.
+     * It is very important to note that this cache mechanism does *not* support filtering by workspace.
+     * For that purpose, see getPaginatedDataSets.
+     *
+     * @param geoserverUrl the geoserver url (without workspace)
+     * @return the http response as a map
+     * @throws Exception
+     * @sa "getPaginatedDataSets"
+     */
+    public final Map<String, List<Map<String, String>>> getPlainDataSets(String geoserverUrl) throws
+        Exception {
+
+        GeoserverDataStore ds = null;
+        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+
+        ds = new GeoserverDataStore(geoserverUrl);
+
+        // this is our typenames homebrew cache
+        if (typenames == null) {
+            try {
+                typenames = new HashSet(Arrays.asList(ds.typenames()));
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new Exception("Could not initialize typenames list");
+            }
+        }
+
+        Iterator<String> itr = typenames.iterator();
+        while (itr.hasNext()) {
+            try {
+                result.add(service.getDataset(geoserverUrl, ds, itr.next())); // This is what we cache
+            } catch (java.lang.Exception e) {
+                e.printStackTrace();
+                throw new Exception("Could not retrieve dataset: " + itr.next() + " from cache");
+            }
+        }
+
         Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
         map.put("data", result);
         return map;
@@ -159,6 +227,7 @@ public class DataSetsController {
      * @return the list of datasets as a an angular.js friendly list of key values
      * @throws Exception
      */
+    @Deprecated // This is has been deprecated, as it does not use the latest cache mechanism
     @RequestMapping(value = "/allDatasetsMockup", method = RequestMethod.GET)
     @ResponseBody
     public final Map<String, List<Map<String, String>>> getAllDataSetsMockup(
@@ -178,6 +247,7 @@ public class DataSetsController {
      * @return the data sets
      * @throws Exception the exception
      */
+    @Deprecated // This is has been deprecated, as it does not use the latest cache mechanism
     @RequestMapping(value = "/datasets", method = RequestMethod.GET)
     @ResponseBody
     public final DatasetsPageWrapper getDataSets(
@@ -423,29 +493,55 @@ public class DataSetsController {
     @ResponseBody
     public final void deleteDataSet(
         @PathVariable(value = "workspace") final String workspace,
-        @PathVariable(value = "dataset") final String dataset)
+        @PathVariable(value = "dataset") final String dataset,
+        final HttpServletResponse response)
         throws Exception {
 
 
-        GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername,
-            geoserverPassword);
+        try {
 
-        RESTDataStore data = geoServerFacade.getDatastore(workspace, dataset);
+            GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl, geoserverUsername,
+                geoserverPassword);
 
-        // Unpublish feature type
-        if (!geoServerFacade.unpublishFeatureType(workspace, data.getName(),
-            dataset)) {
-            throw new Exception("Could not unpublish featuretype " + dataset
-                + " on store " + data.getName());
+            RESTDataStore data = geoServerFacade.getDatastore(workspace, dataset);
+
+            // Unpublish feature type
+            if (!geoServerFacade.unpublishFeatureType(workspace, data.getName(),
+                dataset)) {
+
+                throw new GeoServerException("Could not unpublish featuretype " + dataset
+                    + " on store " + data.getName());
+            }
+            geoServerFacade.reload();
+
+            // Clear this file from the general: it affects the paginated and filtered by workspace responses.
+            service.clearCacheAll();
+
+            // Clear this entry from getdataset info
+            service.clearInfoCache(geoserverUrl, workspace, dataset, true);
+            service.clearInfoCache(geoserverUrl, workspace, dataset, false);
+
+            String typename = GeoServerUtils.getTypeName(workspace, dataset);
+            // clears this selectively from the summary cache
+            service.clearCacheOne(typename);
+            // removes this from the typename array
+            typenames.remove(typename);
+
+            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+            if (fileCache.isCached(typeName)) {
+                fileCache.remove(typeName);
+            }
+
+        } catch (final GeoServerException gsfex) {
+            printOutputMessage(response, HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                gsfex.getMessage());
+        } catch (final Exception ioex) {
+            ioex.printStackTrace();
+            printOutputMessage(response,
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Internal server error.");
         }
-        geoServerFacade.reload();
 
-        // Clear this file from the caches
-        service.clearCache(geoserverUrl, workspace, dataset);
-        String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-        if (fileCache.isCached(typeName)) {
-            fileCache.remove(typeName);
-        }
 
     }
 
@@ -462,6 +558,7 @@ public class DataSetsController {
      * @param request   the request
      * @throws Exception the exception
      */
+    //TODO: add ds to the cache
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.POST)
     @ResponseBody
     public final void uploadDataSet(
@@ -569,7 +666,20 @@ public class DataSetsController {
                 // Uploading data triggers a cache eviction, in order to have the complete dataset list
                 service.clearCacheAll();
 
+                // With the other caches, we insert the record manually
+                String typeName = GeoServerUtils.getTypeName(workspace,dataset);
+                typenames.add(typeName);
+
+                GeoserverDataStore ds = new GeoserverDataStore(geoserverUrl);
+                service.getDataset(geoserverUrl,ds,typeName);
+
             } catch (Exception ex) {
+
+                //TODO: manage cache exceptions as well
+                printOutputMessage(response,
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Could not upload file!");
+
                 return;
             }
 
@@ -683,8 +793,10 @@ public class DataSetsController {
             return;
         }
 
-        // Clear this file from the caches
-        service.clearCache(geoserverUrl, workspace, dataset);
+        // Clear this dataset from the info caches
+        service.clearInfoCache(geoserverUrl, workspace, dataset, true);
+        service.clearInfoCache(geoserverUrl, workspace, dataset, false);
+
         String typeName = GeoServerUtils.getTypeName(workspace, dataset);
         if (fileCache.isCached(typeName)) {
             fileCache.remove(typeName);

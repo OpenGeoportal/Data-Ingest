@@ -115,6 +115,11 @@ public class DataIngestApplication {
                 .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.DELETE,"/workspaces/{workspace}/datasets/{dataset}").permitAll() // TODO:
+                // remove this!
+                .antMatchers(HttpMethod.PUT,"/workspaces/{workspace}/datasets/{dataset}").permitAll() // TODO: remove
+                .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").permitAll() // TODO: remove
+                // this!
                 .anyRequest().anonymous()
                 .and()
                 .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),

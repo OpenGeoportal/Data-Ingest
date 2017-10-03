@@ -9,6 +9,8 @@ services:
             - postgis
         depends_on:
             - "postgis"
+        volumes:
+            - ./data:/tmp
         command: ["./wait-for-it.sh", "postgis:5432", "-t", "120", "--", "/opt/geoserver/bin/startup.sh"]
 
     tomcat:

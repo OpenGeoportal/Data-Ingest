@@ -1,18 +1,18 @@
 package org.opengeoportal.dataingest.api;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geotools.data.FeatureSource;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.wfs.WFSDataStore;
 import org.geotools.data.wfs.WFSDataStoreFactory;
 import org.opengeoportal.dataingest.api.download.WFSClient;
+import org.opengeoportal.dataingest.exception.GeoServerDataStoreException;
 import org.opengeoportal.dataingest.exception.WFSException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by joana on 27/01/17.
@@ -35,10 +35,11 @@ public class GeoserverDataStore {
      * Stores a Geotools WFS data store.
      */
     private WFSDataStore data;
+
     /**
      * Stores a hasmap with datasets key: typename; value: name, workspace, title.
      */
-    private List<Map<String, String>> hDatasets = new ArrayList<Map<String, String>>();
+    //private List<Map<String, String>> hDatasets = new ArrayList<Map<String, String>>();
     /**
      * Geoserver uri.
      */
@@ -49,10 +50,9 @@ public class GeoserverDataStore {
      * variables, which store the WFS datastore and dataset (names, titles).
      *
      * @param aUri geoserver uri (include filter per workspace)
-     * @param bInit boolean to indicate if we should initialize the hDatasets structure.
      * @throws Exception the exception
      */
-    public GeoserverDataStore(final String aUri, boolean bInit) throws Exception {
+    public GeoserverDataStore(final String aUri) throws GeoServerDataStoreException  {
 
         uri = aUri;
         final String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
@@ -66,34 +66,45 @@ public class GeoserverDataStore {
             final WFSDataStoreFactory dsf = new WFSDataStoreFactory();
             data = dsf.createDataStore(connectionParameters);
 
-            if (bInit) {
+        } catch (final java.io.IOException ce) {
+            throw new GeoServerDataStoreException("Could not connect to GeoServer " + "at: " + uri
+                + ". Make sure it is up and "
+                + "running and that the connection settings are correct!");
+        }
+    }
 
-                final String[] typeNames = data.getTypeNames();
+    public Map<String, String> getDataset(String typeName) throws Exception{
 
-                // Make sure the list is empty
-                if (!hDatasets.isEmpty()) hDatasets.clear();
-                for (final String typeName : typeNames) {
-                    final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource
-                        = data.getFeatureSource(typeName);
-                    final ResourceInfo resourceInfo = featureSource.getInfo();
+        try {
+            // Make sure the list is empty
+            final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+                featureSource = data.getFeatureSource(typeName);
+                final ResourceInfo resourceInfo = featureSource.getInfo();
                     Map<String, String> mDatasets = new HashMap<String, String>();
                     mDatasets.put("name", resourceInfo.getName());
                     mDatasets.put("title", resourceInfo.getTitle());
                     mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
-                    hDatasets.add(mDatasets);
-                }
 
-            }
+                return mDatasets;
 
-        } catch (final java.net.ConnectException ce) {
-            throw new Exception("Could not connect to GeoServer " + "at: " + uri
-                + ". Make sure it is up and "
-                + "running and that the connection settings are correct!");
+        } catch (IOException e) {
+            throw new Exception(e.getMessage());
         } catch (final Exception ex) {
             throw ex;
         }
 
 
+
+    }
+
+    /**
+     * Returns an array with the typenames in this datastore.
+     *
+     * @return typenames
+     * @throws IOException
+     */
+    public String[] typenames() throws IOException {
+        return data.getTypeNames();
     }
 
     /**
@@ -102,9 +113,9 @@ public class GeoserverDataStore {
      *
      * @return hasmap with dataset (names, titles)
      */
-    public List<Map<String, String>> datasets() {
+    /* public List<Map<String, String>> datasets() {
         return hDatasets;
-    }
+    }*/
 
     /**
      * Returns the WFS datastore stored in a variable, initialized in the
