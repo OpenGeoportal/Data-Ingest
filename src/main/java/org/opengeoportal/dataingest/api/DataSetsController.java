@@ -334,11 +334,11 @@ public class DataSetsController {
 
                 if (workspace.equals("*")) {
                     // get data from geoserver
-                    resultMap = service.getDatasets();
+                    resultMap = this.getDatasets();
                 } else {
                     // get data from geoserver
                     try {
-                        resultMap = service
+                        resultMap = this
                             .getDatasets(workspace);
                     } catch (final Exception e) {
                         throw new NoDataFoundOnGeoserverException();
@@ -368,6 +368,57 @@ public class DataSetsController {
             throw ex;
         }
     }
+    
+    
+    private List<Map<String, String>> getDatasets() throws Exception {
+
+        this.log.info("Not using the cache");
+
+
+        GeoserverDataStore ds = null;
+        final List<Map<String, String>> hDatasets = new ArrayList<>();
+
+        try {
+            ds = new GeoserverDataStore(this.geoserverUrl);
+            for (final String typeName : service.getTypenames()) {
+                hDatasets.add(service.getDataset(ds, typeName));
+            }
+
+        } catch (final java.lang.Exception e) {
+            throw new Exception("Could not create WFS datastore " + "at: "
+                    + this.geoserverUrl + ". Make sure it is up and "
+                    + "running and that the connection settings are correct!");
+        }
+
+        return hDatasets;
+    }    
+    
+    private List<Map<String, String>> getDatasets(final String workspace)
+            throws Exception {
+
+        this.log.info("Not using the smart cache");
+
+        GeoserverDataStore ds = null;
+        final List<Map<String, String>> hDatasets = new ArrayList<>();
+
+        try {
+            ds = new GeoserverDataStore(this.geoserverUrl + workspace + "/");
+
+            final String[] workspace_typenames = ds.typenames();
+            for (final String typeName : workspace_typenames) {
+                hDatasets.add(service.getDataset(ds, typeName));
+            }
+
+        } catch (final java.lang.Exception e) {
+            throw new Exception("Could not create WFS datastore " + "at: "
+                    + this.geoserverUrl + workspace + "/"
+                    + ". Make sure it is up and "
+                    + "running and that the connection settings are correct!");
+        }
+
+        return hDatasets;
+    }
+
 
     /**
      * Gives detailed information about one given dataset.
