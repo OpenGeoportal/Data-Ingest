@@ -7,7 +7,6 @@ import it.geosolutions.geoserver.rest.decoder.RESTFeatureType;
 import it.geosolutions.geoserver.rest.decoder.RESTLayer;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroup;
 import it.geosolutions.geoserver.rest.decoder.RESTLayerGroupList;
-import it.geosolutions.geoserver.rest.encoder.GSLayerGroupEncoder23;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -191,6 +190,13 @@ public class GeoServerRESTFacade {
         return reader.existsLayer(workspace, name, quietonNotFound);
     }
 
+    /**
+     * Find the layer groups for a given layer.
+     *
+     * @param ws   workspace
+     * @param name layer name
+     * @return a string set with the layer groups for this layer
+     */
     public Set<String> getLayerGroupsForLayer(final String ws, final String name) {
 
         Set<String> sLG = new HashSet<>();
@@ -206,6 +212,13 @@ public class GeoServerRESTFacade {
         return sLG;
     }
 
+    /**
+     * Utility function to check if a layer is in a given group.
+     *
+     * @param layerGroup a layer group
+     * @param name       a layer name
+     * @return boolean variable stating if the layer belongs to this group.
+     */
     private boolean isLayerInLayerGroup(final String layerGroup, final String name) {
 
         RESTLayerGroup lg = reader.getLayerGroup(layerGroup);
@@ -214,18 +227,9 @@ public class GeoServerRESTFacade {
         while (it.hasNext()) {
             String gName = it.next().getName();
             System.out.println(gName);
-            if (gName.compareTo(name)==0) return true;
+            if (gName.compareTo(name) == 0) return true;
         }
         return false;
-    }
-
-    public boolean removeLayerFromGroup(final String LayerGroup, final String Name){
-
-
-        GSLayerGroupEncoder23 groupWriter = new GSLayerGroupEncoder23();
-
-
-        return true;
     }
 
 

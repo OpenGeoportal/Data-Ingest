@@ -37,10 +37,6 @@ public class GeoserverDataStore {
     private WFSDataStore data;
 
     /**
-     * Stores a hasmap with datasets key: typename; value: name, workspace, title.
-     */
-    //private List<Map<String, String>> hDatasets = new ArrayList<Map<String, String>>();
-    /**
      * Geoserver uri.
      */
     private String uri;
@@ -52,7 +48,7 @@ public class GeoserverDataStore {
      * @param aUri geoserver uri (include filter per workspace)
      * @throws Exception the exception
      */
-    public GeoserverDataStore(final String aUri) throws GeoServerDataStoreException  {
+    public GeoserverDataStore(final String aUri) throws GeoServerDataStoreException {
 
         uri = aUri;
         final String getCapabilities = uri + "wfs?REQUEST=GetCapabilities";
@@ -73,26 +69,32 @@ public class GeoserverDataStore {
         }
     }
 
-    public Map<String, String> getDataset(String typeName) throws Exception{
+    /**
+     * Retrieves the summary information about a given dataset.
+     *
+     * @param typeName a typename
+     * @return the summary information: name, title and geometry.
+     * @throws Exception
+     */
+    public Map<String, String> getDataset(String typeName) throws Exception {
 
         try {
             // Make sure the list is empty
             final FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-                featureSource = data.getFeatureSource(typeName);
-                final ResourceInfo resourceInfo = featureSource.getInfo();
-                    Map<String, String> mDatasets = new HashMap<String, String>();
-                    mDatasets.put("name", resourceInfo.getName());
-                    mDatasets.put("title", resourceInfo.getTitle());
-                    mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
+            featureSource = data.getFeatureSource(typeName);
+            final ResourceInfo resourceInfo = featureSource.getInfo();
+            Map<String, String> mDatasets = new HashMap<String, String>();
+            mDatasets.put("name", resourceInfo.getName());
+            mDatasets.put("title", resourceInfo.getTitle());
+            mDatasets.put("geometry", featureSource.getSchema().getType(0).getBinding().getSimpleName());
 
-                return mDatasets;
+            return mDatasets;
 
         } catch (IOException e) {
             throw new Exception(e.getMessage());
         } catch (final Exception ex) {
             throw ex;
         }
-
 
 
     }
@@ -106,16 +108,6 @@ public class GeoserverDataStore {
     public String[] typenames() throws IOException {
         return data.getTypeNames();
     }
-
-    /**
-     * Returns the names and titles stored in a class variable, initialized in
-     * the constructor.
-     *
-     * @return hasmap with dataset (names, titles)
-     */
-    /* public List<Map<String, String>> datasets() {
-        return hDatasets;
-    }*/
 
     /**
      * Returns the WFS datastore stored in a variable, initialized in the

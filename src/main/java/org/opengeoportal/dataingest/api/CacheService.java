@@ -144,6 +144,7 @@ public class CacheService {
 
         this.log.info("Not using the cache");
 
+
         GeoserverDataStore ds = null;
         final List<Map<String, String>> hDatasets = new ArrayList<>();
 
@@ -187,6 +188,7 @@ public class CacheService {
 
         return hDatasets;
     }
+
 
     public LRUFileCache getFileCache() {
         return this.fileCache;
@@ -271,6 +273,7 @@ public class CacheService {
         }
     }
 
+
     /**
      * This function updates the various caches, when a dataset is uploaded. Its
      * meant to be called by the upload and update events.
@@ -307,5 +310,5 @@ public class CacheService {
                     "A problem occurred while updating the cache.");
         }
     }
-
 }
+

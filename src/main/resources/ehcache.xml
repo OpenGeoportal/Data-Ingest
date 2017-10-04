@@ -32,18 +32,6 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 
-  <cache name="typenames"
-         maxEntriesLocalHeap="20"
-         maxEntriesLocalDisk="100"
-         eternal="false"
-         diskSpoolBufferSizeMB="200"
-         timeToIdleSeconds="0"
-         timeToLiveSeconds="1200"
-         memoryStoreEvictionPolicy="LFU"
-         transactionalMode="off">
-    <persistence strategy="localTempSwap" />
-  </cache>
-
   <cache name="summary"
          maxEntriesLocalHeap="1000"
          maxEntriesLocalDisk="5000"

@@ -1,5 +1,6 @@
 package org.opengeoportal.dataingest.api.upload;
 
+
 import java.io.File;
 
 import org.opengeoportal.dataingest.api.CacheService;
@@ -32,11 +33,12 @@ public class RemoteUploadService {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
+
     
     
     @Autowired
     private CacheService service;
-    
+
     /**
      * Send file.
      *
