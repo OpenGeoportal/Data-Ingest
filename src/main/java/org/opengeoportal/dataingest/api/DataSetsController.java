@@ -69,10 +69,6 @@ import java.util.Set;
 public class DataSetsController {
 
     /**
-     * Stores a hash of the list of layers.
-     */
-    //private final int oldLayerList = -1;
-    /**
      * Cache service.
      */
     @Autowired

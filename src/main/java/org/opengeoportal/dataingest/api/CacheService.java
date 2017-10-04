@@ -65,7 +65,7 @@ public class CacheService {
     public List<Map<String, String>> getDatasets(final String uri)
         throws Exception {
 
-        log.info("Not using the cache");
+        //log.info("Not using the cache");
 
         GeoserverDataStore ds = null;
         List<Map<String, String>> hDatasets = new ArrayList<Map<String, String>>();
@@ -101,7 +101,7 @@ public class CacheService {
     @Cacheable(cacheNames = "summary", key = "#typename")
     public Map<String, String> getDataset(final String uri, GeoserverDataStore ds, final String typename)
         throws Exception {
-        log.info("Not using the summary cache for typename:" + typename);
+        //log.info("Not using the summary cache for typename:" + typename);
         return ds.getDataset(typename);
     }
 
@@ -120,7 +120,7 @@ public class CacheService {
                                            final String workspace, final String dataset, boolean bFeatureSize) throws
         Exception {
 
-        log.info("Not using the cache");
+        //log.info("Not using the cache");
 
         GeoserverDataStore ds = null;
         try {
@@ -169,20 +169,5 @@ public class CacheService {
     public void clearCacheAll() {
         log.info("Clearing the dataset list cache");
     }
-
-    /**
-     * Dummy function to trigger cache eviction.
-     *
-     * @param uri       workspace name
-     * @param workspace workspace name
-     * @param dataset   dataset name
-     */
-    /*
-    @Caching(evict = {@CacheEvict(value = "titles", allEntries = true),
-        @CacheEvict(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset)")})
-    public void clearCacheAll(final String uri, final String workspace,
-                              final String dataset) {
-        log.info("Clearing the cache");
-    }*/
 
 }
