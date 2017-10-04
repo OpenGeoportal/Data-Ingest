@@ -10,6 +10,7 @@ import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FeatureSizeFormatException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.exception.ForcedSRSFormatException;
+import org.opengeoportal.dataingest.exception.GenericCacheException;
 import org.opengeoportal.dataingest.exception.GeoServerDataStoreException;
 import org.opengeoportal.dataingest.exception.GeoServerException;
 import org.opengeoportal.dataingest.exception.NoDataFoundOnGeoserverException;
@@ -514,34 +515,21 @@ public class DataSetsController {
             }
             geoServerFacade.reload();
 
-            // Clear this file from the general: it affects the paginated and filtered by workspace responses.
-            service.clearCacheAll();
-
-            // Clear this entry from getdataset info
-            service.clearInfoCache(geoserverUrl, workspace, dataset, true);
-            service.clearInfoCache(geoserverUrl, workspace, dataset, false);
-
-            String typename = GeoServerUtils.getTypeName(workspace, dataset);
-            // clears this selectively from the summary cache
-            service.clearCacheOne(typename);
-            // removes this from the typename array
-            typenames.remove(typename);
-
-            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-            if (fileCache.isCached(typeName)) {
-                fileCache.remove(typeName);
-            }
+            updateCachesOnDelete(workspace, dataset);
 
         } catch (final GeoServerException gsfex) {
             printOutputMessage(response, HttpServletResponse.SC_METHOD_NOT_ALLOWED,
                 gsfex.getMessage());
+        } catch (final GenericCacheException gCEx) {
+            gCEx.printStackTrace();
+            printOutputMessage(response,
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR, gCEx.getMessage());
         } catch (final Exception ioex) {
             ioex.printStackTrace();
             printOutputMessage(response,
                 HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                 "Internal server error.");
         }
-
 
     }
 
@@ -558,7 +546,6 @@ public class DataSetsController {
      * @param request   the request
      * @throws Exception the exception
      */
-    //TODO: add ds to the cache
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.POST)
     @ResponseBody
     public final void uploadDataSet(
@@ -586,6 +573,7 @@ public class DataSetsController {
                 }
                 forcedSRS = "EPSG:" + request.getParameter("forcedSRS");
             }
+
         } catch (ForcedSRSFormatException fex) {
             printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
                 "Wrong SRS format: it must be a numerical code");
@@ -663,16 +651,6 @@ public class DataSetsController {
                     HttpServletResponse.SC_ACCEPTED,
                     ticket + "* Request for unpload sent. To check status /checkUploadStatus/" + ticket);
 
-                // Uploading data triggers a cache eviction, in order to have the complete dataset list
-                service.clearCacheAll();
-
-                // With the other caches, we insert the record manually
-                String typeName = GeoServerUtils.getTypeName(workspace,dataset);
-                typenames.add(typeName);
-
-                GeoserverDataStore ds = new GeoserverDataStore(geoserverUrl);
-                service.getDataset(geoserverUrl,ds,typeName);
-
             } catch (Exception ex) {
 
                 //TODO: manage cache exceptions as well
@@ -686,7 +664,7 @@ public class DataSetsController {
         } else {
             printOutputMessage(response,
                 HttpServletResponse.SC_NOT_FOUND,
-                "Workspace '" + workspace + "' does not exists.");
+                "Workspace '" + workspace + "' does not exist.");
             return;
         }
     }
@@ -717,18 +695,27 @@ public class DataSetsController {
         // If present any check on the SRS of the shape file will be skipped
         String forcedSRS = null;
 
-        // Forced SRS
-        if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
-            forcedSRS = request.getParameter("forcedSRS");
+        try {
+            // Forced SRS
+            if (request.getParameter("forcedSRS") != null && !request.getParameter("forcedSRS").isEmpty()) {
+                if (!StringUtils.isNumeric(request.getParameter("forcedSRS"))) {
+                    throw new ForcedSRSFormatException();
+                }
+                forcedSRS = "EPSG:" + request.getParameter("forcedSRS");
+            }
+
+        } catch (ForcedSRSFormatException fex) {
+            printOutputMessage(response, HttpServletResponse.SC_BAD_REQUEST,
+                "Wrong SRS format: it must be a numerical code");
+            return;
         }
 
         // File Validation
         File zipFile;
-        String strEpsg;
 
+        String strEpsg;
         try {
             zipFile = FileConversionUtils.multipartToFile(file);
-
             if (forcedSRS == null) {
                 strEpsg = ShapeFileValidator.isAValidShapeFile(zipFile, true);
             } else {
@@ -736,6 +723,7 @@ public class DataSetsController {
                 ShapeFileValidator.isAValidShapeFile(zipFile, false);
             }
         } catch (IOException ioex) {
+
             printOutputMessage(response,
                 HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                 "File not valid");
@@ -749,6 +737,7 @@ public class DataSetsController {
 
             return;
         }
+
 
         // GeoserverValidation and send file
         GeoServerRESTFacade geoServerFacade = new GeoServerRESTFacade(geoserverUrl,
@@ -782,6 +771,16 @@ public class DataSetsController {
 
             long ticket = TicketGenerator.openATicket();
 
+            // Clear this dataset from the info caches
+            service.clearInfoCache(geoserverUrl, workspace, dataset, true);
+            service.clearInfoCache(geoserverUrl, workspace, dataset, false);
+
+            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+            if (fileCache.isCached(typeName)) {
+                fileCache.remove(typeName);
+            }
+
+
             localUploadService.uploadFile(workspace, store, dataset, zipFile, strEpsg, ticket, true);
             printOutputMessage(response,
                 HttpServletResponse.SC_ACCEPTED,
@@ -789,18 +788,10 @@ public class DataSetsController {
         } else {
             printOutputMessage(response,
                 HttpServletResponse.SC_NOT_FOUND,
-                "Workspace '" + workspace + "' does not exists.");
+                "Workspace '" + workspace + "' does not exist.");
             return;
         }
 
-        // Clear this dataset from the info caches
-        service.clearInfoCache(geoserverUrl, workspace, dataset, true);
-        service.clearInfoCache(geoserverUrl, workspace, dataset, false);
-
-        String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-        if (fileCache.isCached(typeName)) {
-            fileCache.remove(typeName);
-        }
     }
 
     /**
@@ -908,6 +899,71 @@ public class DataSetsController {
     }
 
     /**
+     * This function updates the various caches, when a dataset is uploaded.
+     * Its meant to be called by the upload and update events.
+     *
+     * @param workspace a workspace
+     * @param dataset a dataset
+     * @throws GenericCacheException
+     */
+    public void updateCachesOnUpload(String workspace, String dataset) throws GenericCacheException{
+
+        try{
+            // Uploading data triggers a cache eviction, in order to have the complete dataset list
+            service.clearCacheAll();
+
+            // With the other caches, we insert the record manually
+            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+            typenames.add(typeName);
+
+            GeoserverDataStore ds = new GeoserverDataStore(geoserverUrl);
+            try {
+                service.getDataset(geoserverUrl, ds, typeName);
+            } catch (GeoServerDataStoreException gDSex) {
+                throw new Exception();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new GenericCacheException("A problem occurred while updating the cache.");
+        }
+    }
+
+    /**
+     * This function updates the various caches, when a dataset is removed.
+     * Its meant to be called by the update and delete events.
+     *
+     * @param workspace a workspace
+     * @param dataset a dataset
+     * @throws GenericCacheException
+     */
+    public void updateCachesOnDelete(String workspace, String dataset) throws GenericCacheException {
+
+        // Clear this file from the general: it affects the paginated and filtered by workspace responses.
+        service.clearCacheAll();
+
+        // Clear this entry from getdataset info
+        service.clearInfoCache(geoserverUrl, workspace, dataset, true);
+        service.clearInfoCache(geoserverUrl, workspace, dataset, false);
+
+        String typename = GeoServerUtils.getTypeName(workspace, dataset);
+        // clears this selectively from the summary cache
+        service.clearCacheOne(typename);
+        // removes this from the typename array
+        typenames.remove(typename);
+
+        String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+        try {
+            if (fileCache.isCached(typeName)) {
+                fileCache.remove(typeName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new GenericCacheException("A problem occurred while updating the cache.");
+        }
+    }
+
+    /**
      * Prints the output message.
      *
      * @param response the response
@@ -923,5 +979,6 @@ public class DataSetsController {
         out.println(message);
         response.flushBuffer();
     }
+
 
 }
