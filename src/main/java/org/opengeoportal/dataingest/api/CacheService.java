@@ -16,11 +16,9 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,8 +78,7 @@ public class CacheService {
         }
     }
 
-
-    @Caching(evict = {@CacheEvict(value = "summary", key = "#typename")})
+    @Caching(evict = { @CacheEvict(value = "summary", key = "#typename") })
     public void clearDataSetCache(final String uri, final String typename) {
         this.log.info("Clearing entry: '" + typename
             + "' from the dataset info cache");
@@ -90,15 +87,19 @@ public class CacheService {
     /**
      * Clean one entry from the getdataset info cache.
      *
-     * @param uri          geoserver uri
-     * @param workspace    workspace name
-     * @param dataset      dataset name
-     * @param bFeatureSize boolean to indicate if we want to include the featureSize in
-     *                     the layer properties
+     * @param uri
+     *            geoserver uri
+     * @param workspace
+     *            workspace name
+     * @param dataset
+     *            dataset name
+     * @param bFeatureSize
+     *            boolean to indicate if we want to include the featureSize in
+     *            the layer properties
      */
     @Caching(evict = {
         @CacheEvict(value = "info", key = "#workspace.concat(#dataset).concat"
-            + "(#bFeatureSize)")})
+            + "(#bFeatureSize)") })
     public void clearInfoCache(final String uri, final String workspace,
                                final String dataset, final boolean bFeatureSize) {
         this.log.info("Clearing entry: '" + dataset
@@ -109,8 +110,12 @@ public class CacheService {
      * This function gets the summary info for a given typename. This is a part
      * of the mechanism for caching the AllDatasets response.
      *
-     * @param ds       a datastore
-     * @param typename a typename
+     * @param uri
+     *            an uri
+     * @param ds
+     *            a datastore
+     * @param typename
+     *            a typename
      * @return summary info about the dataset
      * @throws Exception
      */
@@ -121,66 +126,6 @@ public class CacheService {
         return ds.getDataset(typename);
     }
 
-    /**
-     * Get datasets typenames, workspaces, names and titles, for a given
-     * GeoServer uri. This cache caches the entire response as a single record.
-     * It does not have the ability to remove individual entries from the cache.
-     * This function is meant to be used with the getDataSetsForWorkspace
-     * controller.
-     *
-     * @return hashmap with dataset (names, titles)
-     * @throws Exception the exception
-     * @see "getTypeNames"
-     */
-    public List<Map<String, String>> getDatasets() throws Exception {
-
-        this.log.info("Not using the cache");
-
-        GeoserverDataStore ds = null;
-        final List<Map<String, String>> hDatasets = new ArrayList<>();
-
-        try {
-            ds = new GeoserverDataStore(this.geoserverUrl);
-            for (final String typeName : this.getTypenames()) {
-                hDatasets.add(this.getDataset(ds, typeName));
-            }
-
-        } catch (final java.lang.Exception e) {
-            throw new Exception("Could not create WFS datastore " + "at: "
-                + this.geoserverUrl + ". Make sure it is up and "
-                + "running and that the connection settings are correct!");
-        }
-
-        return hDatasets;
-    }
-
-    public List<Map<String, String>> getDatasets(final String workspace)
-        throws Exception {
-
-        this.log.info("Not using the smart cache");
-
-        GeoserverDataStore ds = null;
-        final List<Map<String, String>> hDatasets = new ArrayList<>();
-
-        try {
-            ds = new GeoserverDataStore(this.geoserverUrl + workspace + "/");
-
-            final String[] workspace_typenames = ds.typenames();
-            for (final String typeName : workspace_typenames) {
-                hDatasets.add(this.getDataset(ds, typeName));
-            }
-
-        } catch (final java.lang.Exception e) {
-            throw new Exception("Could not create WFS datastore " + "at: "
-                + this.geoserverUrl + workspace + "/"
-                + ". Make sure it is up and "
-                + "running and that the connection settings are correct!");
-        }
-
-        return hDatasets;
-    }
-
-
     public LRUFileCache getFileCache() {
         return this.fileCache;
     }
@@ -188,12 +133,16 @@ public class CacheService {
     /**
      * Gets detailed info about a layer.
      *
-     * @param workspace    workspace name
-     * @param dataset      dataset name
-     * @param bFeatureSize boolean to indicate if we want to include the featureSize in
-     *                     the layer properties
+     * @param workspace
+     *            workspace name
+     * @param dataset
+     *            dataset name
+     * @param bFeatureSize
+     *            boolean to indicate if we want to include the featureSize in
+     *            the layer properties
      * @return summary info about a layer, as hash table
-     * @throws Exception the exception
+     * @throws Exception
+     *             the exception
      */
     @Cacheable(value = "info", key = "#workspace.concat(#dataset).concat(#bFeatureSize)")
     public HashMap<String, String> getInfo(final String workspace,
@@ -227,8 +176,10 @@ public class CacheService {
      * This function updates the various caches, when a dataset is removed. Its
      * meant to be called by the update and delete events.
      *
-     * @param workspace a workspace
-     * @param dataset   a dataset
+     * @param workspace
+     *            a workspace
+     * @param dataset
+     *            a dataset
      * @throws Exception
      */
     public void updateCachesOnDelete(final String workspace,
@@ -261,8 +212,10 @@ public class CacheService {
      * This function updates the various caches, when a dataset is uploaded. Its
      * meant to be called by the upload and update events.
      *
-     * @param workspace a workspace
-     * @param dataset   a dataset
+     * @param workspace
+     *            a workspace
+     * @param dataset
+     *            a dataset
      * @throws GenericCacheException
      */
     public void updateCachesOnUpload(final String workspace,
