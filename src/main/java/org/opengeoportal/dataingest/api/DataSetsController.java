@@ -28,6 +28,8 @@ import org.opengeoportal.dataingest.utils.GeoServerUtils;
 import org.opengeoportal.dataingest.utils.ResultSortedPaginator;
 import org.opengeoportal.dataingest.utils.ShapeFileValidator;
 import org.opengeoportal.dataingest.utils.TicketGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -67,21 +69,23 @@ import java.util.Set;
  */
 @Controller
 public class DataSetsController {
+    
+    /**
+     * Spring boot logger.
+     */
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * Stores a hash of the list of layers.
-     */
-    //private final int oldLayerList = -1;
-    /**
-     * Cache service.
-     */
-    @Autowired
-    private CacheService service;
     /**
      * The GeoServer URL (from the application.properties).
      */
     @Value("${geoserver.url}")
     private String geoserverUrl;
+    
+    /**
+     * Cache service.
+     */
+    @Autowired
+    private CacheService service;
 
     /**
      * The GeoServer Username (from the application.properties).
@@ -112,10 +116,7 @@ public class DataSetsController {
     @Value("${cache.name}")
     private String cachename;
 
-    /*
-     * List of typenames, to be read by the cache.
-     */
-    private Set<String> typenames = null;
+
 
     /**
      * localDownloadService.
@@ -128,20 +129,6 @@ public class DataSetsController {
      */
     @Autowired
     private LocalUploadService localUploadService;
-
-    /**
-     * A file cache, following the LRU eviction policy.
-     */
-    @Autowired
-    private LRUFileCache fileCache;
-
-    /**
-     * Sets the file cache.
-     */
-    @Autowired
-    public void setFileCache() {
-        this.localDownloadService.setFileCache(fileCache);
-    }
 
     /**
      * Unpaginated version of the get datasets request.
@@ -194,20 +181,10 @@ public class DataSetsController {
 
         ds = new GeoserverDataStore(geoserverUrl);
 
-        // this is our typenames homebrew cache
-        if (typenames == null) {
-            try {
-                typenames = new HashSet(Arrays.asList(ds.typenames()));
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new Exception("Could not initialize typenames list");
-            }
-        }
-
-        Iterator<String> itr = typenames.iterator();
+        Iterator<String> itr = service.getTypenames().iterator();
         while (itr.hasNext()) {
             try {
-                result.add(service.getDataset(geoserverUrl, ds, itr.next())); // This is what we cache
+                result.add(service.getDataset(ds, itr.next())); // This is what we cache
             } catch (java.lang.Exception e) {
                 e.printStackTrace();
                 throw new Exception("Could not retrieve dataset: " + itr.next() + " from cache");
@@ -219,26 +196,6 @@ public class DataSetsController {
         return map;
     }
 
-    /**
-     * Mockup of the Unpaginated version of the get datasets request.
-     * Smaller request, filtered for the 'db' workspace, for test purposes.
-     *
-     * @param request  the request (no arguments)
-     * @param response the http response
-     * @return the list of datasets as a an angular.js friendly list of key values
-     * @throws Exception
-     */
-    @Deprecated // This is has been deprecated, as it does not use the latest cache mechanism
-    @RequestMapping(value = "/allDatasetsMockup", method = RequestMethod.GET)
-    @ResponseBody
-    public final Map<String, List<Map<String, String>>> getAllDataSetsMockup(
-        final HttpServletRequest request,
-        final HttpServletResponse response) throws Exception {
-        List<Map<String, String>> result = service.getDatasets(geoserverUrl + "topp" + "/");
-        Map<String, List<Map<String, String>>> map = new HashMap<String, List<Map<String, String>>>();
-        map.put("data", result);
-        return map;
-    }
 
     /**
      * Gets the data sets from all workspaces.
@@ -378,12 +335,12 @@ public class DataSetsController {
 
                 if (workspace.equals("*")) {
                     // get data from geoserver
-                    resultMap = service.getDatasets(geoserverUrl);
+                    resultMap = service.getDatasets();
                 } else {
                     // get data from geoserver
                     try {
                         resultMap = service
-                            .getDatasets(geoserverUrl + workspace + "/");
+                            .getDatasets(workspace);
                     } catch (final Exception e) {
                         throw new NoDataFoundOnGeoserverException();
                     }
@@ -432,7 +389,7 @@ public class DataSetsController {
 
         try {
 
-            boolean bIsCached = fileCache.isCached(GeoServerUtils.getTypeName(workspace, dataset));
+            boolean bIsCached = service.getFileCache().isCached(GeoServerUtils.getTypeName(workspace, dataset));
             boolean bFeatureSize = false; // By default, we dont return the feature size
 
             if (request.getParameter("featureSize") != null) {
@@ -447,7 +404,7 @@ public class DataSetsController {
                 }
             }
 
-            final HashMap<String, String> data = service.getInfo(geoserverUrl,
+            final HashMap<String, String> data = service.getInfo(
                 workspace, dataset, bFeatureSize);
 
             if (data == null && data.size() == 0) {
@@ -513,9 +470,9 @@ public class DataSetsController {
                 throw new GeoServerException("Could not unpublish featuretype " + dataset
                     + " on store " + data.getName());
             }
-            geoServerFacade.reload();
+//            geoServerFacade.reload();
 
-            updateCachesOnDelete(workspace, dataset);
+            service.updateCachesOnDelete(workspace, dataset);
 
         } catch (final GeoServerException gsfex) {
             printOutputMessage(response, HttpServletResponse.SC_METHOD_NOT_ALLOWED,
@@ -774,10 +731,11 @@ public class DataSetsController {
             // Clear this dataset from the info caches
             service.clearInfoCache(geoserverUrl, workspace, dataset, true);
             service.clearInfoCache(geoserverUrl, workspace, dataset, false);
+            service.clearDataSetCache(geoserverUrl, workspace + ":" + dataset);
 
             String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-            if (fileCache.isCached(typeName)) {
-                fileCache.remove(typeName);
+            if (service.getFileCache().isCached(typeName)) {
+                service.getFileCache().remove(typeName);
             }
 
 
@@ -898,70 +856,7 @@ public class DataSetsController {
         }
     }
 
-    /**
-     * This function updates the various caches, when a dataset is uploaded.
-     * Its meant to be called by the upload and update events.
-     *
-     * @param workspace a workspace
-     * @param dataset a dataset
-     * @throws GenericCacheException
-     */
-    public void updateCachesOnUpload(String workspace, String dataset) throws GenericCacheException{
-
-        try{
-            // Uploading data triggers a cache eviction, in order to have the complete dataset list
-            service.clearCacheAll();
-
-            // With the other caches, we insert the record manually
-            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-            typenames.add(typeName);
-
-            GeoserverDataStore ds = new GeoserverDataStore(geoserverUrl);
-            try {
-                service.getDataset(geoserverUrl, ds, typeName);
-            } catch (GeoServerDataStoreException gDSex) {
-                throw new Exception();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new GenericCacheException("A problem occurred while updating the cache.");
-        }
-    }
-
-    /**
-     * This function updates the various caches, when a dataset is removed.
-     * Its meant to be called by the update and delete events.
-     *
-     * @param workspace a workspace
-     * @param dataset a dataset
-     * @throws GenericCacheException
-     */
-    public void updateCachesOnDelete(String workspace, String dataset) throws GenericCacheException {
-
-        // Clear this file from the general: it affects the paginated and filtered by workspace responses.
-        service.clearCacheAll();
-
-        // Clear this entry from getdataset info
-        service.clearInfoCache(geoserverUrl, workspace, dataset, true);
-        service.clearInfoCache(geoserverUrl, workspace, dataset, false);
-
-        String typename = GeoServerUtils.getTypeName(workspace, dataset);
-        // clears this selectively from the summary cache
-        service.clearCacheOne(typename);
-        // removes this from the typename array
-        typenames.remove(typename);
-
-        String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-        try {
-            if (fileCache.isCached(typeName)) {
-                fileCache.remove(typeName);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new GenericCacheException("A problem occurred while updating the cache.");
-        }
-    }
+    
 
     /**
      * Prints the output message.

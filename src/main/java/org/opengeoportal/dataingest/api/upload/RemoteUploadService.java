@@ -1,13 +1,13 @@
 package org.opengeoportal.dataingest.api.upload;
 
-import org.opengeoportal.dataingest.api.DataSetsController;
+import java.io.File;
+
+import org.opengeoportal.dataingest.api.CacheService;
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.TicketGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 /**
  * The Class RemoteUploadService. This class is used to send a shapefile to GS.
@@ -32,10 +32,11 @@ public class RemoteUploadService {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
-
+    
+    
     @Autowired
-    private DataSetsController dataSetsController;
-
+    private CacheService service;
+    
     /**
      * Send file.
      *
@@ -59,21 +60,21 @@ public class RemoteUploadService {
 
             if (isUpdate) {
                 if (geoServerFacade.unpublishFeatureType(workspace, store, dataset)) {
-                    //TODO: call DatasetsController.updateCachesOnDelete
+                    service.updateCachesOnDelete(workspace, dataset);
                     if (geoServerFacade.publishShp(workspace, store, dataset, zipFile, strEpsg)) {
                         TicketGenerator.closeATicket(uploadRequest.getTicket());
-                        //TODO: call DatasetsController.updateCachesOnUpload
+                        service.updateCachesOnUpload(workspace, dataset);
                     } else {
                         TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
                     }
                 } else {
                     TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
-                    //TODO: file was not deleted or uploaded. dont do anything on the cache
+                    // File was not deleted or uploaded. No need to change the cache.
                 }
             } else {
                 if (geoServerFacade.publishShp(workspace, store, dataset, zipFile, strEpsg)) {
                     TicketGenerator.closeATicket(uploadRequest.getTicket());
-                    //TODO: call DatasetsController.updateCachesOnUpload
+                    service.updateCachesOnUpload(workspace, dataset);
                 } else {
                     TicketGenerator.closeATicket(uploadRequest.getTicket(), "Generic bad response");
                 }

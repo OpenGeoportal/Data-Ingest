@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.opengeoportal.dataingest.api.CacheService;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FileNotReadyException;
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.GeoServerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +19,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class LocalDownloadService {
+    
+    @Autowired
+    private CacheService service;
 
-    /**
-     * A file cache, following the LRU eviction policy.
-     */
-    private LRUFileCache fileCache;
 
     /**
      * The GeoServer URL (from the application.properties).
@@ -47,17 +48,9 @@ public class LocalDownloadService {
      * @return file cache
      */
     public LRUFileCache getFileCache() {
-        return fileCache;
+        return service.getFileCache();
     }
 
-    /**
-     * Constructor.
-     *
-     * @param fileCache the new file cache
-     */
-    public void setFileCache(final LRUFileCache fileCache) {
-        this.fileCache = fileCache;
-    }
 
     /**
      * Check if data exists on Geoserver.
@@ -81,8 +74,8 @@ public class LocalDownloadService {
 
             final String typeName = GeoServerUtils.getTypeName(workspace,
                 dataset);
-            if (fileCache.isCached(typeName)) {
-                fileCache.remove(typeName);
+            if (service.getFileCache().isCached(typeName)) {
+                service.getFileCache().remove(typeName);
             }
 
             return false;
@@ -110,7 +103,7 @@ public class LocalDownloadService {
         }
 
         final String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-        return fileCache.getFileFromCache(typeName);
+        return service.getFileCache().getFileFromCache(typeName);
     }
 
     /**
