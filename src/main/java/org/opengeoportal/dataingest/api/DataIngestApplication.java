@@ -115,10 +115,10 @@ public class DataIngestApplication {
                 .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/workspaces/{workspace}/datasets/{dataset}").authenticated()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
-                // remove this!
-                .antMatchers(HttpMethod.DELETE,"/workspaces/{workspace}/datasets/{dataset}").permitAll() // TODO:
-                .antMatchers(HttpMethod.PUT,"/workspaces/{workspace}/datasets/{dataset}").permitAll() // TODO: remove
-                .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").permitAll() // TODO: remove
+                // TODO: remove this!
+                .antMatchers(HttpMethod.DELETE, "/workspaces/{workspace}/datasets/{dataset}").permitAll()
+                .antMatchers(HttpMethod.PUT, "/workspaces/{workspace}/datasets/{dataset}").permitAll()
+                .antMatchers(HttpMethod.POST, "/workspaces/{workspace}/datasets/{dataset}").permitAll()
                 // this!
                 .anyRequest().anonymous()
                 .and()

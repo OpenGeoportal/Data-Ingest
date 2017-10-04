@@ -19,18 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by joana on 27/01/17.
  */
 
 public class GeoserverDataStoreTest {
-
-    private static String uri = "http://localhost:{PORT}/geoserver/";
-    private String workspace = "topp";
-    private String dataset = "tasmania_cities";
-    private WFSDataStore mockupDataStore;
-
 
     @ClassRule
     public static DockerRule DataStoreDockerRule =
@@ -39,6 +34,10 @@ public class GeoserverDataStoreTest {
             .ports("8080")
             .waitForLog("Reloading user/groups successful")
             .build();
+    private static String uri = "http://localhost:{PORT}/geoserver/";
+    private String workspace = "topp";
+    private String dataset = "tasmania_cities";
+    private WFSDataStore mockupDataStore;
 
     @BeforeClass
     public static void hold() throws InterruptedException {
@@ -96,7 +95,16 @@ public class GeoserverDataStoreTest {
         }
 
         GeoserverDataStore gds = new GeoserverDataStore(uri);
-        //assertEquals(hDatasets, gds.datasets()); //TODO: fix test
+        String[] lTypeNames = gds.typenames();
+
+        for(int i=0;i<lTypeNames.length;i++) {
+
+         assertNotEquals( -1,
+            hDatasets.indexOf(gds.getDataset(lTypeNames[i]))
+             );
+
+
+        }
     }
 
     @Test

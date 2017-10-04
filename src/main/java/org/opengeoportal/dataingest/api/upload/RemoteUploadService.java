@@ -1,9 +1,7 @@
 package org.opengeoportal.dataingest.api.upload;
 
-import org.opengeoportal.dataingest.api.DataSetsController;
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.TicketGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,9 +30,6 @@ public class RemoteUploadService {
      */
     @Value("${geoserver.password}")
     private String geoserverPassword;
-
-    @Autowired
-    private DataSetsController dataSetsController;
 
     /**
      * Send file.

@@ -69,6 +69,13 @@ public class GeoserverDataStore {
         }
     }
 
+    /**
+     * Retrieves the summary information about a given dataset.
+     *
+     * @param typeName a typename
+     * @return the summary information: name, title and geometry.
+     * @throws Exception
+     */
     public Map<String, String> getDataset(String typeName) throws Exception {
 
         try {

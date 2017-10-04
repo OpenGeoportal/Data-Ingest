@@ -108,7 +108,7 @@ public class DataSetsController {
     @Value("${cache.name}")
     private String cachename;
 
-    /*
+    /**
      * List of typenames, to be read by the cache.
      */
     private Set<String> typenames = null;
@@ -154,7 +154,7 @@ public class DataSetsController {
         final HttpServletResponse response) throws Exception {
 
         try {
-            return getPlainDataSets(geoserverUrl);
+            return getPlainDataSets();
         } catch (final GeoServerDataStoreException gdex) {
             gdex.printStackTrace();
             printOutputMessage(response,
@@ -177,12 +177,11 @@ public class DataSetsController {
      * It is very important to note that this cache mechanism does *not* support filtering by workspace.
      * For that purpose, see getPaginatedDataSets.
      *
-     * @param geoserverUrl the geoserver url (without workspace)
      * @return the http response as a map
      * @throws Exception
      * @sa "getPaginatedDataSets"
      */
-    public final Map<String, List<Map<String, String>>> getPlainDataSets(String geoserverUrl) throws
+    public final Map<String, List<Map<String, String>>> getPlainDataSets() throws
         Exception {
 
         GeoserverDataStore ds = null;
@@ -453,8 +452,6 @@ public class DataSetsController {
             // We don't want to use the cache for this
             data.put("cached", String.valueOf(bIsCached));
 
-            //TODO: ows endpoints
-
             return data;
 
         } catch (final WFSException wfse) {
@@ -484,7 +481,8 @@ public class DataSetsController {
      *
      * @param workspace given workspace
      * @param dataset   given dataset
-     * @throws Exception the exception
+     * @param response an http response
+     * @throws Exception
      */
     @RequestMapping(value = "/workspaces/{workspace}/datasets/{dataset}", method = RequestMethod.DELETE)
     @ResponseBody

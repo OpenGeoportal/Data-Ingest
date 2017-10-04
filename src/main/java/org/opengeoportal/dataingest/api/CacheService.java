@@ -156,8 +156,8 @@ public class CacheService {
      * @param dataset      dataset name
      * @param bFeatureSize boolean to indicate if we want to include the featureSize in the layer properties
      */
-    @Caching(evict = {@CacheEvict(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset).concat" +
-        "(#bFeatureSize)")})
+    @Caching(evict = {@CacheEvict(value = "info", key = "#uri.concat('-').concat(#workspace).concat(#dataset).concat"
+        + "(#bFeatureSize)")})
     public void clearInfoCache(final String uri, final String workspace, final String dataset, boolean bFeatureSize) {
         log.info("Clearing entry: '" + dataset + "' from the dataset info cache");
     }
