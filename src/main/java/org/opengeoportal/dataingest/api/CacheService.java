@@ -1,14 +1,5 @@
 package org.opengeoportal.dataingest.api;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.GenericCacheException;
 import org.opengeoportal.dataingest.exception.GeoServerDataStoreException;
@@ -23,6 +14,16 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * This service class acts as a proxy between the controller and
  * GeoServerDataStore class. It manages the caching of the methods, using Spring
@@ -33,9 +34,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheService {
 
-    // TODO: Fix this!!!!
-    @Value("${geoserver.url}")
-    private String geoserverUrl = "http://localhost:8081/geoserver/";
+    /**
+     * Geoserver url.
+     */
+    private String geoserverUrl;
 
     /**
      * Logger.
@@ -54,20 +56,22 @@ public class CacheService {
     private LRUFileCache fileCache;
 
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public CacheService() {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Inject
+    public CacheService(@Value("${geoserver.url}") String uri) {
+        this.geoserverUrl = uri;
         try {
             this.log.info("Filling datasets list cache...");
             if (this.typenames == null) {
                 try {
                     final GeoserverDataStore ds = new GeoserverDataStore(
-                            this.geoserverUrl);
+                        this.geoserverUrl);
                     this.typenames = new HashSet(
-                            Arrays.asList(ds.typenames()));
+                        Arrays.asList(ds.typenames()));
                 } catch (final IOException e) {
                     e.printStackTrace();
                     throw new Exception(
-                            "Could not initialize typenames list");
+                        "Could not initialize typenames list");
                 }
             }
             this.log.info("Cached filled.");
@@ -77,51 +81,42 @@ public class CacheService {
     }
 
 
-
-    @Caching(evict = { @CacheEvict(value = "summary", key = "#typename") })
+    @Caching(evict = {@CacheEvict(value = "summary", key = "#typename")})
     public void clearDataSetCache(final String uri, final String typename) {
         this.log.info("Clearing entry: '" + typename
-                + "' from the dataset info cache");
+            + "' from the dataset info cache");
     }
 
     /**
      * Clean one entry from the getdataset info cache.
      *
-     * @param uri
-     *            geoserver uri
-     * @param workspace
-     *            workspace name
-     * @param dataset
-     *            dataset name
-     * @param bFeatureSize
-     *            boolean to indicate if we want to include the featureSize in
-     *            the layer properties
+     * @param uri          geoserver uri
+     * @param workspace    workspace name
+     * @param dataset      dataset name
+     * @param bFeatureSize boolean to indicate if we want to include the featureSize in
+     *                     the layer properties
      */
     @Caching(evict = {
-            @CacheEvict(value = "info", key = "#workspace.concat(#dataset).concat"
-                    + "(#bFeatureSize)") })
+        @CacheEvict(value = "info", key = "#workspace.concat(#dataset).concat"
+            + "(#bFeatureSize)")})
     public void clearInfoCache(final String uri, final String workspace,
-            final String dataset, final boolean bFeatureSize) {
+                               final String dataset, final boolean bFeatureSize) {
         this.log.info("Clearing entry: '" + dataset
-                + "' from the dataset info cache");
+            + "' from the dataset info cache");
     }
 
     /**
      * This function gets the summary info for a given typename. This is a part
      * of the mechanism for caching the AllDatasets response.
      *
-     * @param uri
-     *            an uri
-     * @param ds
-     *            a datastore
-     * @param typename
-     *            a typename
+     * @param ds       a datastore
+     * @param typename a typename
      * @return summary info about the dataset
      * @throws Exception
      */
     @Cacheable(cacheNames = "summary", key = "#typename")
     public Map<String, String> getDataset(final GeoserverDataStore ds,
-            final String typename) throws Exception {
+                                          final String typename) throws Exception {
         this.log.info("Not using the summary cache for typename:" + typename);
         return ds.getDataset(typename);
     }
@@ -133,17 +128,13 @@ public class CacheService {
      * This function is meant to be used with the getDataSetsForWorkspace
      * controller.
      *
-     * @param uri
-     *            geoserver uri (it may include the filter for workspace).
      * @return hashmap with dataset (names, titles)
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      * @see "getTypeNames"
      */
     public List<Map<String, String>> getDatasets() throws Exception {
 
         this.log.info("Not using the cache");
-
 
         GeoserverDataStore ds = null;
         final List<Map<String, String>> hDatasets = new ArrayList<>();
@@ -156,15 +147,15 @@ public class CacheService {
 
         } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: "
-                    + this.geoserverUrl + ". Make sure it is up and "
-                    + "running and that the connection settings are correct!");
+                + this.geoserverUrl + ". Make sure it is up and "
+                + "running and that the connection settings are correct!");
         }
 
         return hDatasets;
     }
 
     public List<Map<String, String>> getDatasets(final String workspace)
-            throws Exception {
+        throws Exception {
 
         this.log.info("Not using the smart cache");
 
@@ -181,9 +172,9 @@ public class CacheService {
 
         } catch (final java.lang.Exception e) {
             throw new Exception("Could not create WFS datastore " + "at: "
-                    + this.geoserverUrl + workspace + "/"
-                    + ". Make sure it is up and "
-                    + "running and that the connection settings are correct!");
+                + this.geoserverUrl + workspace + "/"
+                + ". Make sure it is up and "
+                + "running and that the connection settings are correct!");
         }
 
         return hDatasets;
@@ -197,22 +188,16 @@ public class CacheService {
     /**
      * Gets detailed info about a layer.
      *
-     * @param uri
-     *            geoserver uri
-     * @param workspace
-     *            workspace name
-     * @param dataset
-     *            dataset name
-     * @param bFeatureSize
-     *            boolean to indicate if we want to include the featureSize in
-     *            the layer properties
+     * @param workspace    workspace name
+     * @param dataset      dataset name
+     * @param bFeatureSize boolean to indicate if we want to include the featureSize in
+     *                     the layer properties
      * @return summary info about a layer, as hash table
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Cacheable(value = "info", key = "#workspace.concat(#dataset).concat(#bFeatureSize)")
     public HashMap<String, String> getInfo(final String workspace,
-            final String dataset, final boolean bFeatureSize) throws Exception {
+                                           final String dataset, final boolean bFeatureSize) throws Exception {
 
         this.log.info("Not using the cache");
 
@@ -221,9 +206,9 @@ public class CacheService {
             ds = new GeoserverDataStore(this.geoserverUrl);
         } catch (final java.lang.Exception e) {
             throw new GeoServerDataStoreException(
-                    "Could not create WFS datastore " + "at: "
-                            + this.geoserverUrl + ". Make sure it is up and "
-                            + "running and that the connection settings are correct!");
+                "Could not create WFS datastore " + "at: "
+                    + this.geoserverUrl + ". Make sure it is up and "
+                    + "running and that the connection settings are correct!");
         }
         try {
             return ds.getLayerInfo(workspace, dataset, bFeatureSize);
@@ -242,14 +227,12 @@ public class CacheService {
      * This function updates the various caches, when a dataset is removed. Its
      * meant to be called by the update and delete events.
      *
-     * @param workspace
-     *            a workspace
-     * @param dataset
-     *            a dataset
+     * @param workspace a workspace
+     * @param dataset   a dataset
      * @throws Exception
      */
     public void updateCachesOnDelete(final String workspace,
-            final String dataset) throws Exception {
+                                     final String dataset) throws Exception {
 
         // Clear this entry from getdataset info
         this.clearInfoCache(this.geoserverUrl, workspace, dataset, true);
@@ -269,7 +252,7 @@ public class CacheService {
         } catch (final Exception e) {
             e.printStackTrace();
             throw new GenericCacheException(
-                    "A problem occurred while updating the cache.");
+                "A problem occurred while updating the cache.");
         }
     }
 
@@ -278,26 +261,24 @@ public class CacheService {
      * This function updates the various caches, when a dataset is uploaded. Its
      * meant to be called by the upload and update events.
      *
-     * @param workspace
-     *            a workspace
-     * @param dataset
-     *            a dataset
+     * @param workspace a workspace
+     * @param dataset   a dataset
      * @throws GenericCacheException
      */
     public void updateCachesOnUpload(final String workspace,
-            final String dataset) throws GenericCacheException {
+                                     final String dataset) throws GenericCacheException {
 
         try {
 
             // With the other caches, we insert the record manually
             final String typeName = GeoServerUtils.getTypeName(workspace,
-                    dataset);
+                dataset);
             synchronized (this.getTypenames()) {
                 this.getTypenames().add(typeName);
             }
 
             final GeoserverDataStore ds = new GeoserverDataStore(
-                    this.geoserverUrl);
+                this.geoserverUrl);
             try {
                 this.getDataset(ds, typeName);
             } catch (final GeoServerDataStoreException gDSex) {
@@ -307,7 +288,7 @@ public class CacheService {
         } catch (final Exception e) {
             e.printStackTrace();
             throw new GenericCacheException(
-                    "A problem occurred while updating the cache.");
+                "A problem occurred while updating the cache.");
         }
     }
 }
