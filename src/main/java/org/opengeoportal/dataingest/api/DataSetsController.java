@@ -653,7 +653,6 @@ public class DataSetsController {
 
             } catch (Exception ex) {
 
-                //TODO: manage cache exceptions as well
                 printOutputMessage(response,
                     HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "Could not upload file!");
@@ -770,16 +769,6 @@ public class DataSetsController {
             Assert.isTrue(store != null, "store name must not be null");
 
             long ticket = TicketGenerator.openATicket();
-
-            // Clear this dataset from the info caches
-            service.clearInfoCache(geoserverUrl, workspace, dataset, true);
-            service.clearInfoCache(geoserverUrl, workspace, dataset, false);
-
-            String typeName = GeoServerUtils.getTypeName(workspace, dataset);
-            if (fileCache.isCached(typeName)) {
-                fileCache.remove(typeName);
-            }
-
 
             localUploadService.uploadFile(workspace, store, dataset, zipFile, strEpsg, ticket, true);
             printOutputMessage(response,
@@ -903,12 +892,12 @@ public class DataSetsController {
      * Its meant to be called by the upload and update events.
      *
      * @param workspace a workspace
-     * @param dataset a dataset
+     * @param dataset   a dataset
      * @throws GenericCacheException
      */
-    public void updateCachesOnUpload(String workspace, String dataset) throws GenericCacheException{
+    public void updateCachesOnUpload(String workspace, String dataset) throws GenericCacheException {
 
-        try{
+        try {
             // Uploading data triggers a cache eviction, in order to have the complete dataset list
             service.clearCacheAll();
 
@@ -934,7 +923,7 @@ public class DataSetsController {
      * Its meant to be called by the update and delete events.
      *
      * @param workspace a workspace
-     * @param dataset a dataset
+     * @param dataset   a dataset
      * @throws GenericCacheException
      */
     public void updateCachesOnDelete(String workspace, String dataset) throws GenericCacheException {
@@ -946,13 +935,12 @@ public class DataSetsController {
         service.clearInfoCache(geoserverUrl, workspace, dataset, true);
         service.clearInfoCache(geoserverUrl, workspace, dataset, false);
 
-        String typename = GeoServerUtils.getTypeName(workspace, dataset);
-        // clears this selectively from the summary cache
-        service.clearCacheOne(typename);
-        // removes this from the typename array
-        typenames.remove(typename);
-
         String typeName = GeoServerUtils.getTypeName(workspace, dataset);
+        // clears this selectively from the summary cache
+        service.clearCacheOne(typeName);
+        // removes this from the typename array
+        typenames.remove(typeName);
+
         try {
             if (fileCache.isCached(typeName)) {
                 fileCache.remove(typeName);
