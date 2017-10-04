@@ -4,7 +4,6 @@ import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opengeoportal.dataingest.api.download.LocalDownloadService;
-import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.api.upload.LocalUploadService;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
 import org.opengeoportal.dataingest.exception.FeatureSizeFormatException;
@@ -50,13 +49,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -69,7 +65,7 @@ import java.util.Set;
  */
 @Controller
 public class DataSetsController {
-    
+
     /**
      * Spring boot logger.
      */
@@ -81,7 +77,7 @@ public class DataSetsController {
      */
     @Value("${geoserver.url}")
     private String geoserverUrl;
-    
+
     /**
      * Cache service.
      */
@@ -368,8 +364,8 @@ public class DataSetsController {
             throw ex;
         }
     }
-    
-    
+
+
     private List<Map<String, String>> getDatasets() throws Exception {
 
         this.log.info("Not using the cache");
@@ -391,8 +387,8 @@ public class DataSetsController {
         }
 
         return hDatasets;
-    }    
-    
+    }
+
     private List<Map<String, String>> getDatasets(final String workspace)
             throws Exception {
 
@@ -777,9 +773,9 @@ public class DataSetsController {
             long ticket = TicketGenerator.openATicket();
 
             // Clear this dataset from the info caches
-            service.clearInfoCache(geoserverUrl, workspace, dataset, true);
-            service.clearInfoCache(geoserverUrl, workspace, dataset, false);
-            service.clearDataSetCache(geoserverUrl, workspace + ":" + dataset);
+            service.clearInfoCache(workspace, dataset, true);
+            service.clearInfoCache(workspace, dataset, false);
+            service.clearDataSetCache(workspace + ":" + dataset);
 
             String typeName = GeoServerUtils.getTypeName(workspace, dataset);
             if (service.getFileCache().isCached(typeName)) {

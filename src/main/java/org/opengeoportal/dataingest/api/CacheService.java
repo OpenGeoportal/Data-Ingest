@@ -79,7 +79,7 @@ public class CacheService {
     }
 
     @Caching(evict = { @CacheEvict(value = "summary", key = "#typename") })
-    public void clearDataSetCache(final String uri, final String typename) {
+    public void clearDataSetCache(final String typename) {
         this.log.info("Clearing entry: '" + typename
             + "' from the dataset info cache");
     }
@@ -87,8 +87,6 @@ public class CacheService {
     /**
      * Clean one entry from the getdataset info cache.
      *
-     * @param uri
-     *            geoserver uri
      * @param workspace
      *            workspace name
      * @param dataset
@@ -100,7 +98,7 @@ public class CacheService {
     @Caching(evict = {
         @CacheEvict(value = "info", key = "#workspace.concat(#dataset).concat"
             + "(#bFeatureSize)") })
-    public void clearInfoCache(final String uri, final String workspace,
+    public void clearInfoCache(final String workspace,
                                final String dataset, final boolean bFeatureSize) {
         this.log.info("Clearing entry: '" + dataset
             + "' from the dataset info cache");
@@ -110,8 +108,6 @@ public class CacheService {
      * This function gets the summary info for a given typename. This is a part
      * of the mechanism for caching the AllDatasets response.
      *
-     * @param uri
-     *            an uri
      * @param ds
      *            a datastore
      * @param typename
@@ -186,8 +182,8 @@ public class CacheService {
                                      final String dataset) throws Exception {
 
         // Clear this entry from getdataset info
-        this.clearInfoCache(this.geoserverUrl, workspace, dataset, true);
-        this.clearInfoCache(this.geoserverUrl, workspace, dataset, false);
+        this.clearInfoCache(workspace, dataset, true);
+        this.clearInfoCache(workspace, dataset, false);
 
         final String typename = GeoServerUtils.getTypeName(workspace, dataset);
         // removes this from the typename array
