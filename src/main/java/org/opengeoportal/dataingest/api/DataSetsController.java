@@ -366,10 +366,13 @@ public class DataSetsController {
     }
 
 
+    /**
+     * Retrieves datasets from the cache.
+     *
+     * @return a list of datasets
+     * @throws Exception
+     */
     private List<Map<String, String>> getDatasets() throws Exception {
-
-        this.log.info("Not using the cache");
-
 
         GeoserverDataStore ds = null;
         final List<Map<String, String>> hDatasets = new ArrayList<>();
@@ -389,6 +392,13 @@ public class DataSetsController {
         return hDatasets;
     }
 
+    /**
+     * Retrieves datasets, filtered by workspace, from the cache.
+     *
+     * @param workspace a given workspace
+     * @return a list of datasets, filtered by workspace
+     * @throws Exception
+     */
     private List<Map<String, String>> getDatasets(final String workspace)
             throws Exception {
 
@@ -400,8 +410,8 @@ public class DataSetsController {
         try {
             ds = new GeoserverDataStore(this.geoserverUrl + workspace + "/");
 
-            final String[] workspace_typenames = ds.typenames();
-            for (final String typeName : workspace_typenames) {
+            final String[] workspaceTypenames = ds.typenames();
+            for (final String typeName : workspaceTypenames) {
                 hDatasets.add(service.getDataset(ds, typeName));
             }
 

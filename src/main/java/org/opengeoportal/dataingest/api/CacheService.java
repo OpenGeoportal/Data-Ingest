@@ -54,6 +54,11 @@ public class CacheService {
     private LRUFileCache fileCache;
 
 
+    /**
+     * Cache service constructor. Here we initialize the typenames structure.
+     *
+     * @param uri the geoserver url, for constructor injection.
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Inject
     public CacheService(@Value("${geoserver.url}") String uri) {
@@ -78,6 +83,11 @@ public class CacheService {
         }
     }
 
+    /**
+     * Evict a given typename from the summary (e.g.: getdatasets) cache.
+     *
+     * @param typename a typename
+     */
     @Caching(evict = {@CacheEvict(value = "summary", key = "#typename")})
     public void clearDataSetCache(final String typename) {
         this.log.info("Clearing entry: '" + typename
@@ -117,6 +127,11 @@ public class CacheService {
         return ds.getDataset(typename);
     }
 
+    /**
+     * Getter for the file cache.
+     *
+     * @return File Cache
+     */
     public LRUFileCache getFileCache() {
         return this.fileCache;
     }
@@ -154,7 +169,12 @@ public class CacheService {
 
     }
 
-
+    /**
+     * Getter for the typenames structure.
+     *
+     * @return typenames vector
+     * @throws Exception
+     */
     public Set<String> getTypenames() throws Exception {
         return this.typenames;
     }

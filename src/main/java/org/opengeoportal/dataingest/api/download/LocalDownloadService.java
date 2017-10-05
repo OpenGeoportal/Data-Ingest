@@ -1,9 +1,5 @@
 package org.opengeoportal.dataingest.api.download;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.opengeoportal.dataingest.api.CacheService;
 import org.opengeoportal.dataingest.api.fileCache.LRUFileCache;
 import org.opengeoportal.dataingest.exception.CacheCapacityException;
@@ -14,15 +10,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 /**
  * The Class LocalDownloadService.
  */
 @Component
 public class LocalDownloadService {
-    
+
+    /**
+     * Cache service.
+     */
     @Autowired
     private CacheService service;
-
 
     /**
      * The GeoServer URL (from the application.properties).
