@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class UploadTest {
 
-    private static String AIRPORTS_SHAPEFILE = "./src/test/resources/airports.zip";
+    private static String ROADS_SHAPEFILE = "./src/test/resources/roads.zip";
     private String geoserverUrl = "http://localhost:8081/geoserver/";
     private String geoserverUsername = "admin";
     private String geoserverPassword = "geoserver";
@@ -21,11 +21,11 @@ public class UploadTest {
     @Test
     public void testShapeFile() throws Exception {
 
-        File shpf = new File(AIRPORTS_SHAPEFILE);
+        File shpf = new File(ROADS_SHAPEFILE);
         boolean noException = false;
 
         try {
-            assertEquals(ShapeFileValidator.isAValidShapeFile(shpf, true), "EPSG:2964");
+            assertEquals("EPSG:26713", ShapeFileValidator.isAValidShapeFile(shpf, true));
             noException = true;
         } catch (Exception e) {
             assertTrue(noException);
@@ -35,7 +35,7 @@ public class UploadTest {
 
     @Test
     public void testUpload() throws Exception {
-        File shpf = new File(AIRPORTS_SHAPEFILE);
+        File shpf = new File(ROADS_SHAPEFILE);
 
         long ticket = TicketGenerator.openATicket();
 
@@ -51,7 +51,8 @@ public class UploadTest {
 
         try {
             assertTrue(TicketGenerator.isClosed(ticket));
-        } catch(GeoServerException e) {}
+        } catch (GeoServerException e) {
+        }
     }
 
 }

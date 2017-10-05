@@ -1,14 +1,14 @@
 package org.opengeoportal.dataingest.api.upload;
 
 
-import java.io.File;
-
 import org.opengeoportal.dataingest.api.CacheService;
 import org.opengeoportal.dataingest.utils.GeoServerRESTFacade;
 import org.opengeoportal.dataingest.utils.TicketGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 /**
  * The Class RemoteUploadService. This class is used to send a shapefile to GS.
@@ -34,8 +34,10 @@ public class RemoteUploadService {
     @Value("${geoserver.password}")
     private String geoserverPassword;
 
-    
-    
+    /**
+     * Cache service.
+     *
+     */
     @Autowired
     private CacheService service;
 

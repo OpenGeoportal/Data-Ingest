@@ -78,7 +78,7 @@ public class CacheService {
         }
     }
 
-    @Caching(evict = { @CacheEvict(value = "summary", key = "#typename") })
+    @Caching(evict = {@CacheEvict(value = "summary", key = "#typename")})
     public void clearDataSetCache(final String typename) {
         this.log.info("Clearing entry: '" + typename
             + "' from the dataset info cache");
@@ -87,17 +87,14 @@ public class CacheService {
     /**
      * Clean one entry from the getdataset info cache.
      *
-     * @param workspace
-     *            workspace name
-     * @param dataset
-     *            dataset name
-     * @param bFeatureSize
-     *            boolean to indicate if we want to include the featureSize in
-     *            the layer properties
+     * @param workspace    workspace name
+     * @param dataset      dataset name
+     * @param bFeatureSize boolean to indicate if we want to include the featureSize in
+     *                     the layer properties
      */
     @Caching(evict = {
         @CacheEvict(value = "info", key = "#workspace.concat(#dataset).concat"
-            + "(#bFeatureSize)") })
+            + "(#bFeatureSize)")})
     public void clearInfoCache(final String workspace,
                                final String dataset, final boolean bFeatureSize) {
         this.log.info("Clearing entry: '" + dataset
@@ -108,17 +105,15 @@ public class CacheService {
      * This function gets the summary info for a given typename. This is a part
      * of the mechanism for caching the AllDatasets response.
      *
-     * @param ds
-     *            a datastore
-     * @param typename
-     *            a typename
+     * @param ds       a datastore
+     * @param typename a typename
      * @return summary info about the dataset
      * @throws Exception
      */
     @Cacheable(cacheNames = "summary", key = "#typename")
     public Map<String, String> getDataset(final GeoserverDataStore ds,
                                           final String typename) throws Exception {
-        this.log.info("Not using the summary cache for typename:" + typename);
+        //this.log.info("Not using the summary cache for typename:" + typename);
         return ds.getDataset(typename);
     }
 
@@ -129,22 +124,18 @@ public class CacheService {
     /**
      * Gets detailed info about a layer.
      *
-     * @param workspace
-     *            workspace name
-     * @param dataset
-     *            dataset name
-     * @param bFeatureSize
-     *            boolean to indicate if we want to include the featureSize in
-     *            the layer properties
+     * @param workspace    workspace name
+     * @param dataset      dataset name
+     * @param bFeatureSize boolean to indicate if we want to include the featureSize in
+     *                     the layer properties
      * @return summary info about a layer, as hash table
-     * @throws Exception
-     *             the exception
+     * @throws Exception the exception
      */
     @Cacheable(value = "info", key = "#workspace.concat(#dataset).concat(#bFeatureSize)")
     public HashMap<String, String> getInfo(final String workspace,
                                            final String dataset, final boolean bFeatureSize) throws Exception {
 
-        this.log.info("Not using the cache");
+        //this.log.info("Not using the cache");
 
         GeoserverDataStore ds = null;
         try {
@@ -172,10 +163,8 @@ public class CacheService {
      * This function updates the various caches, when a dataset is removed. Its
      * meant to be called by the update and delete events.
      *
-     * @param workspace
-     *            a workspace
-     * @param dataset
-     *            a dataset
+     * @param workspace a workspace
+     * @param dataset   a dataset
      * @throws Exception
      */
     public void updateCachesOnDelete(final String workspace,
@@ -208,10 +197,8 @@ public class CacheService {
      * This function updates the various caches, when a dataset is uploaded. Its
      * meant to be called by the upload and update events.
      *
-     * @param workspace
-     *            a workspace
-     * @param dataset
-     *            a dataset
+     * @param workspace a workspace
+     * @param dataset   a dataset
      * @throws GenericCacheException
      */
     public void updateCachesOnUpload(final String workspace,
