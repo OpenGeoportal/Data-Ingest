@@ -11,7 +11,7 @@ services:
             - "postgis"
         volumes:
             - ./data:/tmp
-        command: ["./wait-for-it.sh", "postgis:5432", "-t", "120", "--", "/opt/geoserver/bin/startup.sh"]
+        command: ["./wait-for-it.sh", "postgis:5432", "-t", "0", "--", "/opt/geoserver/bin/startup.sh"]
 
     tomcat:
         build: ./ogp-harvester        
@@ -23,7 +23,7 @@ services:
          - ./webapps:/usr/local/tomcat/webapps/
         depends_on:
             - "postgis"
-        command: ["/usr/local/tomcat/wait-for-it.sh", "postgis:5432", "-t", "120", "--", "catalina.sh run"]
+        command: ["/usr/local/tomcat/wait-for-it.sh", "postgis:5432", "-t", "0", "--", "catalina.sh run"]
 
     postgis:
         build: ./postgis
@@ -49,4 +49,5 @@ services:
         links:
             - gs
             - solr
+        command: ["./wait-for-it.sh", "gs:8080", "-t", "0", "--", "java -Djava.security.egd=file:/dev/./urandom -jar /Data-Ingest-0.0.1-SNAPSHOT.jar"]
 
